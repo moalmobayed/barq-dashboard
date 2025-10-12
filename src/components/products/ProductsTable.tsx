@@ -19,6 +19,7 @@ import {
   EditProductButton,
 } from "./ProductsModals";
 import Skeleton from "react-loading-skeleton";
+import { MdInventory } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -224,19 +225,7 @@ export default function ProductsTable() {
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <svg
-                            className="h-12 w-12 text-gray-300 dark:text-gray-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                            />
-                          </svg>
+                          <MdInventory className="h-12 w-12 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm font-medium">لا توجد منتجات</p>
                           <p className="text-xs text-gray-400 dark:text-gray-500">
                             {searchTerm.trim()

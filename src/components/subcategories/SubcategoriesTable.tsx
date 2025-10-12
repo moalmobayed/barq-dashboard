@@ -19,6 +19,7 @@ import {
 import { useSubcategories } from "@/hooks/useSubcategories";
 import Skeleton from "react-loading-skeleton";
 import { fetchSubcategoriesByKeyword } from "@/lib/api/subcategories";
+import { MdSubdirectoryArrowRight } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -216,19 +217,7 @@ export default function SubcategoriesTable() {
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <svg
-                            className="h-12 w-12 text-gray-300 dark:text-gray-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                            />
-                          </svg>
+                          <MdSubdirectoryArrowRight className="h-12 w-12 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm font-medium">
                             لا توجد فئات فرعية
                           </p>

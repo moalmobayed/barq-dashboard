@@ -56,7 +56,6 @@ export default function OrdersStatusChart() {
       show: true,
       position: "top",
       horizontalAlign: "right",
-      fontFamily: "Cairo",
     },
     yaxis: { title: { text: undefined } },
     grid: { yaxis: { lines: { show: true } } },

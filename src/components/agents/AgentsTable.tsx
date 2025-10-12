@@ -19,6 +19,7 @@ import {
 } from "./AgentsModals";
 import Skeleton from "react-loading-skeleton";
 import { fetchAgentsByKeyword } from "@/lib/api/agents";
+import { MdDeliveryDining } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -201,19 +202,7 @@ export default function AgentsTable() {
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <svg
-                            className="h-12 w-12 text-gray-300 dark:text-gray-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                          </svg>
+                          <MdDeliveryDining className="h-12 w-12 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm font-medium">
                             لا يوجد عمال توصيل
                           </p>

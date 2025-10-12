@@ -17,6 +17,7 @@ import {
   EditAdminButton,
 } from "./AdminsModals";
 import Skeleton from "react-loading-skeleton";
+import { MdAdminPanelSettings } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -150,6 +151,7 @@ export default function AdminsTable() {
                         colSpan={3}
                         className="py-6 text-center text-gray-400 dark:text-gray-500"
                       >
+                        <MdAdminPanelSettings className="h-12 w-12 text-gray-300 dark:text-gray-600" />
                         لا توجد مشرفين
                       </td>
                     </TableRow>

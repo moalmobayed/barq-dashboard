@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import io from "socket.io-client";
 import { getAuthToken } from "@/lib/api/auth";
 import { BASE_URL } from "@/lib/config";
+import { MdShoppingCart } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -218,19 +219,7 @@ export default function OrdersTable() {
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <svg
-                            className="h-12 w-12 text-gray-300 dark:text-gray-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                            />
-                          </svg>
+                          <MdShoppingCart className="h-12 w-12 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm font-medium">لا توجد طلبات</p>
                           <p className="text-xs text-gray-400 dark:text-gray-500">
                             {searchTerm.trim()
