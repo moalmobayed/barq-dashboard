@@ -7,6 +7,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Alert, { AlertProps } from "../ui/alert/Alert";
+import { getAdminData } from "@/lib/api/auth";
 
 export default function UserPasswordCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -19,6 +20,9 @@ export default function UserPasswordCard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [successMessage, setSuccessMessage] = useState<AlertProps | null>(null);
+
+  const adminData = getAdminData();
+  console.log(adminData?.passwordChangedAt);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,6 +56,13 @@ export default function UserPasswordCard() {
 
     if (formData.password !== formData.confirmPassword) {
       setValidationError("كلمة المرور الجديدة غير متطابقة");
+      return;
+    }
+
+    if (formData.currentPassword === formData.password) {
+      setValidationError(
+        "كلمة المرور الجديدة يجب أن تكون مختلفة عن كلمة المرور الحالية",
+      );
       return;
     }
 
@@ -109,10 +120,18 @@ export default function UserPasswordCard() {
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  آخر تحديث لكلمة المرور
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  قم بتغيير كلمة المرور بانتظام لضمان أمان حسابك
+                  آخر تحديث لكلمة المرور:{" "}
+                  <span className="text-gray-800 dark:text-white/90">
+                    {adminData?.passwordChangedAt
+                      ? new Date(
+                          adminData.passwordChangedAt,
+                        ).toLocaleDateString("ar-EG", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "لم يتم تحديث كلمة المرور من قبل"}
+                  </span>
                 </p>
               </div>
             </div>

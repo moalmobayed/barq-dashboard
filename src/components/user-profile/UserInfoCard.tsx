@@ -17,6 +17,61 @@ export default function UserInfoCard() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<AlertProps | null>(null);
+  const [nameError, setNameError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+
+  // Name validation function
+  const validateName = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "يجب أن لا يقل الاسم عن حرفين";
+    }
+
+    if (name.length > 30) {
+      return "الاسم طويل جداً";
+    }
+
+    // Check for only Arabic, English, numbers, and spaces
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    if (!validPattern.test(name)) {
+      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الاسم بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (name.trim() === "") {
+      return "الاسم لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
+
+  // Email validation function
+  const validateEmail = (email: string): string => {
+    if (!email.trim()) {
+      return "";
+    }
+
+    // Basic email pattern with at least 2 characters after the last dot
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailPattern.test(email)) {
+      return "يرجى ادخال بريد إلكتروني صحيح";
+    }
+
+    return "";
+  };
 
   useEffect(() => {
     if (profile) {
@@ -24,20 +79,61 @@ export default function UserInfoCard() {
         name: profile.name || "",
         email: profile.email || "",
       });
+      // Clear errors when profile loads
+      setNameError("");
+      setEmailError("");
     }
   }, [profile]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    // Handle name field validation
+    if (name === "name") {
+      // Limit to 30 characters
+      if (value.length > 30) {
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      setNameError(validateName(value));
+    }
+    // Handle email field validation
+    else if (name === "email") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      setEmailError(validateEmail(value));
+    }
+    // Handle other fields
+    else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSave = async () => {
     try {
       setIsSubmitting(true);
+
+      // Validate all fields before submission
+      const nameValidationError = validateName(formData.name);
+      const emailValidationError = validateEmail(formData.email);
+
+      setNameError(nameValidationError);
+      setEmailError(emailValidationError);
+
+      // Check if there are any validation errors
+      if (nameValidationError || emailValidationError) {
+        setIsSubmitting(false);
+        return;
+      }
+
       await updateProfile(formData);
 
       // Show success message
@@ -177,7 +273,9 @@ export default function UserInfoCard() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder="أدخل الاسم"
+                      placeholder="ادخل اسم المشرف"
+                      error={!!nameError}
+                      hint={nameError || `${formData.name.length}/30`}
                     />
                   </div>
 
@@ -188,7 +286,9 @@ export default function UserInfoCard() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      placeholder="أدخل البريد الالكتروني"
+                      placeholder="ادخل البريد الإلكتروني للمشرف"
+                      error={!!emailError}
+                      hint={emailError || `${formData.email.length} حرف`}
                     />
                   </div>
                 </div>

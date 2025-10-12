@@ -20,6 +20,9 @@ export function AddAdminModal({
 }) {
   const [toast, setToast] = useState<AlertProps | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [nameError, setNameError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+
   const [formData, setFormData] = useState<{
     name: string;
     email: string;
@@ -30,17 +33,104 @@ export function AddAdminModal({
     password: "",
   });
 
+  // Name validation function
+  const validateName = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "يجب أن لا يقل الاسم عن حرفين";
+    }
+
+    if (name.length > 30) {
+      return "الاسم طويل جداً";
+    }
+
+    // Check for only Arabic, English, numbers, and spaces
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    if (!validPattern.test(name)) {
+      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الاسم بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (name.trim() === "") {
+      return "الاسم لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
+
+  // Email validation function
+  const validateEmail = (email: string): string => {
+    if (!email.trim()) {
+      return "";
+    }
+
+    // Basic email pattern with at least 2 characters after the last dot
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailPattern.test(email)) {
+      return "يرجى ادخال بريد إلكتروني صحيح";
+    }
+
+    return "";
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | undefined,
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (typeof value === "string") {
+      // Handle name field validation
+      if (field === "name") {
+        // Limit to 30 characters
+        if (value.length > 30) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setNameError(validateName(value));
+      }
+      // Handle email field validation
+      else if (field === "email") {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setEmailError(validateEmail(value));
+      }
+      // Handle other fields
+      else {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSave = async () => {
     setIsLoading(true);
 
     try {
+      // Validate all fields before submission
+      const nameValidationError = validateName(formData.name);
+      const emailValidationError = validateEmail(formData.email);
+
+      setNameError(nameValidationError);
+      setEmailError(emailValidationError);
+
+      // Check if there are any validation errors
+      if (nameValidationError || emailValidationError) {
+        setIsLoading(false);
+        return;
+      }
+
       // Validation for required fields
       if (!formData.name) {
         setToast({
@@ -49,6 +139,7 @@ export function AddAdminModal({
           message: "اسم المشرف مطلوب.",
         });
         setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
         return;
       }
       if (!formData.email) {
@@ -58,6 +149,7 @@ export function AddAdminModal({
           message: "البريد الإلكتروني مطلوب.",
         });
         setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
         return;
       }
       if (!formData.password) {
@@ -67,6 +159,7 @@ export function AddAdminModal({
           message: "كلمة المرور مطلوبة.",
         });
         setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
         return;
       }
 
@@ -139,8 +232,11 @@ export function AddAdminModal({
                   </Label>
                   <Input
                     type="text"
-                    placeholder="اسم المشرف"
+                    placeholder="ادخل اسم المشرف"
+                    value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    error={!!nameError}
+                    hint={nameError || `${formData.name.length}/30`}
                     required
                   />
                 </div>
@@ -152,8 +248,11 @@ export function AddAdminModal({
                   </Label>
                   <Input
                     type="email"
-                    placeholder="البريد الإلكتروني"
+                    placeholder="ادخل البريد الإلكتروني للمشرف"
+                    value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
+                    error={!!emailError}
+                    hint={emailError || `${formData.email.length} حرف`}
                     required
                   />
                 </div>
@@ -165,7 +264,7 @@ export function AddAdminModal({
                   </Label>
                   <Input
                     type="password"
-                    placeholder="كلمة المرور"
+                    placeholder="ادخل كلمة المرور"
                     onChange={(e) => handleChange("password", e.target.value)}
                     required
                   />
@@ -245,6 +344,8 @@ export function EditAdminModal({
 }) {
   const [toast, setToast] = useState<AlertProps | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [nameError, setNameError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -256,6 +357,59 @@ export function EditAdminModal({
     password: "",
   });
 
+  // Name validation function
+  const validateName = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "يجب أن لا يقل الاسم عن حرفين";
+    }
+
+    if (name.length > 30) {
+      return "الاسم طويل جداً";
+    }
+
+    // Check for only Arabic, English, numbers, and spaces
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    if (!validPattern.test(name)) {
+      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الاسم بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (name.trim() === "") {
+      return "الاسم لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
+
+  // Email validation function
+  const validateEmail = (email: string): string => {
+    if (!email.trim()) {
+      return "";
+    }
+
+    // Basic email pattern with at least 2 characters after the last dot
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailPattern.test(email)) {
+      return "يرجى ادخال بريد إلكتروني صحيح";
+    }
+
+    return "";
+  };
+
   // Fill formData with admin data when modal opens or admin changes
   useEffect(() => {
     if (admin && isOpen) {
@@ -264,6 +418,9 @@ export function EditAdminModal({
         email: admin.email || "",
         password: admin.password || "",
       });
+      // Clear any existing errors when modal opens
+      setNameError("");
+      setEmailError("");
     }
   }, [admin, isOpen]);
 
@@ -271,13 +428,47 @@ export function EditAdminModal({
     field: string,
     value: string | string[] | File | undefined,
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (typeof value === "string") {
+      // Handle name field validation
+      if (field === "name") {
+        // Limit to 30 characters
+        if (value.length > 30) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setNameError(validateName(value));
+      }
+      // Handle email field validation
+      else if (field === "email") {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setEmailError(validateEmail(value));
+      }
+      // Handle other fields
+      else {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSave = async () => {
     setIsLoading(true);
 
     try {
+      // Validate all fields before submission
+      const nameValidationError = validateName(formData.name);
+      const emailValidationError = validateEmail(formData.email);
+
+      setNameError(nameValidationError);
+      setEmailError(emailValidationError);
+
+      // Check if there are any validation errors
+      if (nameValidationError || emailValidationError) {
+        setIsLoading(false);
+        return;
+      }
+
       const payloadRaw: Partial<CreateAdminPayload> = {
         name: formData.name,
         email: formData.email,
@@ -340,9 +531,11 @@ export function EditAdminModal({
                   <Label>الاسم</Label>
                   <Input
                     type="text"
-                    placeholder="اسم المشرف"
-                    defaultValue={formData.name}
+                    placeholder="ادخل اسم المشرف"
+                    value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    error={!!nameError}
+                    hint={nameError || `${formData.name.length}/30`}
                     required
                   />
                 </div>
@@ -350,10 +543,12 @@ export function EditAdminModal({
                 <div>
                   <Label>البريد الإلكتروني</Label>
                   <Input
-                    type="text"
-                    placeholder="البريد الإلكتروني"
-                    defaultValue={formData.email}
+                    type="email"
+                    placeholder="ادخل البريد الإلكتروني للمشرف"
+                    value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
+                    error={!!emailError}
+                    hint={emailError || `${formData.email.length} حرف`}
                     required
                   />
                 </div>

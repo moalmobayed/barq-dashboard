@@ -34,7 +34,7 @@ export default function OrdersStatusChart() {
     chart: {
       fontFamily: "Cairo, sans-serif",
       type: "bar",
-      height: 180,
+      height: 240,
       toolbar: { show: false },
     },
     plotOptions: {
@@ -93,7 +93,7 @@ export default function OrdersStatusChart() {
               options={options}
               series={series}
               type="bar"
-              height={180}
+              height={240}
             />
           )}
         </div>

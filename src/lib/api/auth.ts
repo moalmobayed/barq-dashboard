@@ -15,6 +15,7 @@ export interface Admin {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  passwordChangedAt?: string;
   __v: number;
 }
 
