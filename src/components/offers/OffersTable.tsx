@@ -313,7 +313,9 @@ export default function OffersTable() {
                                           (offer.product.price *
                                             offer.discount) /
                                             100,
-                                      )}{" "}
+                                      )
+                                        .toFixed(2)
+                                        .replace(/\.?0+$/, "")}{" "}
                                       ج.م
                                     </span>
                                   )}

@@ -12,6 +12,7 @@ import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
 import { useModal } from "@/hooks/useModal";
 import { AxiosError } from "axios";
+import { EyeCloseIcon, EyeIcon } from "../../../public/icons";
 
 export function AddAdminModal({
   isOpen = false,
@@ -22,6 +23,7 @@ export function AddAdminModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -262,12 +264,26 @@ export function AddAdminModal({
                   <Label>
                     كلمة المرور <span className="text-error-500">*</span>
                   </Label>
-                  <Input
-                    type="password"
-                    placeholder="ادخل كلمة المرور"
-                    onChange={(e) => handleChange("password", e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="ادخل كلمة المرور"
+                      onChange={(e) => handleChange("password", e.target.value)}
+                      className="pe-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      {showPassword ? (
+                        <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                      ) : (
+                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

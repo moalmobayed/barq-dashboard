@@ -8,6 +8,7 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Alert, { AlertProps } from "../ui/alert/Alert";
 import { getAdminData } from "@/lib/api/auth";
+import { EyeCloseIcon, EyeIcon } from "../../../public/icons";
 
 export default function UserPasswordCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -20,9 +21,21 @@ export default function UserPasswordCard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [successMessage, setSuccessMessage] = useState<AlertProps | null>(null);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
 
   const adminData = getAdminData();
   console.log(adminData?.passwordChangedAt);
+
+  const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -193,35 +206,77 @@ export default function UserPasswordCard() {
                 <div className="space-y-5">
                   <div>
                     <Label>كلمة المرور الحالية</Label>
-                    <Input
-                      type="password"
-                      name="currentPassword"
-                      value={formData.currentPassword}
-                      onChange={handleInputChange}
-                      placeholder="أدخل كلمة المرور الحالية"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPasswords.current ? "text" : "password"}
+                        name="currentPassword"
+                        value={formData.currentPassword}
+                        onChange={handleInputChange}
+                        placeholder="أدخل كلمة المرور الحالية"
+                        className="pe-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility("current")}
+                        className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        {showPasswords.current ? (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                        ) : (
+                          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div>
                     <Label>كلمة المرور الجديدة</Label>
-                    <Input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="أدخل كلمة المرور الجديدة"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPasswords.new ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="أدخل كلمة المرور الجديدة"
+                        className="pe-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility("new")}
+                        className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        {showPasswords.new ? (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                        ) : (
+                          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div>
                     <Label>تأكيد كلمة المرور الجديدة</Label>
-                    <Input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      placeholder="أعد إدخال كلمة المرور الجديدة"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPasswords.confirm ? "text" : "password"}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        placeholder="أعد إدخال كلمة المرور الجديدة"
+                        className="pe-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility("confirm")}
+                        className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        {showPasswords.confirm ? (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                        ) : (
+                          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

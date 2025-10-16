@@ -31,6 +31,9 @@ export function AddOfferModal({
   const [products, setProducts] = useState<Product[]>([]);
   const [vendor, setVendor] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [nameError, setNameError] = useState<string>("");
+  const [descriptionError, setDescriptionError] = useState<string>("");
+
   const [formData, setFormData] = useState<{
     name: string;
     product: string;
@@ -50,6 +53,83 @@ export function AddOfferModal({
     endDate: new Date(),
     shopId: "",
   });
+
+  // Name validation function
+  const validateName = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "يجب أن لا يقل الاسم عن حرفين";
+    }
+
+    if (name.length > 60) {
+      return "الاسم طويل جداً";
+    }
+
+    // Check for only Arabic, English, numbers, and spaces
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    if (!validPattern.test(name)) {
+      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الاسم بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (name.trim() === "") {
+      return "الاسم لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
+
+  // Description validation function
+  const validateDescription = (description: string): string => {
+    if (!description.trim()) {
+      return "";
+    }
+
+    if (description.length < 10) {
+      return "يجب أن لا يقل الوصف عن 10 أحرف";
+    }
+
+    if (description.length > 300) {
+      return "الوصف طويل جداً";
+    }
+
+    // Check for Arabic, English, numbers, spaces, and special characters (but no emojis)
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s\u0020-\u007E\u00A0-\u00FF]+$/;
+    if (!validPattern.test(description)) {
+      return "الوصف يقبل حروف وأرقام ومسافات وحروف خاصة فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (description.startsWith(" ") || description.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الوصف بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(description)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (description.trim() === "") {
+      return "الوصف لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -89,7 +169,32 @@ export function AddOfferModal({
     field: string,
     value: string | string[] | File | undefined,
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (typeof value === "string") {
+      // Handle name field validation
+      if (field === "name") {
+        // Limit to 60 characters
+        if (value.length > 60) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setNameError(validateName(value));
+      }
+      // Handle description field validation
+      else if (field === "description") {
+        // Limit to 300 characters
+        if (value.length > 300) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setDescriptionError(validateDescription(value));
+      }
+      // Handle other fields
+      else {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
     console.log(field, value);
   };
 
@@ -97,6 +202,21 @@ export function AddOfferModal({
     setIsLoading(true);
 
     try {
+      // Validate all fields before submission
+      const nameValidationError = validateName(formData.name);
+      const descriptionValidationError = validateDescription(
+        formData.description,
+      );
+
+      setNameError(nameValidationError);
+      setDescriptionError(descriptionValidationError);
+
+      // Check if there are any validation errors
+      if (nameValidationError || descriptionValidationError) {
+        setIsLoading(false);
+        return;
+      }
+
       // Validation for required fields
       if (!formData.name) {
         setToast({
@@ -105,6 +225,7 @@ export function AddOfferModal({
           message: "اسم العرض مطلوب.",
         });
         setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
         return;
       }
       if (!formData.product) {
@@ -257,8 +378,11 @@ export function AddOfferModal({
                   </Label>
                   <Input
                     type="text"
-                    placeholder="اسم العرض"
+                    placeholder="ادخل اسم العرض بالعربي"
+                    value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    error={!!nameError}
+                    hint={nameError || `${formData.name.length}/60`}
                     required
                   />
                 </div>
@@ -301,13 +425,18 @@ export function AddOfferModal({
                 {/* Description */}
                 <div>
                   <Label>
-                    الوصف <span className="text-error-500">*</span>
+                    الوصف بالعربي <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="text"
-                    placeholder="وصف العرض"
+                    placeholder="ادخل وصف المنتج بالعربي"
+                    value={formData.description}
                     onChange={(e) =>
                       handleChange("description", e.target.value)
+                    }
+                    error={!!descriptionError}
+                    hint={
+                      descriptionError || `${formData.description.length}/300`
                     }
                     required
                   />
@@ -316,7 +445,8 @@ export function AddOfferModal({
                 {/* Discount */}
                 <div>
                   <Label>
-                    الخصم <span className="text-error-500">*</span>
+                    الخصم بالنسبة المئوية (%){" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="number"
@@ -338,6 +468,11 @@ export function AddOfferModal({
                     id="start-date-picker"
                     placeholder="تاريخ البدء"
                     minDate="now"
+                    maxDate={(() => {
+                      const maxDate = new Date();
+                      maxDate.setMonth(maxDate.getMonth() + 3);
+                      return maxDate.toISOString().split('T')[0];
+                    })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("startDate", currentDateString);
                     }}
@@ -354,6 +489,11 @@ export function AddOfferModal({
                     id="end-date-picker"
                     placeholder="تاريخ الانتهاء"
                     minDate={formData.startDate || "now"}
+                    maxDate={(() => {
+                      const maxDate = new Date();
+                      maxDate.setMonth(maxDate.getMonth() + 3);
+                      return maxDate.toISOString().split('T')[0];
+                    })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("endDate", currentDateString);
                     }}
@@ -436,6 +576,8 @@ export function EditOfferModal({
   const [toast, setToast] = useState<AlertProps | null>(null);
   // const [products, setProducts] = useState<Product[]>([]);
   // const [vendorName, setVendorName] = useState("");
+  const [nameError, setNameError] = useState<string>("");
+  const [descriptionError, setDescriptionError] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -458,6 +600,83 @@ export function EditOfferModal({
     endDate: new Date(),
     // shopId: "",
   });
+
+  // Name validation function
+  const validateName = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "يجب أن لا يقل الاسم عن حرفين";
+    }
+
+    if (name.length > 60) {
+      return "الاسم طويل جداً";
+    }
+
+    // Check for only Arabic, English, numbers, and spaces
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    if (!validPattern.test(name)) {
+      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الاسم بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (name.trim() === "") {
+      return "الاسم لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
+
+  // Description validation function
+  const validateDescription = (description: string): string => {
+    if (!description.trim()) {
+      return "";
+    }
+
+    if (description.length < 10) {
+      return "يجب أن لا يقل الوصف عن 10 أحرف";
+    }
+
+    if (description.length > 300) {
+      return "الوصف طويل جداً";
+    }
+
+    // Check for Arabic, English, numbers, spaces, and special characters (but no emojis)
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s\u0020-\u007E\u00A0-\u00FF]+$/;
+    if (!validPattern.test(description)) {
+      return "الوصف يقبل حروف وأرقام ومسافات وحروف خاصة فقط";
+    }
+
+    // Check for leading or trailing spaces
+    if (description.startsWith(" ") || description.endsWith(" ")) {
+      return "لا يمكن أن يبدأ أو ينتهي الوصف بمسافة";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(description)) {
+      return "مسافة واحدة فقط بين الكلمات";
+    }
+
+    // Check if it's only spaces
+    if (description.trim() === "") {
+      return "الوصف لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
 
   // useEffect(() => {
   //   if (!isOpen) return;
@@ -488,6 +707,9 @@ export function EditOfferModal({
         // shopId: offer.shopId._id || "",
       });
       // setVendorName(offer.shopId?.name || "");
+      // Clear any existing errors when modal opens
+      setNameError("");
+      setDescriptionError("");
     }
   }, [offer, isOpen]);
 
@@ -516,13 +738,53 @@ export function EditOfferModal({
     field: string,
     value: string | string[] | File | undefined,
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (typeof value === "string") {
+      // Handle name field validation
+      if (field === "name") {
+        // Limit to 60 characters
+        if (value.length > 60) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setNameError(validateName(value));
+      }
+      // Handle description field validation
+      else if (field === "description") {
+        // Limit to 300 characters
+        if (value.length > 300) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setDescriptionError(validateDescription(value));
+      }
+      // Handle other fields
+      else {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSave = async () => {
     setIsLoading(true);
 
     try {
+      // Validate all fields before submission
+      const nameValidationError = validateName(formData.name);
+      const descriptionValidationError = validateDescription(
+        formData.description,
+      );
+
+      setNameError(nameValidationError);
+      setDescriptionError(descriptionValidationError);
+
+      // Check if there are any validation errors
+      if (nameValidationError || descriptionValidationError) {
+        setIsLoading(false);
+        return;
+      }
+
       let imageUrl = "";
 
       if (formData.image instanceof File) {
@@ -618,9 +880,11 @@ export function EditOfferModal({
                   <Label>الاسم</Label>
                   <Input
                     type="text"
-                    placeholder="اسم العرض"
-                    defaultValue={formData.name}
+                    placeholder="ادخل اسم العرض بالعربي"
+                    value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    error={!!nameError}
+                    hint={nameError || `${formData.name.length}/60`}
                   />
                 </div>
 
@@ -656,20 +920,24 @@ export function EditOfferModal({
 
                 {/* Description */}
                 <div>
-                  <Label>الوصف</Label>
+                  <Label>الوصف بالعربي</Label>
                   <Input
                     type="text"
-                    placeholder="وصف العرض"
+                    placeholder="ادخل وصف المنتج بالعربي"
+                    value={formData.description}
                     onChange={(e) =>
                       handleChange("description", e.target.value)
                     }
-                    defaultValue={formData.description}
+                    error={!!descriptionError}
+                    hint={
+                      descriptionError || `${formData.description.length}/300`
+                    }
                   />
                 </div>
 
                 {/* Discount */}
                 <div>
-                  <Label>الخصم</Label>
+                  <Label>الخصم بالنسبة المئوية (%)</Label>
                   <Input
                     type="number"
                     placeholder="أدخل قيمة الخصم للعرض"
@@ -687,6 +955,11 @@ export function EditOfferModal({
                     placeholder="تاريخ البدء"
                     defaultDate={formData.startDate}
                     minDate="now"
+                    maxDate={(() => {
+                      const maxDate = new Date();
+                      maxDate.setMonth(maxDate.getMonth() + 3);
+                      return maxDate.toISOString().split('T')[0];
+                    })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("startDate", currentDateString);
                     }}
@@ -701,6 +974,11 @@ export function EditOfferModal({
                     placeholder="تاريخ الانتهاء"
                     defaultDate={formData.endDate}
                     minDate={formData.startDate || "now"}
+                    maxDate={(() => {
+                      const maxDate = new Date();
+                      maxDate.setMonth(maxDate.getMonth() + 3);
+                      return maxDate.toISOString().split('T')[0];
+                    })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("endDate", currentDateString);
                     }}

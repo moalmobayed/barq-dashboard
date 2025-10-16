@@ -15,6 +15,7 @@ type PropsType = {
   placeholder?: string;
   required?: boolean;
   minDate?: "now" | "startDate" | DateOption;
+  maxDate?: DateOption;
 };
 
 export default function DatePicker({
@@ -26,6 +27,7 @@ export default function DatePicker({
   placeholder,
   required,
   minDate,
+  maxDate,
 }: PropsType) {
   useEffect(() => {
     // Calculate minDate value
@@ -47,6 +49,7 @@ export default function DatePicker({
       defaultDate,
       onChange,
       minDate: minDateValue,
+      maxDate: maxDate,
     });
 
     return () => {
@@ -54,7 +57,7 @@ export default function DatePicker({
         flatPickr.destroy();
       }
     };
-  }, [mode, onChange, id, defaultDate, minDate]);
+  }, [mode, onChange, id, defaultDate, minDate, maxDate]);
 
   return (
     <div>

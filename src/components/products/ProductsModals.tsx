@@ -301,6 +301,13 @@ export function AddProductModal({
 
   const handlePriceChange = (value: string) => {
     const formattedValue = formatPrice(value);
+
+    // Check if the formatted value exceeds 7 digits before decimal point
+    const digitsBeforeDecimal = formattedValue.split(".")[0].replace(/,/g, "");
+    if (digitsBeforeDecimal.length > 7) {
+      return; // Don't update if it exceeds 7 digits
+    }
+
     setFormData((prev) => ({
       ...prev,
       price: parseFloat(formattedValue.replace(/,/g, "")) || 0,
@@ -397,13 +404,14 @@ export function AddProductModal({
         }
       }
 
-      if (formData.price < 1) {
+      if (formData.price < 0.01) {
         setToast({
           variant: "error",
           title: "حقل مطلوب",
           message: "يرجى ادخال سعر المنتج",
         });
         setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
         return;
       }
 
@@ -590,13 +598,18 @@ export function AddProductModal({
                   <Input
                     type="text"
                     placeholder="ادخل سعر المنتج"
-                    value={formatPrice(formData.price.toString())}
+                    value={
+                      formData.price === 0
+                        ? ""
+                        : formatPrice(formData.price.toString())
+                    }
                     onChange={(e) => handleChange("price", e.target.value)}
                     error={!!priceError}
                     hint={
                       priceError ||
                       `${formData.price.toString().replace(/,/g, "").length}/7`
                     }
+                    className="!direction-ltr !text-left"
                     required
                   />
                 </div>
@@ -1065,6 +1078,13 @@ export function EditProductModal({
 
   const handlePriceChange = (value: string) => {
     const formattedValue = formatPrice(value);
+
+    // Check if the formatted value exceeds 7 digits before decimal point
+    const digitsBeforeDecimal = formattedValue.split(".")[0].replace(/,/g, "");
+    if (digitsBeforeDecimal.length > 7) {
+      return; // Don't update if it exceeds 7 digits
+    }
+
     setFormData((prev) => ({
       ...prev,
       price: parseFloat(formattedValue.replace(/,/g, "")) || 0,
@@ -1310,13 +1330,18 @@ export function EditProductModal({
                   <Input
                     type="text"
                     placeholder="ادخل سعر المنتج"
-                    value={formatPrice(formData.price.toString())}
+                    value={
+                      formData.price === 0
+                        ? ""
+                        : formatPrice(formData.price.toString())
+                    }
                     onChange={(e) => handleChange("price", e.target.value)}
                     error={!!priceError}
                     hint={
                       priceError ||
                       `${formData.price.toString().replace(/,/g, "").length}/7`
                     }
+                    className="!direction-ltr !text-left"
                   />
                 </div>
 
