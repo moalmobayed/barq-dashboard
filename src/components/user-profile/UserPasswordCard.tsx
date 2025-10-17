@@ -221,9 +221,9 @@ export default function UserPasswordCard() {
                         className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       >
                         {showPasswords.current ? (
-                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-                        ) : (
                           <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        ) : (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
                         )}
                       </button>
                     </div>
@@ -246,9 +246,9 @@ export default function UserPasswordCard() {
                         className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       >
                         {showPasswords.new ? (
-                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-                        ) : (
                           <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        ) : (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
                         )}
                       </button>
                     </div>
@@ -271,9 +271,9 @@ export default function UserPasswordCard() {
                         className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       >
                         {showPasswords.confirm ? (
-                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-                        ) : (
                           <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                        ) : (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
                         )}
                       </button>
                     </div>

@@ -22,7 +22,7 @@ import { FaEye } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import Link from "next/link";
 import { fetchOffersByKeyword } from "@/lib/api/offers";
-import { MdLocalOffer } from "react-icons/md";
+import { MdLocalOffer, MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -330,7 +330,8 @@ export default function OffersTable() {
                           </TableCell>
                           {/* Duration */}
                           <TableCell className="px-4 py-3 text-start text-xs text-gray-600 dark:text-gray-400">
-                            {formatDate(offer.startDate)} →{" "}
+                            {formatDate(offer.startDate)}
+                            <MdOutlineKeyboardArrowLeft className="inline-block" />
                             {formatDate(offer.endDate)}
                           </TableCell>
                           {/* Status */}

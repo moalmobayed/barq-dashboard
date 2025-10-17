@@ -225,7 +225,6 @@ export function AddOfferModal({
           message: "اسم العرض مطلوب.",
         });
         setTimeout(() => setToast(null), 5000);
-        setIsLoading(false);
         return;
       }
       if (!formData.product) {
@@ -278,6 +277,19 @@ export function AddOfferModal({
           variant: "error",
           title: "حقل مطلوب",
           message: "تاريخ الانتهاء مطلوب.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+      if (
+        !formData.image ||
+        !(formData.image instanceof File) ||
+        formData.image.size === 0
+      ) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "صورة العرض مطلوبة.",
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -364,7 +376,9 @@ export function AddOfferModal({
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Offer Image */}
                 <div className="lg:col-span-2">
-                  <Label>صورة العرض</Label>
+                  <Label>
+                    صورة العرض <span className="text-error-500">*</span>
+                  </Label>
                   <FileInput
                     accept="image/*"
                     onChange={(e) => handleChange("image", e.target.files?.[0])}
@@ -471,7 +485,7 @@ export function AddOfferModal({
                     maxDate={(() => {
                       const maxDate = new Date();
                       maxDate.setMonth(maxDate.getMonth() + 3);
-                      return maxDate.toISOString().split('T')[0];
+                      return maxDate.toISOString().split("T")[0];
                     })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("startDate", currentDateString);
@@ -487,12 +501,13 @@ export function AddOfferModal({
                   </Label>
                   <DatePicker
                     id="end-date-picker"
+                    key={`end-date-${formData.startDate}`} // Force re-render when startDate changes
                     placeholder="تاريخ الانتهاء"
                     minDate={formData.startDate || "now"}
                     maxDate={(() => {
                       const maxDate = new Date();
                       maxDate.setMonth(maxDate.getMonth() + 3);
-                      return maxDate.toISOString().split('T')[0];
+                      return maxDate.toISOString().split("T")[0];
                     })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("endDate", currentDateString);
@@ -958,7 +973,7 @@ export function EditOfferModal({
                     maxDate={(() => {
                       const maxDate = new Date();
                       maxDate.setMonth(maxDate.getMonth() + 3);
-                      return maxDate.toISOString().split('T')[0];
+                      return maxDate.toISOString().split("T")[0];
                     })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("startDate", currentDateString);
@@ -971,13 +986,14 @@ export function EditOfferModal({
                   <Label>تاريخ الانتهاء</Label>
                   <DatePicker
                     id="edit-end-date-picker"
+                    key={`edit-end-date-${formData.startDate}`} // Force re-render when startDate changes
                     placeholder="تاريخ الانتهاء"
                     defaultDate={formData.endDate}
                     minDate={formData.startDate || "now"}
                     maxDate={(() => {
                       const maxDate = new Date();
                       maxDate.setMonth(maxDate.getMonth() + 3);
-                      return maxDate.toISOString().split('T')[0];
+                      return maxDate.toISOString().split("T")[0];
                     })()}
                     onChange={(dates, currentDateString) => {
                       handleChange("endDate", currentDateString);
