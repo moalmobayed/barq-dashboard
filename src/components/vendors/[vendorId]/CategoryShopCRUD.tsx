@@ -277,6 +277,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   value={form.nameEn}
                   onChange={(e) => handleChange("nameEn", e.target.value)}
                   required
+                  dir="ltr"
                 />
               </div>
             </div>
@@ -325,6 +326,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   placeholder="اسم الفئة بالإنجليزية"
                   value={editForm.nameEn}
                   onChange={(e) => handleEditChange("nameEn", e.target.value)}
+                  dir="ltr"
                 />
               </div>
             </div>

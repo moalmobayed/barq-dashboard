@@ -308,6 +308,7 @@ export function AddCategoryModal({
                     onChange={(e) => handleChange("nameEn", e.target.value)}
                     error={!!nameEnError}
                     hint={nameEnError || `${formData.nameEn.length}/30`}
+                    dir="ltr"
                   />
                 </div>
               </div>
@@ -675,6 +676,7 @@ export function EditCategoryModal({
                     onChange={(e) => handleChange("nameEn", e.target.value)}
                     error={!!nameEnError}
                     hint={nameEnError || `${formData.nameEn.length}/30`}
+                    dir="ltr"
                   />
                 </div>
               </div>

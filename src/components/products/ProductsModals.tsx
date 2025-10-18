@@ -587,6 +587,7 @@ export function AddProductModal({
                     onChange={(e) => handleChange("nameEn", e.target.value)}
                     error={!!nameEnError}
                     hint={nameEnError || `${formData.nameEn.length}/50`}
+                    dir="ltr"
                   />
                 </div>
 
@@ -1321,6 +1322,7 @@ export function EditProductModal({
                     onChange={(e) => handleChange("nameEn", e.target.value)}
                     error={!!nameEnError}
                     hint={nameEnError || `${formData.nameEn.length}/50`}
+                    dir="ltr"
                   />
                 </div>
 
