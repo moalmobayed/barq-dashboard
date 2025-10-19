@@ -148,11 +148,18 @@ export default function AdminsTable() {
                   {filteredAdmins.length === 0 ? (
                     <TableRow>
                       <td
-                        colSpan={3}
-                        className="py-6 text-center text-gray-400 dark:text-gray-500"
+                        colSpan={6}
+                        className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
-                        <MdAdminPanelSettings className="h-12 w-12 text-gray-300 dark:text-gray-600" />
-                        لا توجد مشرفين
+                        <div className="flex flex-col items-center gap-2">
+                          <MdAdminPanelSettings className="h-12 w-12 text-gray-300 dark:text-gray-600" />
+                          <p className="text-sm font-medium">لا يوجد مشرفين</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {searchTerm.trim()
+                              ? "لم يتم العثور على نتائج للبحث"
+                              : "لم يتم إضافة أي مشرف بعد"}
+                          </p>
+                        </div>
                       </td>
                     </TableRow>
                   ) : (
