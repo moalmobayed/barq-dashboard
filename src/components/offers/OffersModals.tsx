@@ -69,9 +69,9 @@ export function AddOfferModal({
     }
 
     // Check for only Arabic, English, numbers, and spaces
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+$/;
     if (!validPattern.test(name)) {
-      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+      return "الاسم يقبل الحروف العربية والمسافات فقط";
     }
 
     // Check for leading or trailing spaces
@@ -106,11 +106,10 @@ export function AddOfferModal({
       return "الوصف طويل جداً";
     }
 
-    // Check for Arabic, English, numbers, spaces, and special characters (but no emojis)
-    const validPattern =
-      /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s\u0020-\u007E\u00A0-\u00FF]+$/;
+    // Check for Arabic letters, numbers, spaces, and common Arabic punctuation only
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077F0-9\s،؛؟!.\-()]+$/;
     if (!validPattern.test(description)) {
-      return "الوصف يقبل حروف وأرقام ومسافات وحروف خاصة فقط";
+      return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
     }
 
     // Check for leading or trailing spaces
@@ -388,7 +387,7 @@ export function AddOfferModal({
                 {/* Name */}
                 <div>
                   <Label>
-                    الاسم <span className="text-error-500">*</span>
+                    الاسم بالعربي <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="text"
@@ -470,6 +469,8 @@ export function AddOfferModal({
                     // defaultValue={formData.discount}
                     onChange={(e) => handleChange("discount", e.target.value)}
                     required
+                    dir="ltr"
+                    className="text-end"
                   />
                 </div>
 
@@ -668,11 +669,10 @@ export function EditOfferModal({
       return "الوصف طويل جداً";
     }
 
-    // Check for Arabic, English, numbers, spaces, and special characters (but no emojis)
-    const validPattern =
-      /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s\u0020-\u007E\u00A0-\u00FF]+$/;
+    // Check for Arabic letters, numbers, spaces, and common Arabic punctuation only
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077F0-9\s،؛؟!.\-()]+$/;
     if (!validPattern.test(description)) {
-      return "الوصف يقبل حروف وأرقام ومسافات وحروف خاصة فقط";
+      return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
     }
 
     // Check for leading or trailing spaces
