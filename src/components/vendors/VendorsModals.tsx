@@ -349,6 +349,19 @@ export function AddVendorModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
+      if (
+        !formData.profileImage ||
+        !(formData.profileImage instanceof File) ||
+        formData.profileImage.size === 0
+      ) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "صورة الملف الشخصي مطلوبة.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
 
       let profileImageUrl = "";
       if (
@@ -433,7 +446,9 @@ export function AddVendorModal({
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Profile Image */}
                 <div className="lg:col-span-2">
-                  <Label>صورة الملف الشخصي</Label>
+                  <Label>
+                    صورة الملف الشخصي <span className="text-error-500">*</span>
+                  </Label>
                   <FileInput
                     accept="image/*"
                     onChange={(e) =>

@@ -469,6 +469,19 @@ export function AddProductModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
+      if (
+        !formData.image ||
+        !(formData.image instanceof File) ||
+        formData.image.size === 0
+      ) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "صورة المنتج مطلوبة.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
       const effectiveNameEn = formData.nameEn?.trim()
         ? formData.nameEn.trim()
         : formData.nameAr.trim();
@@ -554,7 +567,9 @@ export function AddProductModal({
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Product Image */}
                 <div className="lg:col-span-2">
-                  <Label>صورة المنتج</Label>
+                  <Label>
+                    صورة المنتج <span className="text-error-500">*</span>
+                  </Label>
                   <FileInput
                     accept="image/*"
                     onChange={(e) => handleChange("image", e.target.files?.[0])}
@@ -610,7 +625,6 @@ export function AddProductModal({
                       priceError ||
                       `${formData.price.toString().replace(/,/g, "").length}/7`
                     }
-                    className="!direction-ltr !text-left"
                     required
                   />
                 </div>
