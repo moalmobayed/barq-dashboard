@@ -18,7 +18,6 @@ import Image from "next/image";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
 import { AxiosError } from "axios";
 import { Product } from "@/types/product";
-// Removed vendor imports for Edit modal auto-fill logic
 import { fetchProducts } from "@/lib/api/products";
 import DatePicker from "../form/date-picker";
 
@@ -607,8 +606,6 @@ export function EditOfferModal({
   onSuccess = () => {},
 }) {
   const [toast, setToast] = useState<AlertProps | null>(null);
-  // const [products, setProducts] = useState<Product[]>([]);
-  // const [vendorName, setVendorName] = useState("");
   const [nameError, setNameError] = useState<string>("");
   const [descriptionError, setDescriptionError] = useState<string>("");
 
@@ -616,22 +613,18 @@ export function EditOfferModal({
 
   const [formData, setFormData] = useState<{
     name: string;
-    // product: string;
     image: string | File;
     description: string;
     discount: number;
     startDate: Date;
     endDate: Date;
-    // shopId: string;
   }>({
-    name: "",
-    // product: "",
-    image: "",
-    description: "",
-    discount: 0,
-    startDate: new Date(),
-    endDate: new Date(),
-    // shopId: "",
+    name: offer.name || "",
+    image: offer.image || "",
+    description: offer.description || "",
+    discount: offer.discount || 0,
+    startDate: offer.startDate || new Date(),
+    endDate: offer.endDate || new Date(),
   });
 
   // Name validation function
@@ -710,62 +703,6 @@ export function EditOfferModal({
     return "";
   };
 
-  // useEffect(() => {
-  //   if (!isOpen) return;
-
-  //   const fetchData = async () => {
-  //     try {
-  //       const { data: products } = await fetchProducts(1, 1000);
-  //       setProducts(products);
-  //     } catch (err) {
-  //       console.error("Failed to fetch data:", err);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [isOpen]);
-
-  // Fill formData with offer data when modal opens or offer changes
-  useEffect(() => {
-    if (offer && isOpen) {
-      setFormData({
-        name: offer.name || "",
-        // product: offer.product._id || "",
-        image: offer.image, // Initialize with an empty file
-        description: offer.description || "",
-        discount: offer.discount || 0,
-        startDate: offer.startDate || new Date(),
-        endDate: offer.endDate || new Date(),
-        // shopId: offer.shopId._id || "",
-      });
-      // setVendorName(offer.shopId?.name || "");
-      // Clear any existing errors when modal opens
-      setNameError("");
-      setDescriptionError("");
-    }
-  }, [offer, isOpen]);
-
-  // Derive vendor/shop automatically when product changes (and when products list arrives)
-  // useEffect(() => {
-  //   if (!formData.product) {
-  //     setVendorName("");
-  //     setFormData((prev) => ({ ...prev, shopId: "" }));
-  //     return;
-  //   }
-  //   const prod = products.find((p) => p._id === formData.product);
-  //   if (prod) {
-  //     const name = prod.shopId?.name || "";
-  //     const id = prod.shopId?._id || "";
-  //     setVendorName(name);
-  //     if (id && id !== formData.shopId) {
-  //       setFormData((prev) => ({ ...prev, shopId: id }));
-  //     }
-  //   } else {
-  //     setVendorName("");
-  //     setFormData((prev) => ({ ...prev, shopId: "" }));
-  //   }
-  // }, [formData.product, formData.shopId, products]);
-
   const handleChange = (
     field: string,
     value: string | string[] | File | undefined,
@@ -828,13 +765,11 @@ export function EditOfferModal({
 
       const payloadRaw: Partial<CreateOfferPayload> = {
         name: formData.name,
-        // product: formData.product,
         image: imageUrl,
         description: formData.description,
         discount: formData.discount,
         startDate: formData.startDate,
         endDate: formData.endDate,
-        // shopId: formData.shopId,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -919,36 +854,6 @@ export function EditOfferModal({
                     hint={nameError || `${formData.name.length}/60`}
                   />
                 </div>
-
-                {/* Product */}
-                {/* <div>
-                  <Label>المنتج</Label>
-                  <div className="relative">
-                    <Select
-                      options={products.map((prod) => ({
-                        value: prod._id,
-                        label: prod.nameAr,
-                      }))}
-                      defaultValue={formData.product}
-                      placeholder="اختر المنتج"
-                      onChange={(val) => handleChange("product", val)}
-                    />
-                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                      <ChevronDownIcon />
-                    </span>
-                  </div>
-                </div> */}
-
-                {/* Shop (auto-filled) */}
-                {/* <div>
-                  <Label>المتجر</Label>
-                  <Input
-                    type="text"
-                    value={vendorName}
-                    placeholder={!vendorName ? "يرجى اختيار منتج أولاً" : ""}
-                    disabled
-                  />
-                </div> */}
 
                 {/* Description */}
                 <div>
