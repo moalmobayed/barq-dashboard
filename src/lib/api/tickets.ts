@@ -12,8 +12,9 @@ export async function getAdminTickets(page = 1) {
   return res.data;
 }
 
-export async function getSupportReplies(chatId: string) {
+export async function getSupportReplies(chatId: string, limit?: number) {
   const res = await axios.get(`${BASE_URL}/replies/support/${chatId}`, {
+    params: limit ? { limit } : {},
     headers: {
       ...authHeaders(),
     },
