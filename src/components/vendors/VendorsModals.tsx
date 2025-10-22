@@ -430,6 +430,23 @@ export function AddVendorModal({
     }
   };
 
+  const handleModalClose = () => {
+    setFormData({
+      name: "",
+      mobile: "",
+      location: "",
+      workingHours: ["07:00", "15:00"],
+      profileImage: new File([], ""), // Initialize with an empty file
+      category: "",
+      subcategories: [],
+    });
+    setNameError("");
+    setMobileError("");
+    setLocationError("");
+    setIsLoading(false);
+    closeModal?.();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -598,7 +615,7 @@ export function AddVendorModal({
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-            <Button size="sm" variant="outline" onClick={closeModal}>
+            <Button size="sm" variant="outline" onClick={handleModalClose}>
               إغلاق
             </Button>
             <Button size="sm" onClick={handleSave} disabled={isLoading}>

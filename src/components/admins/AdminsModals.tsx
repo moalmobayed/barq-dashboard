@@ -213,6 +213,18 @@ export function AddAdminModal({
     }
   };
 
+  const handleModalClose = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+    });
+    setEmailError("");
+    setNameError("");
+    setIsLoading(false);
+    closeModal?.();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -290,7 +302,7 @@ export function AddAdminModal({
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-            <Button size="sm" variant="outline" onClick={closeModal}>
+            <Button size="sm" variant="outline" onClick={handleModalClose}>
               إغلاق
             </Button>
             <Button size="sm" onClick={handleSave} disabled={isLoading}>

@@ -277,6 +277,18 @@ export function AddSubcategoryModal({
     }
   };
 
+  const handleModalClose = () => {
+    setFormData({
+      nameAr: "",
+      nameEn: "",
+      category: "",
+    });
+    setNameEnError("");
+    setNameArError("");
+    setIsLoading(false);
+    closeModal?.();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -347,7 +359,7 @@ export function AddSubcategoryModal({
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-            <Button size="sm" variant="outline" onClick={closeModal}>
+            <Button size="sm" variant="outline" onClick={handleModalClose}>
               إغلاق
             </Button>
             <Button size="sm" onClick={handleSave} disabled={isLoading}>

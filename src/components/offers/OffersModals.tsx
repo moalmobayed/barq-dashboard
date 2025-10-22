@@ -359,6 +359,23 @@ export function AddOfferModal({
     }
   };
 
+  const handleModalClose = () => {
+    setFormData({
+      name: "",
+      product: "",
+      image: new File([], ""),
+      description: "",
+      discount: 1,
+      startDate: new Date(),
+      endDate: new Date(),
+      shopId: "",
+    });
+    setNameError("");
+    setDescriptionError("");
+    setIsLoading(false);
+    closeModal?.();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -521,7 +538,7 @@ export function AddOfferModal({
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-            <Button size="sm" variant="outline" onClick={closeModal}>
+            <Button size="sm" variant="outline" onClick={handleModalClose}>
               إغلاق
             </Button>
             <Button size="sm" onClick={handleSave} disabled={isLoading}>
