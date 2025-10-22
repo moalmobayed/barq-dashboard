@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface Option {
   value: string;
@@ -11,6 +11,7 @@ interface SelectProps {
   onChange: (value: string) => void;
   className?: string;
   defaultValue?: string;
+  value?: string;
   disabled?: boolean;
   required?: boolean;
 }
@@ -21,11 +22,19 @@ const Select: React.FC<SelectProps> = ({
   onChange,
   className = "",
   defaultValue = "",
+  value,
   disabled = false,
   required = false,
 }) => {
-  // Manage the selected value
-  const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
+  // Manage the selected value. If `value` is provided, treat the select as controlled.
+  const [selectedValue, setSelectedValue] = useState<string>(
+    value ?? defaultValue,
+  );
+
+  useEffect(() => {
+    // sync when parent provides a controlled `value` or when defaultValue changes
+    setSelectedValue(value ?? defaultValue);
+  }, [value, defaultValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;

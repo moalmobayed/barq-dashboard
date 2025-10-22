@@ -133,15 +133,8 @@ export function AddVendorModal({
       return "رقم الهاتف يقبل الأرقام فقط";
     }
 
-    // Check minimum length (11 digits)
-    if (mobile.length < 11) {
-      return "يرجى ادخال رقم الهاتف الصحيح";
-    }
-
-    // Check Egyptian phone format
-    // Egyptian mobile numbers start with: 010, 011, 012, 015
-    const egyptianMobilePattern = /^(010|011|012|015)[0-9]{8}$/;
-    if (!egyptianMobilePattern.test(mobile)) {
+    // Check minimum length (5-11 digits)
+    if (mobile.length < 5 || mobile.length > 11) {
       return "يرجى ادخال رقم الهاتف الصحيح";
     }
 
@@ -700,13 +693,16 @@ export function EditVendorModal({
     category: string;
     subcategories: string[];
   }>({
-    name: "",
-    mobile: "",
-    location: "",
-    workingHours: ["07:00", "15:00"],
-    profileImage: "", // can be url or File
-    category: "",
-    subcategories: [],
+    name: vendor.name || "",
+    mobile: vendor.mobile || "",
+    location: vendor.location || "",
+    workingHours:
+      Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
+        ? vendor.workingHours
+        : ["07:00", "15:00"],
+    profileImage: vendor.profileImage || "",
+    category: vendor.category?._id || "",
+    subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
   });
 
   useEffect(() => {
@@ -722,35 +718,7 @@ export function EditVendorModal({
     };
 
     fetchData();
-  }, [isOpen]);
 
-  // Fill formData with vendor data when modal opens or vendor changes
-  useEffect(() => {
-    if (vendor && isOpen) {
-      const vendorName = vendor.name || "";
-      const vendorMobile = vendor.mobile || "";
-      setFormData({
-        name: vendorName,
-        mobile: vendorMobile,
-        location: vendor.location || "",
-        workingHours:
-          Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
-            ? vendor.workingHours
-            : ["07:00", "15:00"],
-        profileImage: vendor.profileImage || "",
-        category: vendor.category?._id || "",
-        subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
-      });
-      // Validate the existing name and mobile
-      const nameError = validateName(vendorName);
-      setNameError(nameError);
-      const mobileError = validateMobile(vendorMobile);
-      setMobileError(mobileError);
-    }
-  }, [vendor, isOpen]);
-
-  // Fetch subcategories when category changes
-  useEffect(() => {
     if (!formData.category) {
       setSubcategories([]);
       return;
@@ -769,7 +737,7 @@ export function EditVendorModal({
     };
 
     fetchSubcategoriesForCategory();
-  }, [formData.category]);
+  }, [isOpen, formData.category, vendor]);
 
   // Name validation function
   const validateName = (name: string): string => {
@@ -810,14 +778,7 @@ export function EditVendorModal({
     }
 
     // Check minimum length (11 digits)
-    if (mobile.length < 11) {
-      return "يرجى ادخال رقم الهاتف الصحيح";
-    }
-
-    // Check Egyptian phone format
-    // Egyptian mobile numbers start with: 010, 011, 012, 015
-    const egyptianMobilePattern = /^(010|011|012|015)[0-9]{8}$/;
-    if (!egyptianMobilePattern.test(mobile)) {
+    if (mobile.length < 5 || mobile.length > 11) {
       return "يرجى ادخال رقم الهاتف الصحيح";
     }
 
@@ -1148,7 +1109,7 @@ export function EditVendorModal({
                         label: cat.nameAr,
                       }))}
                       placeholder="اختر الفئة"
-                      defaultValue={formData.category}
+                      value={formData.category}
                       onChange={(val) => handleChange("category", val)}
                     />
                     <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -1172,6 +1133,7 @@ export function EditVendorModal({
                   }))}
                   onChange={(values) => handleChange("subcategories", values)}
                   disabled={!formData.category || subcategories.length === 0}
+                  defaultSelected={formData.subcategories}
                 />
               </div>
             </div>

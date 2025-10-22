@@ -1,7 +1,7 @@
 // components/admins/AddAdminModal.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
@@ -380,9 +380,9 @@ export function EditAdminModal({
     email: string;
     password: string;
   }>({
-    name: "",
-    email: "",
-    password: "",
+    name: admin.name || "",
+    email: admin.email || "",
+    password: admin.password || "",
   });
 
   // Name validation function
@@ -437,20 +437,6 @@ export function EditAdminModal({
 
     return "";
   };
-
-  // Fill formData with admin data when modal opens or admin changes
-  useEffect(() => {
-    if (admin && isOpen) {
-      setFormData({
-        name: admin.name || "",
-        email: admin.email || "",
-        password: admin.password || "",
-      });
-      // Clear any existing errors when modal opens
-      setNameError("");
-      setEmailError("");
-    }
-  }, [admin, isOpen]);
 
   const handleChange = (
     field: string,

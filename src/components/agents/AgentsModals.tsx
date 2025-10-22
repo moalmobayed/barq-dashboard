@@ -1,7 +1,7 @@
 // components/agents/AddAgentModal.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
@@ -394,25 +394,12 @@ export function EditAgentModal({
     isActive: boolean;
     commissionRate: number;
   }>({
-    name: "",
-    mobile: "",
+    name: agent.name || "",
+    mobile: agent.mobile || "",
     role: "delivery-agent",
-    isActive: true,
-    commissionRate: 0,
+    isActive: agent.isActive || true,
+    commissionRate: agent.commissionRate || 0,
   });
-
-  // Fill formData with agent data when modal opens or agent changes
-  useEffect(() => {
-    if (agent && isOpen) {
-      setFormData({
-        name: agent.name || "",
-        mobile: agent.mobile || "",
-        isActive: agent.isActive || true,
-        role: "delivery-agent",
-        commissionRate: agent.commissionRate || 0,
-      });
-    }
-  }, [agent, isOpen]);
 
   // Name validation function
   const validateName = (name: string): string => {

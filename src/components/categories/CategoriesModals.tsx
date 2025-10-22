@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
@@ -419,21 +419,10 @@ export function EditCategoryModal({
     nameEn: string;
     image: File | string;
   }>({
-    nameAr: "",
-    nameEn: "",
-    image: "",
+    nameAr: category.nameAr || "",
+    nameEn: category.nameEn || "",
+    image: category.image || "",
   });
-
-  // Fill formData with category data when modal opens or category changes
-  useEffect(() => {
-    if (category && isOpen) {
-      setFormData({
-        nameAr: category.nameAr || "",
-        nameEn: category.nameEn || "",
-        image: category.image || "",
-      });
-    }
-  }, [category, isOpen]);
 
   // Arabic name validation function
   const validateNameAr = (name: string): string => {
