@@ -44,11 +44,13 @@ export function AddProductModal({
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
   const [priceError, setPriceError] = useState<string>("");
+  const [amountError, setAmountError] = useState<string>("");
   const [descriptionError, setDescriptionError] = useState<string>("");
   const [formData, setFormData] = useState<{
     nameAr: string;
     nameEn: string;
     price: number;
+    amount: number;
     shopId: string;
     description: string;
     category: string;
@@ -57,6 +59,7 @@ export function AddProductModal({
     nameAr: "",
     nameEn: "",
     price: 0,
+    amount: 0,
     shopId: "",
     description: "",
     category: "",
@@ -318,6 +321,42 @@ export function AddProductModal({
     setPriceError(error);
   };
 
+  const validateAmount = (amount: string): string => {
+    const normalizedAmount = amount.replace(/,/g, "").trim();
+
+    if (!normalizedAmount) {
+      return "";
+    }
+
+    if (!/^\d+$/.test(normalizedAmount)) {
+      return "الكمية تقبل الأرقام فقط";
+    }
+
+    const numericAmount = parseInt(normalizedAmount, 10);
+
+    if (Number.isNaN(numericAmount) || numericAmount < 1) {
+      return "يرجى ادخال كمية المنتج";
+    }
+
+    if (numericAmount > 9999999) {
+      return "الكمية لا يمكن أن تتجاوز 9,999,999";
+    }
+
+    return "";
+  };
+
+  const handleAmountChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 7);
+
+    setFormData((prev) => ({
+      ...prev,
+      amount: digitsOnly ? parseInt(digitsOnly, 10) : 0,
+    }));
+
+    const error = validateAmount(digitsOnly);
+    setAmountError(error);
+  };
+
   const handleDescriptionChange = (value: string) => {
     // Limit to 300 characters
     const limitedValue = value.slice(0, 300);
@@ -356,6 +395,8 @@ export function AddProductModal({
       handleNameEnChange(value);
     } else if (field === "price" && typeof value === "string") {
       handlePriceChange(value);
+    } else if (field === "amount" && typeof value === "string") {
+      handleAmountChange(value);
     } else if (field === "description" && typeof value === "string") {
       handleDescriptionChange(value);
     } else {
@@ -422,6 +463,28 @@ export function AddProductModal({
           variant: "error",
           title: "خطأ في السعر",
           message: priceValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
+      if (!formData.amount) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "كمية المنتج مطلوبة.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
+        return;
+      }
+
+      const amountValidationError = validateAmount(formData.amount.toString());
+      if (amountValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في الكمية",
+          message: amountValidationError,
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -497,6 +560,7 @@ export function AddProductModal({
         nameEn: effectiveNameEn,
         price: formData.price,
         shopId: formData.shopId,
+        amount: formData.amount,
         description: formData.description,
         category: formData.category,
         image: imageUrl,
@@ -522,6 +586,7 @@ export function AddProductModal({
         nameAr: "",
         nameEn: "",
         price: 0,
+        amount: 0,
         shopId: "",
         description: "",
         category: "",
@@ -624,6 +689,25 @@ export function AddProductModal({
                     hint={
                       priceError ||
                       `${formData.price.toString().replace(/,/g, "").length}/7`
+                    }
+                    required
+                  />
+                </div>
+
+                {/* Amount */}
+                <div>
+                  <Label>
+                    الكمية <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="ادخل كمية المنتج"
+                    value={formData.amount === 0 ? "" : formData.amount}
+                    onChange={(e) => handleChange("amount", e.target.value)}
+                    error={!!amountError}
+                    hint={
+                      amountError ||
+                      `${formData.amount.toString().replace(/,/g, "").length}/7`
                     }
                     required
                   />
