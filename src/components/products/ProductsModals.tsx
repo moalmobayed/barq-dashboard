@@ -908,7 +908,6 @@ export function EditProductModal({
   const [toast, setToast] = useState<AlertProps | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
@@ -923,63 +922,32 @@ export function EditProductModal({
     shopId: string;
     description: string;
     category: string;
-    rating: number;
     image: string | File;
-    soldTimes: number;
-    reviewCount: number;
   }>({
-    nameAr: "",
-    nameEn: "",
-    price: 0,
-    amount: 0,
-    shopId: "",
-    description: "",
-    category: "",
-    image: new File([], ""),
-    rating: 0,
-    reviewCount: 0,
-    soldTimes: 0,
+    nameAr: product.nameAr || "",
+    nameEn: product.nameEn || "",
+    price: product.price || 0,
+    amount: product.amount || 0,
+    shopId: product.shopId._id || "",
+    description: product.description || "",
+    category: product.category._id || "",
+    image: product.image || new File([], ""),
   });
 
   useEffect(() => {
-    if (!isOpen) {
-      setCategoriesLoaded(false);
-      return;
-    }
+    if (!isOpen) return;
 
     const fetchData = async () => {
       try {
-        // Load vendors list for selector
         const { data: vendors } = await fetchVendorsBasic();
         setVendors(vendors);
-        setCategoriesLoaded(true);
       } catch (err) {
         console.error("Failed to fetch data:", err);
-        setCategoriesLoaded(true); // Set to true even on error to prevent infinite loading
       }
     };
 
     fetchData();
   }, [isOpen]);
-
-  // Fill formData with product data when modal opens and categories are loaded
-  useEffect(() => {
-    if (product && isOpen && categoriesLoaded) {
-      setFormData({
-        nameAr: product.nameAr || "",
-        nameEn: product.nameEn || "",
-        price: product.price || 0,
-        amount: product.amount || 0,
-        shopId: product.shopId._id || "",
-        description: product.description || "",
-        category: product.category._id || "",
-        image: product.image || "",
-        rating: product.rating || 0,
-        reviewCount: product.reviewCount || 0,
-        soldTimes: product.soldTimes || 0,
-      });
-    }
-  }, [product, isOpen, categoriesLoaded]);
 
   // Fetch vendor-specific categories (categoryshops) when shop changes (like AddProductModal)
   useEffect(() => {
@@ -1339,6 +1307,7 @@ export function EditProductModal({
         description: formData.description,
         category: formData.category,
         image: imageUrl,
+        amount: formData.amount,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -1466,7 +1435,7 @@ export function EditProductModal({
                   <Input
                     type="number"
                     placeholder="10"
-                    defaultValue={formData.amount}
+                    value={formData.amount}
                     onChange={(e) => handleChange("amount", e.target.value)}
                   />
                 </div>
@@ -1497,7 +1466,7 @@ export function EditProductModal({
                         value: vendor._id,
                         label: vendor.name,
                       }))}
-                      defaultValue={formData.shopId}
+                      value={formData.shopId}
                       placeholder="اختر متجراً"
                       onChange={(val) => handleChange("shopId", val)}
                       className="dark:bg-dark-900"
@@ -1542,41 +1511,6 @@ export function EditProductModal({
                       <ChevronDownIcon />
                     </span>
                   </div>
-                </div>
-
-                {/* Rating */}
-                <div>
-                  <Label>التقييم</Label>
-                  <Input
-                    type="number"
-                    placeholder="5"
-                    defaultValue={formData.rating}
-                    onChange={(e) => handleChange("rating", e.target.value)}
-                  />
-                </div>
-
-                {/* Sold Times */}
-                <div>
-                  <Label>مرات البيع</Label>
-                  <Input
-                    type="number"
-                    placeholder="150"
-                    defaultValue={formData.soldTimes}
-                    onChange={(e) => handleChange("soldTimes", e.target.value)}
-                  />
-                </div>
-
-                {/* Review Count */}
-                <div>
-                  <Label>عدد المراجعات</Label>
-                  <Input
-                    type="number"
-                    placeholder="50"
-                    defaultValue={formData.reviewCount}
-                    onChange={(e) =>
-                      handleChange("reviewCount", e.target.value)
-                    }
-                  />
                 </div>
               </div>
             </div>

@@ -292,7 +292,7 @@ export function AddSubcategoryModal({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={closeModal}
+      onClose={handleModalClose}
       className="z-50 m-4 max-w-[700px] bg-black"
     >
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
@@ -441,9 +441,9 @@ export function EditSubcategoryModal({
     nameEn: string;
     category: string;
   }>({
-    nameAr: "",
-    nameEn: "",
-    category: "",
+    nameAr: subcategory.nameAr || "",
+    nameEn: subcategory.nameEn || "",
+    category: subcategory.category._id || "",
   });
 
   useEffect(() => {
@@ -460,17 +460,6 @@ export function EditSubcategoryModal({
 
     fetchData();
   }, [isOpen]);
-
-  // Fill formData with subcategory data when modal opens or subcategory changes
-  useEffect(() => {
-    if (subcategory && isOpen) {
-      setFormData({
-        nameAr: subcategory.nameAr || "",
-        nameEn: subcategory.nameEn || "",
-        category: subcategory.category._id || "",
-      });
-    }
-  }, [subcategory, isOpen]);
 
   // Arabic name validation function
   const validateNameAr = (name: string): string => {
@@ -695,6 +684,7 @@ export function EditSubcategoryModal({
                       label: cat.nameAr,
                     }))}
                     placeholder="اختر فئة"
+                    value={formData.category}
                     onChange={(val) => handleChange("category", val)}
                   />
                   <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">

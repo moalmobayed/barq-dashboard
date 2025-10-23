@@ -284,7 +284,7 @@ export function AddCategoryModal({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={closeModal}
+      onClose={handleModalClose}
       className="z-50 m-4 max-w-[700px] bg-black"
     >
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
