@@ -193,7 +193,6 @@ export function AddOfferModal({
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
-    console.log(field, value);
   };
 
   const handleSave = async () => {
