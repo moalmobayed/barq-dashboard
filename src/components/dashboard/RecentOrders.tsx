@@ -139,7 +139,8 @@ export default function RecentOrders() {
                       color={
                         order.orderStatus === "completed"
                           ? "success"
-                          : order.orderStatus === "pending"
+                          : order.orderStatus === "processing" ||
+                              order.orderStatus === "pending"
                             ? "warning"
                             : order.orderStatus === "cancelled"
                               ? "error"
