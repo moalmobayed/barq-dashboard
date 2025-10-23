@@ -107,8 +107,8 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
       });
       setToast({
         variant: "success",
-        title: "تم إضافة الفئة",
-        message: "تمت إضافة الفئة بنجاح",
+        title: "تم إضافة القسم",
+        message: "تمت إضافة القسم بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
       setForm({ nameAr: "", nameEn: "" });
@@ -118,7 +118,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
       setToast({
         variant: "error",
         title: "خطأ في الإضافة",
-        message: "فشل إضافة الفئة للمتجر",
+        message: "فشل إضافة القسم للمتجر",
       });
       setTimeout(() => setToast(null), 5000);
     }
@@ -150,8 +150,8 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
       await updateCategoryshop(editId, { ...payload });
       setToast({
         variant: "success",
-        title: "تم تعديل الفئة",
-        message: "تم تعديل الفئة بنجاح",
+        title: "تم تعديل القسم",
+        message: "تم تعديل القسم بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
       setEditId(null);
@@ -162,7 +162,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
       setToast({
         variant: "error",
         title: "خطأ في التعديل",
-        message: "فشل تعديل الفئة للمتجر",
+        message: "فشل تعديل القسم للمتجر",
       });
       setTimeout(() => setToast(null), 5000);
     }
@@ -174,8 +174,8 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
       await deleteCategoryshop(deleteId);
       setToast({
         variant: "success",
-        title: "تم حذف الفئة",
-        message: "تم حذف الفئة بنجاح",
+        title: "تم حذف القسم",
+        message: "تم حذف القسم بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
       setDeleteId(null);
@@ -185,7 +185,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
       setToast({
         variant: "error",
         title: "خطأ في الحذف",
-        message: "فشل حذف الفئة للمتجر",
+        message: "فشل حذف القسم للمتجر",
       });
       setTimeout(() => setToast(null), 5000);
     }
@@ -195,10 +195,10 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
     <div className="space-y-6">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="mb-1 text-lg font-medium text-gray-800 dark:text-white/90">
-          فئات المتجر
+          أقسام المتجر
         </h2>
         <Button size="xs" variant="primary" onClick={openAddModal}>
-          + أضف فئة متجر
+          + أضف قسم للمتجر
         </Button>
       </div>
       {error && <div className="text-error-500 mb-2">{error}</div>}
@@ -252,7 +252,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
         <div className="no-scrollbar relative w-full max-w-[500px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-8 dark:bg-gray-900">
           <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
             <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-              إضافة فئة متجر
+              إضافة قسم للمتجر
             </h5>
             <div className="grid grid-cols-1 gap-y-5">
               <div>
@@ -261,7 +261,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                 </Label>
                 <Input
                   type="text"
-                  placeholder="اسم الفئة بالعربية"
+                  placeholder="اسم القسم بالعربية"
                   value={form.nameAr}
                   onChange={(e) => handleChange("nameAr", e.target.value)}
                   required
@@ -273,7 +273,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                 </Label>
                 <Input
                   type="text"
-                  placeholder="اسم الفئة بالإنجليزية"
+                  placeholder="اسم القسم بالإنجليزية"
                   value={form.nameEn}
                   onChange={(e) => handleChange("nameEn", e.target.value)}
                   required
@@ -307,14 +307,14 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
         <div className="no-scrollbar relative w-full max-w-[500px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-8 dark:bg-gray-900">
           <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
             <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-              تعديل فئة متجر
+              تعديل قسم للمتجر
             </h5>
             <div className="grid grid-cols-1 gap-y-5">
               <div>
                 <Label>الاسم (بالعربية)</Label>
                 <Input
                   type="text"
-                  placeholder="اسم الفئة بالعربية"
+                  placeholder="اسم القسم بالعربية"
                   value={editForm.nameAr}
                   onChange={(e) => handleEditChange("nameAr", e.target.value)}
                 />
@@ -323,7 +323,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                 <Label>الاسم (بالإنجليزية)</Label>
                 <Input
                   type="text"
-                  placeholder="اسم الفئة بالإنجليزية"
+                  placeholder="اسم القسم بالإنجليزية"
                   value={editForm.nameEn}
                   onChange={(e) => handleEditChange("nameEn", e.target.value)}
                   dir="ltr"
@@ -356,9 +356,9 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
         <div className="no-scrollbar relative w-full max-w-[400px] overflow-y-auto rounded-3xl bg-white p-4 text-gray-800 lg:p-8 dark:bg-gray-900 dark:text-white/90">
           <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
             <h4 className="mb-5 px-2 pb-3 text-lg font-medium lg:mb-6">
-              حذف الفئة
+              حذف القسم
             </h4>
-            <p>هل أنت متأكد من حذف هذه الفئة؟</p>
+            <p>هل أنت متأكد من حذف هذه القسم؟</p>
             <div className="mt-6 flex items-center gap-3 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeDeleteModal}>
                 إغلاق
