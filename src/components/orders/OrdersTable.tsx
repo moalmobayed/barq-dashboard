@@ -19,7 +19,6 @@ import { useOrders } from "@/hooks/useOrders";
 import { useEffect } from "react";
 import io from "socket.io-client";
 import { getAuthToken } from "@/lib/api/auth";
-import { BASE_URL } from "@/lib/config";
 import { MdShoppingCart } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
@@ -41,17 +40,20 @@ export default function OrdersTable() {
 
   useEffect(() => {
     const token = getAuthToken();
-    // Use HTTP for local development, HTTPS for production
-    const isProduction = process.env.NODE_ENV === "production";
-    const protocol = isProduction ? "https://" : "http://";
-    const socketUrl =
-      BASE_URL.replace("/api/v1", "").replace("https://", protocol) + ":4000";
 
-    console.log("Attempting to connect to socket:", socketUrl);
-    console.log("Environment:", process.env.NODE_ENV);
-    console.log("Using protocol:", protocol);
+    // Define multiple socket URL options for production
+    let socketUrl: string;
+
+    if (process.env.NODE_ENV === "production") {
+      // Primary: Same domain without port (most common for production)
+      socketUrl = "https://api.barqshipping.com";
+    } else {
+      // Local development - use HTTP
+      socketUrl = "http://api.barqshipping.com:4000";
+    }
 
     const socket = io(socketUrl, {
+      path: "/socket.io/", // Explicitly set the socket.io path
       transportOptions: {
         polling: {
           extraHeaders: {
@@ -60,7 +62,15 @@ export default function OrdersTable() {
         },
       },
       withCredentials: true,
-      transports: ["polling", "websocket"], // polling first for handshake
+      transports: ["polling", "websocket"],
+      timeout: 20000, // 20 seconds timeout
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 3, // Reduced attempts for faster fallback
+      upgrade: true,
+      rememberUpgrade: false,
+      forceNew: true, // Force new connection to avoid caching issues
+      autoConnect: true,
     });
 
     socket.on("new:order", () => {
@@ -230,77 +240,77 @@ export default function OrdersTable() {
                       </td>
                     </TableRow>
                   ) : (
-                    filteredOrders.map((o) => (
-                      <TableRow key={o._id}>
+                    filteredOrders.map((order) => (
+                      <TableRow key={order._id}>
                         <TableCell className="px-5 py-4 text-start">
                           <Link
-                            href={`/orders/${o._id}`}
+                            href={`/orders/${order._id}`}
                             className="text-blue-600 hover:underline"
                           >
-                            {o.orderNumber}
+                            {order.orderNumber}
                           </Link>
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
-                          {o.userId?.mobile}
+                          {order.userId?.mobile}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           <div className="flex items-center gap-4">
                             <div className="h-8 w-8 overflow-hidden rounded-full">
                               <Image
                                 src={
-                                  o.shopId?.profileImage ||
-                                  "/images/logo/barq-logo.png"
+                                  order.shopId?.profileImage ||
+                                  "/images/logo/barq-logorder.png"
                                 }
-                                alt={o.shopId?.name || "shop"}
+                                alt={order.shopId?.name || "shop"}
                                 width={32}
                                 height={32}
                                 className="h-8 w-8 object-cover"
                               />
                             </div>
                             <div className="text-sm">
-                              <p>{o.shopId?.name}</p>
-                              <p>{o.shopId?.mobile}</p>
+                              <p>{order.shopId?.name}</p>
+                              <p>{order.shopId?.mobile}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
-                          {o.totalAmount?.toLocaleString()} ج.م
+                          {order.sumAmount?.toLocaleString()} ج.م
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
-                          {o.paymentMethod} / {o.paymentStatus}
+                          {order.paymentMethod === "card" ? "بطاقة" : "نقداً"}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           <Badge
                             size="sm"
                             color={
-                              o.orderStatus === "completed"
+                              order.orderStatus === "completed"
                                 ? "success"
-                                : o.orderStatus === "processing" ||
-                                    o.orderStatus === "pending"
+                                : order.orderStatus === "processing" ||
+                                    order.orderStatus === "pending"
                                   ? "warning"
-                                  : o.orderStatus === "cancelled"
+                                  : order.orderStatus === "cancelled"
                                     ? "error"
                                     : "info"
                             }
                           >
-                            {o.orderStatus === "completed"
+                            {order.orderStatus === "completed"
                               ? "تم التوصيل"
-                              : o.orderStatus === "processing" ||
-                                  o.orderStatus === "pending"
+                              : order.orderStatus === "processing" ||
+                                  order.orderStatus === "pending"
                                 ? "جارِ التنفيذ"
-                                : o.orderStatus === "cancelled"
+                                : order.orderStatus === "cancelled"
                                   ? "ملغاة"
-                                  : o.orderStatus}
+                                  : order.orderStatus}
                           </Badge>
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           {new Date(
-                            o.createdAt as unknown as string,
+                            order.createdAt as unknown as string,
                           ).toLocaleString()}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           <Link
-                            href={`/orders/${o._id}`}
+                            href={`/orders/${order._id}`}
                             className="text-sm text-indigo-600 dark:text-indigo-400"
                             title="عرض الطلب"
                           >
