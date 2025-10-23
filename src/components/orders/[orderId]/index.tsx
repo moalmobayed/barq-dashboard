@@ -234,9 +234,9 @@ export default function OrderDetailsComponent() {
             <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
               عنوان العميل
             </span>
-            <span className="flex gap-2 font-medium text-gray-700 text-balance dark:text-white/90">
+            <span className="flex gap-2 font-medium text-balance text-gray-700 dark:text-white/90">
               <CiLocationOn className="flex-shrink-0 text-xl text-blue-600" />
-              <span className="dark:text-white/90 text-balance">
+              <span className="max-w-full text-balance break-words break-all whitespace-normal dark:text-white/90">
                 {order.deliveryAddress?.fullAddress ?? "-"}
               </span>
             </span>
