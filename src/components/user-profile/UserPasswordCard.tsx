@@ -28,7 +28,6 @@ export default function UserPasswordCard() {
   });
 
   const adminData = getAdminData();
-  console.log(adminData?.passwordChangedAt);
 
   const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
     setShowPasswords((prev) => ({
