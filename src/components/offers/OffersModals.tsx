@@ -168,6 +168,20 @@ export function AddOfferModal({
     value: string | string[] | File | undefined,
   ) => {
     if (typeof value === "string") {
+      // Handle discount field specially: parse as number and round to 2 decimals
+      if (field === "discount") {
+        // Allow empty string -> set to 0
+        const raw = value === "" ? "0" : value;
+        let num = parseFloat(raw);
+        if (isNaN(num)) num = 0;
+        // clamp between 0 and 100 (percentage)
+        num = Math.min(Math.max(num, 0), 100);
+        // round to 2 decimals
+        num = Math.round(num * 100) / 100;
+        setFormData((prev) => ({ ...prev, [field]: num }));
+        return;
+      }
+
       // Handle name field validation
       if (field === "name") {
         // Limit to 60 characters
@@ -479,9 +493,10 @@ export function AddOfferModal({
                   <Input
                     type="number"
                     placeholder="أدخل قيمة الخصم للعرض"
-                    min="1"
+                    min="0"
                     max="100"
-                    // defaultValue={formData.discount}
+                    step={0.01}
+                    value={formData.discount}
                     onChange={(e) => handleChange("discount", e.target.value)}
                     required
                     dir="ltr"
@@ -892,8 +907,14 @@ export function EditOfferModal({
                   <Input
                     type="number"
                     placeholder="أدخل قيمة الخصم للعرض"
-                    max="9999999"
-                    defaultValue={formData.discount}
+                    min="0"
+                    max="100"
+                    step={0.01}
+                    value={
+                      typeof formData.discount === "number"
+                        ? formData.discount
+                        : Number(formData.discount)
+                    }
                     onChange={(e) => handleChange("discount", e.target.value)}
                   />
                 </div>
