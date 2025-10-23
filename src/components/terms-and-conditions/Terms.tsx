@@ -7,20 +7,20 @@ import Label from "@/components/form/Label";
 import HTMLEditor from "@/components/form/HTMLEditor";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
 import {
-  getPrivacy,
-  updatePrivacy,
-  UpdatePrivacyPolicyPayload,
-} from "@/lib/api/privacy-policy";
+  getTerms,
+  updateTerms,
+  UpdateTermsPayload,
+} from "@/lib/api/terms-and-conditions";
 import { AxiosError } from "axios";
 import PageBreadcrumb from "../common/PageBreadCrumb";
 
-export default function PrivacyPolicyComponent() {
+export default function TermsComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<AlertProps | null>(null);
-  const [formData, setFormData] = useState<UpdatePrivacyPolicyPayload>({
-    privacyAr: "",
-    privacyEn: "",
+  const [formData, setFormData] = useState<UpdateTermsPayload>({
+    termAr: "",
+    termEn: "",
     descriptionAr: "",
     descriptionEn: "",
   });
@@ -30,10 +30,10 @@ export default function PrivacyPolicyComponent() {
     const loadTermsData = async () => {
       setIsLoading(true);
       try {
-        const response = await getPrivacy();
+        const response = await getTerms();
         setFormData({
-          privacyAr: response.data.privacyAr || "",
-          privacyEn: response.data.privacyEn || "",
+          termAr: response.data.termAr || "",
+          termEn: response.data.termEn || "",
           descriptionAr: response.data.descriptionAr || "",
           descriptionEn: response.data.descriptionEn || "",
         });
@@ -42,7 +42,7 @@ export default function PrivacyPolicyComponent() {
         setToast({
           variant: "error",
           title: "خطأ في تحميل البيانات",
-          message: "فشل في تحميل بيانات سياسة الخصوصية",
+          message: "فشل في تحميل بيانات الشروط والأحكام",
         });
         setTimeout(() => setToast(null), 5000);
       } finally {
@@ -54,7 +54,7 @@ export default function PrivacyPolicyComponent() {
   }, []);
 
   const handleFieldChange = (
-    field: keyof UpdatePrivacyPolicyPayload,
+    field: keyof UpdateTermsPayload,
     value: string,
   ) => {
     setFormData((prev) => ({
@@ -71,7 +71,7 @@ export default function PrivacyPolicyComponent() {
         Object.entries(formData).filter(
           ([, value]) => typeof value === "string" && value.trim() !== "",
         ),
-      ) as UpdatePrivacyPolicyPayload;
+      ) as UpdateTermsPayload;
 
       if (Object.keys(payload).length === 0) {
         setToast({
@@ -83,11 +83,11 @@ export default function PrivacyPolicyComponent() {
         return;
       }
 
-      await updatePrivacy(payload);
+      await updateTerms(payload);
       setToast({
         variant: "success",
         title: "تم الحفظ بنجاح",
-        message: "تم تحديث سياسة الخصوصية بنجاح",
+        message: "تم تحديث الشروط والأحكام بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
     } catch (err) {
@@ -129,7 +129,7 @@ export default function PrivacyPolicyComponent() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <PageBreadcrumb pageTitle="سياسة الخصوصية" />
+        <PageBreadcrumb pageTitle="الشروط والأحكام" />
 
         <Button
           onClick={handleSave}
@@ -152,11 +152,11 @@ export default function PrivacyPolicyComponent() {
 
           {/* Arabic Title */}
           <div className="space-y-2">
-            <Label htmlFor="privacyAr">العنوان بالعربية</Label>
+            <Label htmlFor="termAr">العنوان بالعربية</Label>
             <HTMLEditor
-              value={formData.privacyAr}
-              onChange={(value) => handleFieldChange("privacyAr", value)}
-              placeholder="أدخل عنوان سياسة الخصوصية بالعربية..."
+              value={formData.termAr}
+              onChange={(value) => handleFieldChange("termAr", value)}
+              placeholder="أدخل عنوان الشروط والأحكام بالعربية..."
               isRTL={true}
             />
           </div>
@@ -167,7 +167,7 @@ export default function PrivacyPolicyComponent() {
             <HTMLEditor
               value={formData.descriptionAr}
               onChange={(value) => handleFieldChange("descriptionAr", value)}
-              placeholder="أدخل محتوى سياسة الخصوصية بالعربية..."
+              placeholder="أدخل محتوى الشروط والأحكام بالعربية..."
               isRTL={true}
             />
           </div>
@@ -181,13 +181,13 @@ export default function PrivacyPolicyComponent() {
 
           {/* English Title */}
           <div className="space-y-2">
-            <Label htmlFor="privacyEn" className="text-end">
+            <Label htmlFor="termEn" className="text-end">
               Title in English
             </Label>
             <HTMLEditor
-              value={formData.privacyEn}
-              onChange={(value) => handleFieldChange("privacyEn", value)}
-              placeholder="Enter privacy policy title in English..."
+              value={formData.termEn}
+              onChange={(value) => handleFieldChange("termEn", value)}
+              placeholder="Enter terms & conditions title in English..."
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function PrivacyPolicyComponent() {
             <HTMLEditor
               value={formData.descriptionEn}
               onChange={(value) => handleFieldChange("descriptionEn", value)}
-              placeholder="Enter privacy policy content in English..."
+              placeholder="Enter terms & conditions content in English..."
             />
           </div>
         </Card>

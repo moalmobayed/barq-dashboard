@@ -21,7 +21,6 @@ export interface UpdateTermsPayload {
   descriptionEn?: string;
 }
 
-// Get terms and privacy policy
 export const getTerms = async (): Promise<{ data: TermsData }> => {
   const response = await axios.get(`${BASE_URL}/terms`, {
     headers: {
@@ -31,7 +30,6 @@ export const getTerms = async (): Promise<{ data: TermsData }> => {
   return response.data;
 };
 
-// Update terms and privacy policy
 export const updateTerms = async (
   payload: UpdateTermsPayload,
 ): Promise<{ data: TermsData }> => {

@@ -237,7 +237,7 @@ export default function OrdersTable() {
                             href={`/orders/${o._id}`}
                             className="text-blue-600 hover:underline"
                           >
-                            {o._id.slice(-6)}
+                            {o.orderNumber}
                           </Link>
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
@@ -275,12 +275,22 @@ export default function OrdersTable() {
                             color={
                               o.orderStatus === "completed"
                                 ? "success"
-                                : o.orderStatus === "pending"
+                                : o.orderStatus === "processing" ||
+                                    o.orderStatus === "pending"
                                   ? "warning"
-                                  : "info"
+                                  : o.orderStatus === "cancelled"
+                                    ? "error"
+                                    : "info"
                             }
                           >
-                            {o.orderStatus}
+                            {o.orderStatus === "completed"
+                              ? "تم التوصيل"
+                              : o.orderStatus === "processing" ||
+                                  o.orderStatus === "pending"
+                                ? "جارِ التنفيذ"
+                                : o.orderStatus === "cancelled"
+                                  ? "ملغاة"
+                                  : o.orderStatus}
                           </Badge>
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">

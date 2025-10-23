@@ -80,6 +80,11 @@ const navItems: NavItem[] = [
     path: "/privacy-policy",
   },
   {
+    icon: <MdSecurity />,
+    name: "الشروط والأحكام",
+    path: "/terms-and-conditions",
+  },
+  {
     icon: <MdSupportAgent />,
     name: "خدمة العملاء",
     path: "/customer-service",

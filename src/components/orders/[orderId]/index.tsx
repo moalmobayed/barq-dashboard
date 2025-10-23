@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { CiLocationOn, CiPhone } from "react-icons/ci";
 import { BASE_URL } from "@/lib/config";
+import Badge from "@/components/ui/badge/Badge";
 
 export default function OrderDetailsComponent() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -79,9 +80,28 @@ export default function OrderDetailsComponent() {
       <div className="flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]">
         <div className="mb-2 flex justify-between gap-2 font-bold text-gray-800 dark:text-white">
           ملخص الطلب
-          <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-700 dark:bg-yellow-500/15 dark:text-yellow-500">
-            {order.orderStatus || "-"}
-          </span>
+          <Badge
+            size="sm"
+            color={
+              order.orderStatus === "completed"
+                ? "success"
+                : order.orderStatus === "processing" ||
+                    order.orderStatus === "pending"
+                  ? "warning"
+                  : order.orderStatus === "cancelled"
+                    ? "error"
+                    : "info"
+            }
+          >
+            {order.orderStatus === "completed"
+              ? "تم التوصيل"
+              : order.orderStatus === "processing" ||
+                  order.orderStatus === "pending"
+                ? "جارِ التنفيذ"
+                : order.orderStatus === "cancelled"
+                  ? "ملغاة"
+                  : order.orderStatus}
+          </Badge>
         </div>
 
         <div className="flex flex-col gap-1 divide-y-2 text-sm dark:text-white/90">
@@ -214,9 +234,9 @@ export default function OrderDetailsComponent() {
             <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
               عنوان العميل
             </span>
-            <span className="flex gap-2 font-medium text-gray-700 dark:text-white/90">
+            <span className="flex gap-2 font-medium text-gray-700 text-balance dark:text-white/90">
               <CiLocationOn className="flex-shrink-0 text-xl text-blue-600" />
-              <span className="dark:text-white/90">
+              <span className="dark:text-white/90 text-balance">
                 {order.deliveryAddress?.fullAddress ?? "-"}
               </span>
             </span>
