@@ -992,10 +992,30 @@ export function EditVendorModal({
     }
   };
 
+  const handleModalClose = () => {
+    setFormData({
+      name: vendor.name || "",
+      mobile: vendor.mobile || "",
+      location: vendor.location || "",
+      workingHours:
+        Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
+          ? vendor.workingHours
+          : ["07:00", "15:00"],
+      profileImage: vendor.profileImage || "",
+      category: vendor.category?._id || "",
+      subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
+    });
+    setNameError("");
+    setMobileError("");
+    setLocationError("");
+    setIsLoading(false);
+    closeModal?.();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={closeModal}
+      onClose={handleModalClose}
       className="z-50 m-4 max-w-[700px] bg-black"
     >
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
@@ -1140,7 +1160,7 @@ export function EditVendorModal({
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-            <Button size="sm" variant="outline" onClick={closeModal}>
+            <Button size="sm" variant="outline" onClick={handleModalClose}>
               إغلاق
             </Button>
             <Button size="sm" onClick={handleSave} disabled={isLoading}>

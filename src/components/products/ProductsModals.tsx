@@ -1348,10 +1348,25 @@ export function EditProductModal({
     }
   };
 
+  const handleModalClose = () => {
+    setFormData({
+      nameAr: product.nameAr || "",
+      nameEn: product.nameEn || "",
+      price: product.price || 0,
+      amount: product.amount || 0,
+      shopId: product.shopId._id || "",
+      description: product.description || "",
+      category: product.category._id || "",
+      image: product.image || new File([], ""),
+    });
+    setIsLoading(false);
+    closeModal?.();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={closeModal}
+      onClose={handleModalClose}
       className="z-50 m-4 max-w-[700px] bg-black"
     >
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
@@ -1517,7 +1532,7 @@ export function EditProductModal({
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-            <Button size="sm" variant="outline" onClick={closeModal}>
+            <Button size="sm" variant="outline" onClick={handleModalClose}>
               إغلاق
             </Button>
             <Button size="sm" onClick={handleSave} disabled={isLoading}>
