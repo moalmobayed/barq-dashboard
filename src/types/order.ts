@@ -55,9 +55,9 @@ export interface Order {
   items: OrderItem[];
   totalAmount: number;
   totalDiscount: number;
-  paymentStatus: string; // e.g., 'pending', 'paid'
-  paymentMethod: string; // e.g., 'cash', 'card'
-  orderStatus: string; // e.g., 'pending', 'processing', 'delivered'
+  paymentStatus: "pending" | "paid" | "failed";
+  paymentMethod: "cash" | "card";
+  orderStatus: "pending" | "processing" | "completed" | "cancelled" | "shipped";
   town: Town;
   deliveryAddress: DeliveryAddress;
   commisionAmount: number;
