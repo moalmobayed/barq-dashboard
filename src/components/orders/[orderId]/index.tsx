@@ -70,7 +70,7 @@ export default function OrderDetailsComponent() {
             طلب رقم {order.orderNumber || "-"}
           </h1>
         </div>
-        <Button size="sm" onClick={() => router.push("/vendors")}>
+        <Button size="sm" onClick={() => router.push("/orders")}>
           رجوع
         </Button>
       </div>
