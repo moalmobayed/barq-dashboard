@@ -155,7 +155,7 @@ export default function OfferDetailsComponent() {
                     {statusBadge}
                     {discount > 0 && (
                       <Badge size="sm" variant="solid">
-                        {discount}% خصم
+                        {discount.toFixed(2)}% خصم
                       </Badge>
                     )}
                   </div>
@@ -204,7 +204,10 @@ export default function OfferDetailsComponent() {
                     {offer.description || "لا يوجد وصف"}
                   </p>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <InfoCard label="نسبة الخصم" value={`${discount}%`} />
+                    <InfoCard
+                      label="نسبة الخصم"
+                      value={`${discount.toFixed(2)}%`}
+                    />
                     <PriceCard
                       original={productPrice}
                       discounted={discountedPrice}
@@ -229,7 +232,7 @@ export default function OfferDetailsComponent() {
                     />
                     <InfoCard
                       label="السعر الأساسي"
-                      value={`${offer.product?.price ?? 0} ج.م`}
+                      value={`${offer.product?.price.toFixed(2) ?? 0} ج.م`}
                     />
                     <InfoCard
                       label="التقييم"
@@ -306,7 +309,6 @@ export default function OfferDetailsComponent() {
 }
 // Small helper components
 
-
 function InfoRow({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="hover:border-brand-500 hover:bg-brand-500/5 hover:dark:border-brand-400 flex items-center justify-between gap-4 rounded-md bg-white/60 px-3 py-2 text-xs transition-all dark:bg-white/10">
@@ -334,20 +336,20 @@ function PriceCard({
       <span className="block text-[11px] font-medium tracking-wide text-gray-500 dark:text-gray-400">
         السعر
       </span>
-      <div className="mt-0.5 flex items-baseline gap-3">
+      <div className="mt-0.5 flex flex-wrap items-baseline gap-3">
         <span
           className={`text-[13px] font-medium text-gray-500 line-through dark:text-gray-400 ${!hasDiscount ? "opacity-50" : ""}`}
         >
-          {original} ج.م
+          {original.toFixed(2)} ج.م
         </span>
         {hasDiscount && (
           <span className="text-brand-600 dark:text-brand-300 text-base font-semibold">
-            {discounted} ج.م
+            {discounted.toFixed(2)} ج.م
           </span>
         )}
         {!hasDiscount && (
           <span className="text-base font-semibold text-gray-800 dark:text-white/90">
-            {original} ج.م
+            {original.toFixed(2)} ج.م
           </span>
         )}
       </div>

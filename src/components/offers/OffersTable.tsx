@@ -299,11 +299,11 @@ export default function OffersTable() {
                           <TableCell className="px-4 py-3 text-start text-gray-700 dark:text-gray-300">
                             {offer.product?.price != null ? (
                               <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center flex-wrap gap-2">
                                   <span
                                     className={`${offer.discount > 0 ? "text-[11px] text-gray-400 line-through dark:text-gray-500" : "text-sm text-gray-800 dark:text-gray-200"}`}
                                   >
-                                    {offer.product.price} ج.م
+                                    {offer.product.price.toFixed(2)} ج.م
                                   </span>
                                   {offer.discount > 0 && (
                                     <span className="text-brand-600 dark:text-brand-300 text-sm font-semibold">
@@ -321,7 +321,7 @@ export default function OffersTable() {
                                   )}
                                 </div>
                                 <Badge size="sm" color="info" variant="light">
-                                  {offer.discount}%
+                                  {offer.discount.toFixed(2)}%
                                 </Badge>
                               </div>
                             ) : (

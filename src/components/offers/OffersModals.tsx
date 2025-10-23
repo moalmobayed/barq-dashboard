@@ -39,8 +39,8 @@ export function AddOfferModal({
     image: File;
     description: string;
     discount: number;
-    startDate: Date;
-    endDate: Date;
+    startDate: Date | undefined;
+    endDate: Date | undefined;
     shopId: string;
   }>({
     name: "",
@@ -48,8 +48,8 @@ export function AddOfferModal({
     image: new File([], ""), // Initialize with an empty file
     description: "",
     discount: 1,
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: undefined,
+    endDate: undefined,
     shopId: "",
   });
 
@@ -329,8 +329,8 @@ export function AddOfferModal({
         image: new File([], ""), // Initialize with an empty file
         description: "",
         discount: 1,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: undefined,
+        endDate: undefined,
         shopId: "",
       });
       onSuccess?.();
@@ -364,8 +364,8 @@ export function AddOfferModal({
       image: new File([], ""),
       description: "",
       discount: 1,
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: undefined,
+      endDate: undefined,
       shopId: "",
     });
     setNameError("");
