@@ -11,7 +11,12 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 
 export default function OrdersStatusChart() {
   type OrderStatusAnalytics = {
-    orderStatus: string;
+    orderStatus:
+      | "pending"
+      | "processing"
+      | "completed"
+      | "cancelled"
+      | "shipped";
     count: number;
     totalAmount: number;
   };
@@ -48,7 +53,16 @@ export default function OrdersStatusChart() {
     dataLabels: { enabled: false },
     stroke: { show: true, width: 4, colors: ["transparent"] },
     xaxis: {
-      categories: ordersByStatus.map((s) => s.orderStatus),
+      categories: ordersByStatus.map((s) => {
+        const map: Record<string, string> = {
+          pending: "قيد الانتظار",
+          processing: "جارِ التنفيذ",
+          completed: "تم التوصيل",
+          cancelled: "ملغاة",
+          shipped: "تم الشحن",
+        };
+        return map[s.orderStatus] ?? s.orderStatus;
+      }),
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
