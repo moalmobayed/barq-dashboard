@@ -261,9 +261,9 @@ export default function ProductsTable() {
                         </TableCell>
                         <TableCell>{product.category?.nameAr || "-"}</TableCell>
                         <TableCell>{product.shopId?.name || "-"}</TableCell>
-                        <TableCell>{product.soldTimes || "-"}</TableCell>
-                        <TableCell>{product.reviewCount || "-"}</TableCell>
-                        <TableCell>⭐ {product.rating || "-"}</TableCell>
+                        <TableCell>{product.soldTimes}</TableCell>
+                        <TableCell>{product.reviewCount}</TableCell>
+                        <TableCell>⭐ {product.rating}</TableCell>
                         <TableCell>
                           {product.descriptionAr?.slice(0, 50)}...
                         </TableCell>
