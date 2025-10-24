@@ -71,15 +71,8 @@ export function AddAgentModal({
       return "رقم الهاتف يقبل الأرقام فقط";
     }
 
-    // Check minimum length (11 digits)
-    if (mobile.length < 11) {
-      return "يرجى ادخال رقم الهاتف الصحيح";
-    }
-
-    // Check Egyptian phone format
-    // Egyptian mobile numbers start with: 010, 011, 012, 015
-    const egyptianMobilePattern = /^(010|011|012|015)[0-9]{8}$/;
-    if (!egyptianMobilePattern.test(mobile)) {
+    // Check minimum length (5-11 digits)
+    if (mobile.length < 5 || mobile.length > 11) {
       return "يرجى ادخال رقم الهاتف الصحيح";
     }
 
@@ -439,15 +432,8 @@ export function EditAgentModal({
       return "رقم الهاتف يقبل الأرقام فقط";
     }
 
-    // Check minimum length (11 digits)
-    if (mobile.length < 11) {
-      return "يرجى ادخال رقم الهاتف الصحيح";
-    }
-
-    // Check Egyptian phone format
-    // Egyptian mobile numbers start with: 010, 011, 012, 015
-    const egyptianMobilePattern = /^(010|011|012|015)[0-9]{8}$/;
-    if (!egyptianMobilePattern.test(mobile)) {
+    // Check minimum length (5-11 digits)
+    if (mobile.length < 5 || mobile.length > 11) {
       return "يرجى ادخال رقم الهاتف الصحيح";
     }
 
