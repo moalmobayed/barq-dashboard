@@ -2,13 +2,7 @@
 import axios from "axios";
 import { Order } from "@/types/order";
 import { BASE_URL } from "../config";
-
-// Reuse token from localStorage
-const authHeaders = () => {
-  if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("authToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { authHeaders } from "./auth";
 
 // Shared list response metadata
 export interface PaginationMeta {

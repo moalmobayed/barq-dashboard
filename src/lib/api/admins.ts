@@ -2,13 +2,7 @@
 import axios from "axios";
 import { Admin, CreateAdminPayload } from "@/types/admin";
 import { BASE_URL } from "../config";
-
-// Reuse token from localStorage
-const authHeaders = () => {
-  if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("authToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { authHeaders } from "./auth";
 
 export async function createAdmin(payload: CreateAdminPayload) {
   return axios.post(`${BASE_URL}/admin-management`, payload, {

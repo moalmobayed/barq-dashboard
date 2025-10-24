@@ -2,13 +2,7 @@
 import axios from "axios";
 import { Vendor, CreateVendorPayload } from "@/types/vendor";
 import { BASE_URL } from "../config";
-
-// Reuse token from localStorage
-const authHeaders = () => {
-  if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("authToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { authHeaders } from "./auth";
 
 export async function createVendor(payload: CreateVendorPayload) {
   return axios.post(`${BASE_URL}/admin/users`, payload, {
