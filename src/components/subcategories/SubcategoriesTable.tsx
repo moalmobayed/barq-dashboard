@@ -234,12 +234,18 @@ export default function SubcategoriesTable() {
                       <TableRow key={subcategory._id}>
                         <TableCell className="px-5 py-4 text-start sm:px-6">
                           <div className="flex items-center gap-3">
+                            <Image
+                              width={40}
+                              height={40}
+                              src={
+                                subcategory.image || "/images/logo/barq-logo.png"
+                              }
+                              alt={subcategory.nameEn}
+                              className="size-10 rounded-full object-cover"
+                            />
                             <div>
                               <span className="block font-medium text-gray-800 dark:text-white/90">
-                                {subcategory.nameAr}
-                              </span>
-                              <span className="block font-medium text-gray-800 dark:text-white/90">
-                                {subcategory.nameEn}
+                                {subcategory.nameEn} | {subcategory.nameAr}
                               </span>
                             </div>
                           </div>

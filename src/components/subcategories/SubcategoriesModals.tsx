@@ -19,6 +19,9 @@ import { Category } from "@/types/category";
 import Select from "../form/Select";
 import { ChevronDownIcon } from "../../../public/icons";
 import { AxiosError } from "axios";
+import { uploadImage } from "@/lib/api/uploadImage";
+import FileInput from "../form/input/FileInput";
+import Image from "next/image";
 
 export function AddSubcategoryModal({
   isOpen = false,
@@ -34,10 +37,12 @@ export function AddSubcategoryModal({
     nameAr: string;
     nameEn: string;
     category: string;
+    image: File;
   }>({
     nameAr: "",
     nameEn: "",
     category: "",
+    image: new File([], ""),
   });
 
   useEffect(() => {
@@ -189,6 +194,17 @@ export function AddSubcategoryModal({
         return;
       }
 
+      // Check if image is required
+      if (!formData.image || formData.image.size === 0) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "صورة الفئة مطلوبة.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
       // Check for Arabic name validation errors
       const nameArValidationError = validateNameAr(formData.nameAr);
       if (nameArValidationError) {
@@ -228,10 +244,17 @@ export function AddSubcategoryModal({
         ? formData.nameEn.trim()
         : formData.nameAr.trim();
 
+      let imageUrl = "";
+      if (formData.image instanceof File && formData.image.size > 0) {
+        const uploaded = await uploadImage(formData.image);
+        imageUrl = uploaded.data;
+      }
+
       const payloadRaw: CreateSubcategoryPayload = {
         nameAr: formData.nameAr,
         nameEn: effectiveNameEn,
         category: formData.category,
+        image: imageUrl,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -251,6 +274,7 @@ export function AddSubcategoryModal({
         nameAr: "",
         nameEn: "",
         category: "",
+        image: new File([], ""),
       });
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
@@ -282,6 +306,7 @@ export function AddSubcategoryModal({
       nameAr: "",
       nameEn: "",
       category: "",
+      image: new File([], ""),
     });
     setNameEnError("");
     setNameArError("");
@@ -303,28 +328,18 @@ export function AddSubcategoryModal({
                 اضافة فئة فرعية
               </h5>
 
-              {/* Category */}
-              <div>
-                <Label>
-                  الفئة <span className="text-error-500">*</span>
-                </Label>
-                <div className="relative">
-                  <Select
-                    options={categories.map((cat) => ({
-                      value: cat._id,
-                      label: cat.nameAr,
-                    }))}
-                    placeholder="اختر فئة"
-                    onChange={(val) => handleChange("category", val)}
-                    required
-                  />
-                  <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-              </div>
-
               <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                {/* Subcategory Image */}
+                <div className="lg:col-span-2">
+                  <Label>
+                    صورة الفئة الفرعية <span className="text-error-500">*</span>
+                  </Label>
+                  <FileInput
+                    accept="image/*"
+                    onChange={(e) => handleChange("image", e.target.files?.[0])}
+                  />
+                </div>
+
                 {/* Name (in Arabic) */}
                 <div>
                   <Label>
@@ -353,6 +368,27 @@ export function AddSubcategoryModal({
                     hint={nameEnError || `${formData.nameEn.length}/30`}
                     dir="ltr"
                   />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <Label>
+                    الفئة <span className="text-error-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Select
+                      options={categories.map((cat) => ({
+                        value: cat._id,
+                        label: cat.nameAr,
+                      }))}
+                      placeholder="اختر فئة"
+                      onChange={(val) => handleChange("category", val)}
+                      required
+                    />
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -440,10 +476,12 @@ export function EditSubcategoryModal({
     nameAr: string;
     nameEn: string;
     category: string;
+    image: File | string;
   }>({
     nameAr: subcategory.nameAr || "",
     nameEn: subcategory.nameEn || "",
     category: subcategory.category._id || "",
+    image: subcategory.image || "",
   });
 
   useEffect(() => {
@@ -614,12 +652,22 @@ export function EditSubcategoryModal({
         }
       }
 
+      let imageUrl = "";
+
+      if (formData.image instanceof File) {
+        const uploaded = await uploadImage(formData.image);
+        imageUrl = uploaded.data || uploaded.url;
+      } else if (typeof formData.image === "string") {
+        imageUrl = formData.image;
+      }
+
       const payloadRaw: Partial<CreateSubcategoryPayload> = {
         nameAr: formData.nameAr,
         nameEn: formData.nameEn?.trim()
           ? formData.nameEn.trim()
           : formData.nameAr.trim(),
         category: formData.category,
+        image: imageUrl,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -665,6 +713,7 @@ export function EditSubcategoryModal({
       nameAr: subcategory.nameAr || "",
       nameEn: subcategory.nameEn || "",
       category: subcategory.category._id || "",
+      image: subcategory.image || "",
     });
     setNameEnError("");
     setNameArError("");
@@ -686,26 +735,25 @@ export function EditSubcategoryModal({
                 معلومات الفئة الفرعية
               </h5>
 
-              {/* Category */}
-              <div>
-                <Label>الفئة</Label>
-                <div className="relative">
-                  <Select
-                    options={categories.map((cat) => ({
-                      value: cat._id,
-                      label: cat.nameAr,
-                    }))}
-                    placeholder="اختر فئة"
-                    value={formData.category}
-                    onChange={(val) => handleChange("category", val)}
-                  />
-                  <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-              </div>
-
               <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                {/* Category Image */}
+                <div className="lg:col-span-2">
+                  <Label>صورة الفئة</Label>
+                  {typeof formData.image === "string" && formData.image && (
+                    <Image
+                      src={formData.image}
+                      width={160}
+                      height={160}
+                      alt="Current Profile"
+                      className="mb-4 justify-self-center"
+                    />
+                  )}
+                  <FileInput
+                    accept="image/*"
+                    onChange={(e) => handleChange("image", e.target.files?.[0])}
+                  />
+                </div>
+
                 {/* Name (in Arabic) */}
                 <div>
                   <Label>الاسم (بالعربية)</Label>
@@ -731,6 +779,25 @@ export function EditSubcategoryModal({
                     hint={nameEnError || `${formData.nameEn.length}/30`}
                     dir="ltr"
                   />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <Label>الفئة</Label>
+                  <div className="relative">
+                    <Select
+                      options={categories.map((cat) => ({
+                        value: cat._id,
+                        label: cat.nameAr,
+                      }))}
+                      placeholder="اختر فئة"
+                      value={formData.category}
+                      onChange={(val) => handleChange("category", val)}
+                    />
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
