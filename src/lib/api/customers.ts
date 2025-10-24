@@ -5,7 +5,7 @@ import { BASE_URL } from "../config";
 import { authHeaders } from "./auth";
 
 export async function createCustomer(payload: CreateCustomerPayload) {
-  return axios.post(`${BASE_URL}/admin/users`, payload, {
+  return axios.post(`${BASE_URL}/auth/complete-profile`, payload, {
     headers: {
       ...authHeaders(),
     },

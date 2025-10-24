@@ -1,9 +1,13 @@
-// types/agent.ts
+// types/customer.ts
 export interface CreateCustomerPayload {
   name: string;
   mobile: string;
-  defaultAddress: string;
-  role: "customer";
+  profileImage?: string;
+  location: [number, number];
+  fullAddress: string;
+  addressLabel: string;
+  town: string;
+  isDefault: boolean;
 }
 
 export interface Customer {
