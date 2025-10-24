@@ -201,7 +201,7 @@ export default function OfferDetailsComponent() {
                     تفاصيل العرض
                   </h2>
                   <p className="mb-4 text-sm leading-6 whitespace-pre-line text-gray-700 dark:text-gray-300">
-                    {offer.description || "لا يوجد وصف"}
+                    {offer.descriptionAr || "لا يوجد وصف"}
                   </p>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <InfoCard
