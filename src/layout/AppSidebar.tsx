@@ -19,6 +19,7 @@ import {
   MdBarChart,
   MdWidgets,
   MdSecurity,
+  MdPerson,
 } from "react-icons/md";
 
 type NavItem = {
@@ -63,6 +64,11 @@ const navItems: NavItem[] = [
     icon: <MdShoppingCart />,
     name: "الطلبات",
     path: "/orders",
+  },
+  {
+    icon: <MdPerson />,
+    name: "العملاء",
+    path: "/customers",
   },
   {
     icon: <MdLocalOffer />,
