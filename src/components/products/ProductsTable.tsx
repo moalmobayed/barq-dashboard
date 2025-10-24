@@ -251,21 +251,21 @@ export default function ProductsTable() {
                             />
                             <div>
                               <span className="block font-medium text-gray-800 dark:text-white/90">
-                                {product.nameEn} | {product.nameAr}
+                                {product.nameEn || "-"} | {product.nameAr || "-"}
                               </span>
                               <span className="text-sm">
-                                {product.price} ج.م
+                                {product.price || "-"} ج.م
                               </span>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>{product.category?.nameAr}</TableCell>
-                        <TableCell>{product.shopId?.name}</TableCell>
-                        <TableCell>{product.soldTimes}</TableCell>
-                        <TableCell>{product.reviewCount}</TableCell>
-                        <TableCell>⭐ {product.rating}</TableCell>
+                        <TableCell>{product.category?.nameAr || "-"}</TableCell>
+                        <TableCell>{product.shopId?.name || "-"}</TableCell>
+                        <TableCell>{product.soldTimes || "-"}</TableCell>
+                        <TableCell>{product.reviewCount || "-"}</TableCell>
+                        <TableCell>⭐ {product.rating || "-"}</TableCell>
                         <TableCell>
-                          {product.descriptionAr.slice(0, 50)}...
+                          {product.descriptionAr?.slice(0, 50)}...
                         </TableCell>
                         <TableCell className="space-x-4">
                           <EditProductButton
