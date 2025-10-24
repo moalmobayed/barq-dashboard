@@ -130,7 +130,7 @@ export default function OfferDetailsComponent() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
-              {offer.name}
+              {offer.nameAr}
             </h1>
           </div>
           <Button size="sm" onClick={() => router.push("/offers")}>
@@ -148,7 +148,7 @@ export default function OfferDetailsComponent() {
                     width={400}
                     height={300}
                     src={offer.image || "/images/logo/barq-logo.png"}
-                    alt={offer.name}
+                    alt={offer.nameEn}
                     className="aspect-[4/3] w-full object-cover"
                   />
                   <div className="absolute start-2 top-2 flex gap-2">
