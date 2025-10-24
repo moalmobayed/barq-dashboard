@@ -265,7 +265,7 @@ export default function ProductsTable() {
                         <TableCell>{product.reviewCount}</TableCell>
                         <TableCell>⭐ {product.rating}</TableCell>
                         <TableCell>
-                          {product.description.slice(0, 50)}...
+                          {product.descriptionAr.slice(0, 50)}...
                         </TableCell>
                         <TableCell className="space-x-4">
                           <EditProductButton
