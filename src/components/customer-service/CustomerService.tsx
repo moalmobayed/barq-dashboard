@@ -53,15 +53,9 @@ export default function CustomerServiceComponent() {
   // Load more messages for infinite scroll
   const loadMoreMessages = useCallback(() => {
     if (loadingMoreMessages || !hasMoreMessages || !selectedChat) {
-      console.log("Load more blocked:", {
-        loadingMoreMessages,
-        hasMoreMessages,
-        selectedChat: !!selectedChat,
-      });
       return;
     }
 
-    console.log("Loading more messages, page:", messagesPage + 1);
     setLoadingMoreMessages(true);
     const nextPage = messagesPage + 1;
 
@@ -73,12 +67,6 @@ export default function CustomerServiceComponent() {
     getSupportReplies(selectedChat._id, messagesLimit, nextPage)
       .then((res) => {
         const newMessages = res.data || [];
-        console.log(
-          "Loaded messages:",
-          newMessages.length,
-          "Total pages:",
-          res.metadata?.pages,
-        );
         // Reverse new messages and prepend (older messages at top)
         setMessages((prev) => [...newMessages.reverse(), ...prev]);
         setMessagesPage(nextPage);
@@ -283,24 +271,12 @@ export default function CustomerServiceComponent() {
     // Check if scrolled to top (with small threshold)
     const isNearTop = element.scrollTop < 50;
 
-    console.log(
-      "Scroll position:",
-      element.scrollTop,
-      "isNearTop:",
-      isNearTop,
-      "hasMore:",
-      hasMoreMessages,
-      "loading:",
-      loadingMoreMessages,
-    );
-
     // Check if user is near bottom (to enable auto-scroll for new messages)
     const isNearBottom =
       element.scrollHeight - element.scrollTop - element.clientHeight < 100;
     setShouldScrollToBottom(isNearBottom);
 
     if (isNearTop && hasMoreMessages && !loadingMoreMessages) {
-      console.log("Triggering loadMoreMessages");
       loadMoreMessages();
     }
   };
@@ -424,7 +400,7 @@ export default function CustomerServiceComponent() {
         ) : (
           <div
             ref={messagesContainerRef}
-            className="mb-4 flex-1 space-y-3 overflow-y-auto max-h-[90vh]"
+            className="mb-4 max-h-[90vh] flex-1 space-y-3 overflow-y-auto"
             onScroll={handleMessagesScroll}
           >
             {loadingMoreMessages && (
