@@ -45,14 +45,16 @@ export function AddProductModal({
   const [nameEnError, setNameEnError] = useState<string>("");
   const [priceError, setPriceError] = useState<string>("");
   const [amountError, setAmountError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
+  const [descriptionArError, setDescriptionArError] = useState<string>("");
+  const [descriptionEnError, setDescriptionEnError] = useState<string>("");
   const [formData, setFormData] = useState<{
     nameAr: string;
     nameEn: string;
     price: number;
     amount: number;
     shopId: string;
-    description: string;
+    descriptionAr: string;
+    descriptionEn: string;
     category: string;
     categories: string[];
     image: File;
@@ -63,7 +65,8 @@ export function AddProductModal({
     price: 0,
     amount: 0,
     shopId: "",
-    description: "",
+    descriptionAr: "",
+    descriptionEn: "",
     category: "",
     categories: [],
     image: new File([], ""),
@@ -355,7 +358,7 @@ export function AddProductModal({
     setFormData((prev) => ({ ...prev, images: fileArray }));
   };
 
-  const handleDescriptionChange = (value: string) => {
+  const handleDescriptionArChange = (value: string) => {
     // Limit to 300 characters
     const limitedValue = value.slice(0, 300);
 
@@ -376,11 +379,39 @@ export function AddProductModal({
       }
     }
 
-    setFormData((prev) => ({ ...prev, description: processedValue }));
+    setFormData((prev) => ({ ...prev, descriptionAr: processedValue }));
 
     // Validate and set error
     const error = validateDescription(processedValue);
-    setDescriptionError(error);
+    setDescriptionArError(error);
+  };
+
+  const handleDescriptionEnChange = (value: string) => {
+    // Limit to 300 characters
+    const limitedValue = value.slice(0, 300);
+
+    // Prevent multiple consecutive spaces
+    let processedValue = limitedValue.replace(/\s{2,}/g, " ");
+
+    // Prevent leading space
+    if (processedValue.startsWith(" ")) {
+      processedValue = processedValue.slice(1);
+    }
+
+    // Prevent trailing space
+    if (processedValue.endsWith(" ") && processedValue.length > 1) {
+      // Allow one space if user is typing, but prevent multiple trailing spaces
+      const beforeLastChar = processedValue.slice(-2, -1);
+      if (beforeLastChar === " ") {
+        processedValue = processedValue.slice(0, -1);
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, descriptionEn: processedValue }));
+
+    // Validate and set error
+    const error = validateDescription(processedValue);
+    setDescriptionEnError(error);
   };
 
   const handleChange = (
@@ -395,8 +426,10 @@ export function AddProductModal({
       handlePriceChange(value);
     } else if (field === "amount" && typeof value === "string") {
       handleAmountChange(value);
-    } else if (field === "description" && typeof value === "string") {
-      handleDescriptionChange(value);
+    } else if (field === "descriptionAr" && typeof value === "string") {
+      handleDescriptionArChange(value);
+    } else if (field === "descriptionEn" && typeof value === "string") {
+      handleDescriptionEnChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -488,7 +521,7 @@ export function AddProductModal({
         return;
       }
 
-      if (!formData.description) {
+      if (!formData.descriptionAr) {
         setToast({
           variant: "error",
           title: "حقل مطلوب",
@@ -498,18 +531,34 @@ export function AddProductModal({
         return;
       }
 
-      // Check for description validation errors
-      const descriptionValidationError = validateDescription(
-        formData.description,
+      // Check for Arabic description validation errors
+      const descriptionArValidationError = validateDescription(
+        formData.descriptionAr,
       );
-      if (descriptionValidationError) {
+      if (descriptionArValidationError) {
         setToast({
           variant: "error",
-          title: "خطأ في الوصف",
-          message: descriptionValidationError,
+          title: "خطأ في الوصف بالعربية",
+          message: descriptionArValidationError,
         });
         setTimeout(() => setToast(null), 5000);
         return;
+      }
+
+      // Check for English description validation errors if provided
+      if (formData.descriptionEn.trim()) {
+        const descriptionEnValidationError = validateDescription(
+          formData.descriptionEn,
+        );
+        if (descriptionEnValidationError) {
+          setToast({
+            variant: "error",
+            title: "خطأ في الوصف بالإنجليزية",
+            message: descriptionEnValidationError,
+          });
+          setTimeout(() => setToast(null), 5000);
+          return;
+        }
       }
 
       if (!formData.shopId) {
@@ -547,6 +596,10 @@ export function AddProductModal({
         ? formData.nameEn.trim()
         : formData.nameAr.trim();
 
+      const effectiveDescriptionEn = formData.descriptionEn?.trim()
+        ? formData.descriptionEn.trim()
+        : formData.descriptionAr.trim();
+
       let imageUrl = "";
       if (formData.image instanceof File && formData.image.size > 0) {
         const uploaded = await uploadImage(formData.image);
@@ -572,7 +625,8 @@ export function AddProductModal({
         price: formData.price,
         shopId: formData.shopId,
         amount: formData.amount,
-        description: formData.description,
+        descriptionAr: formData.descriptionAr,
+        descriptionEn: effectiveDescriptionEn,
         category: formData.category,
         image: imageUrl,
         images: additionalImages,
@@ -600,7 +654,8 @@ export function AddProductModal({
         price: 0,
         amount: 0,
         shopId: "",
-        description: "",
+        descriptionAr: "",
+        descriptionEn: "",
         category: "",
         categories: [],
         image: new File([], ""),
@@ -636,7 +691,8 @@ export function AddProductModal({
       price: 0,
       amount: 0,
       shopId: "",
-      description: "",
+      descriptionAr: "",
+      descriptionEn: "",
       category: "",
       categories: [],
       image: new File([], ""),
@@ -759,7 +815,7 @@ export function AddProductModal({
                   />
                 </div>
 
-                {/* Description */}
+                {/* Description Arabic */}
                 <div>
                   <Label>
                     الوصف بالعربي <span className="text-error-500">*</span>
@@ -767,15 +823,34 @@ export function AddProductModal({
                   <Input
                     type="text"
                     placeholder="ادخل وصف المنتج بالعربي"
-                    value={formData.description}
+                    value={formData.descriptionAr}
                     onChange={(e) =>
-                      handleChange("description", e.target.value)
+                      handleChange("descriptionAr", e.target.value)
                     }
-                    error={!!descriptionError}
+                    error={!!descriptionArError}
                     hint={
-                      descriptionError || `${formData.description.length}/300`
+                      descriptionArError ||
+                      `${formData.descriptionAr.length}/300`
                     }
                     required
+                  />
+                </div>
+
+                {/* Description English */}
+                <div>
+                  <Label>الوصف بالإنجليزي</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter the description in English"
+                    value={formData.descriptionEn}
+                    onChange={(e) =>
+                      handleChange("descriptionEn", e.target.value)
+                    }
+                    error={!!descriptionEnError}
+                    hint={
+                      descriptionEnError ||
+                      `${formData.descriptionEn.length}/300`
+                    }
                   />
                 </div>
 
@@ -943,7 +1018,8 @@ export function EditProductModal({
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
   const [priceError, setPriceError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
+  const [descriptionArError, setDescriptionArError] = useState<string>("");
+  const [descriptionEnError, setDescriptionEnError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
     nameAr: string;
@@ -951,7 +1027,8 @@ export function EditProductModal({
     price: number;
     amount: number;
     shopId: string;
-    description: string;
+    descriptionAr: string;
+    descriptionEn: string;
     category: string;
     image: string | File;
     images: string[];
@@ -961,7 +1038,8 @@ export function EditProductModal({
     price: product.price || 0,
     amount: product.amount || 0,
     shopId: product.shopId._id || "",
-    description: product.description || "",
+    descriptionAr: product.descriptionAr || "",
+    descriptionEn: product.descriptionEn || "",
     category: product.category._id || "",
     image: product.image || new File([], ""),
     images: product.images || [],
@@ -1013,7 +1091,8 @@ export function EditProductModal({
       price: product.price || 0,
       amount: product.amount || 0,
       shopId: product.shopId._id || "",
-      description: product.description || "",
+      descriptionAr: product.descriptionAr || "",
+      descriptionEn: product.descriptionEn || "",
       category: product.category._id || "",
       image: product.image || "",
       images: product.images || [],
@@ -1235,7 +1314,7 @@ export function EditProductModal({
     setNameEnError(error);
   };
 
-  const handleDescriptionChange = (value: string) => {
+  const handleDescriptionArChange = (value: string) => {
     // Limit to 300 characters
     const limitedValue = value.slice(0, 300);
 
@@ -1256,11 +1335,39 @@ export function EditProductModal({
       }
     }
 
-    setFormData((prev) => ({ ...prev, description: processedValue }));
+    setFormData((prev) => ({ ...prev, descriptionAr: processedValue }));
 
     // Validate and set error
     const error = validateDescription(processedValue);
-    setDescriptionError(error);
+    setDescriptionArError(error);
+  };
+
+  const handleDescriptionEnChange = (value: string) => {
+    // Limit to 300 characters
+    const limitedValue = value.slice(0, 300);
+
+    // Prevent multiple consecutive spaces
+    let processedValue = limitedValue.replace(/\s{2,}/g, " ");
+
+    // Prevent leading space
+    if (processedValue.startsWith(" ")) {
+      processedValue = processedValue.slice(1);
+    }
+
+    // Prevent trailing space
+    if (processedValue.endsWith(" ") && processedValue.length > 1) {
+      // Allow one space if user is typing, but prevent multiple trailing spaces
+      const beforeLastChar = processedValue.slice(-2, -1);
+      if (beforeLastChar === " ") {
+        processedValue = processedValue.slice(0, -1);
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, descriptionEn: processedValue }));
+
+    // Validate and set error
+    const error = validateDescription(processedValue);
+    setDescriptionEnError(error);
   };
 
   const handleChange = (
@@ -1273,8 +1380,10 @@ export function EditProductModal({
       handleNameEnChange(value);
     } else if (field === "price" && typeof value === "string") {
       handlePriceChange(value);
-    } else if (field === "description" && typeof value === "string") {
-      handleDescriptionChange(value);
+    } else if (field === "descriptionAr" && typeof value === "string") {
+      handleDescriptionArChange(value);
+    } else if (field === "descriptionEn" && typeof value === "string") {
+      handleDescriptionEnChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -1329,16 +1438,33 @@ export function EditProductModal({
         }
       }
 
-      // Check for description validation errors if provided
-      if (formData.description.trim()) {
-        const descriptionValidationError = validateDescription(
-          formData.description,
+      // Check for Arabic description validation errors if provided
+      if (formData.descriptionAr.trim()) {
+        const descriptionArValidationError = validateDescription(
+          formData.descriptionAr,
         );
-        if (descriptionValidationError) {
+        if (descriptionArValidationError) {
           setToast({
             variant: "error",
-            title: "خطأ في الوصف",
-            message: descriptionValidationError,
+            title: "خطأ في الوصف بالعربية",
+            message: descriptionArValidationError,
+          });
+          setTimeout(() => setToast(null), 5000);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Check for English description validation errors if provided
+      if (formData.descriptionEn.trim()) {
+        const descriptionEnValidationError = validateDescription(
+          formData.descriptionEn,
+        );
+        if (descriptionEnValidationError) {
+          setToast({
+            variant: "error",
+            title: "خطأ في الوصف بالإنجليزية",
+            message: descriptionEnValidationError,
           });
           setTimeout(() => setToast(null), 5000);
           setIsLoading(false);
@@ -1376,7 +1502,10 @@ export function EditProductModal({
           : formData.nameAr.trim(),
         price: formData.price,
         shopId: formData.shopId,
-        description: formData.description,
+        descriptionAr: formData.descriptionAr,
+        descriptionEn: formData.descriptionEn?.trim()
+          ? formData.descriptionEn.trim()
+          : formData.descriptionAr.trim(),
         category: formData.category,
         image: imageUrl,
         amount: formData.amount,
@@ -1428,7 +1557,8 @@ export function EditProductModal({
       price: product.price || 0,
       amount: product.amount || 0,
       shopId: product.shopId._id || "",
-      description: product.description || "",
+      descriptionAr: product.descriptionAr || "",
+      descriptionEn: product.descriptionEn || "",
       category: product.category._id || "",
       image: product.image || new File([], ""),
       images: product.images || [],
@@ -1589,19 +1719,38 @@ export function EditProductModal({
                   />
                 </div>
 
-                {/* Description */}
+                {/* Description Arabic */}
                 <div>
                   <Label>الوصف بالعربي</Label>
                   <Input
                     type="text"
                     placeholder="ادخل وصف المنتج بالعربي"
-                    value={formData.description}
+                    value={formData.descriptionAr}
                     onChange={(e) =>
-                      handleChange("description", e.target.value)
+                      handleChange("descriptionAr", e.target.value)
                     }
-                    error={!!descriptionError}
+                    error={!!descriptionArError}
                     hint={
-                      descriptionError || `${formData.description.length}/300`
+                      descriptionArError ||
+                      `${formData.descriptionAr.length}/300`
+                    }
+                  />
+                </div>
+
+                {/* Description English */}
+                <div>
+                  <Label>الوصف بالإنجليزي</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter the description in English"
+                    value={formData.descriptionEn}
+                    onChange={(e) =>
+                      handleChange("descriptionEn", e.target.value)
+                    }
+                    error={!!descriptionEnError}
+                    hint={
+                      descriptionEnError ||
+                      `${formData.descriptionEn.length}/300`
                     }
                   />
                 </div>

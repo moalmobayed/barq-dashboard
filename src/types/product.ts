@@ -4,7 +4,8 @@ export interface CreateProductPayload {
   price: number;
   amount: number;
   shopId: string;
-  description: string;
+  descriptionEn: string;
+  descriptionAr: string;
   category: string;
   image?: string;
   images?: string[];
@@ -23,7 +24,8 @@ export interface Product {
     rating: number;
     profileImage: string;
   };
-  description: string;
+  descriptionEn: string;
+  descriptionAr: string;
   category: {
     _id: string;
     nameAr: string;
