@@ -7,6 +7,7 @@ export interface CreateProductPayload {
   description: string;
   category: string;
   image?: string;
+  images?: string[];
 }
 
 export interface Product {
@@ -30,8 +31,11 @@ export interface Product {
   };
   rating: number;
   image: string;
+  images: string[];
   soldTimes: number;
   reviewCount: number;
   cartQuantity?: number;
   isInWishlist?: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
