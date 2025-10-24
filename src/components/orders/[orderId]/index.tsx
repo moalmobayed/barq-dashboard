@@ -136,7 +136,11 @@ export default function OrderDetailsComponent() {
               طريقة الدفع
             </span>
             <span className="font-medium text-gray-700 dark:text-white/90">
-              {order.paymentMethod || "-"}
+              {order.paymentMethod
+                ? order.paymentMethod === "cash"
+                  ? "نقداً"
+                  : "بطاقة"
+                : "-"}
             </span>
           </div>
           <div className="flex justify-between py-2 dark:border-white/10">
@@ -144,7 +148,13 @@ export default function OrderDetailsComponent() {
               حالة الدفع
             </span>
             <span className="font-medium text-gray-700 dark:text-white/90">
-              {order.paymentStatus || "-"}
+              {order.paymentStatus
+                ? order.paymentStatus === "paid"
+                  ? "تم الدفع"
+                  : order.paymentStatus === "pending"
+                    ? "معلق"
+                    : "فشل"
+                : "-"}
             </span>
           </div>
         </div>
