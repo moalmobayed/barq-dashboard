@@ -19,99 +19,92 @@ export default function CustomerServiceComponent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingChats, setLoadingChats] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [messagesLimit, setMessagesLimit] = useState(20);
-  const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-  const [isNearBottom, setIsNearBottom] = useState(true);
-  const PAGE_SIZE = 20;
-  const messagesLimitRef = useRef<number>(messagesLimit);
+  const [messagesPage, setMessagesPage] = useState(1);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
+  const [messagesLimit] = useState(20);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
-  useEffect(() => {
-    messagesLimitRef.current = messagesLimit;
-  }, [messagesLimit]);
-
-  // Helper function to refresh messages. Returns newest-first data but we store oldest->newest
+  // Helper function to refresh messages
   const refreshMessages = useCallback(
-    async (chatId: string, limit?: number, preserveScroll = false) => {
-      try {
-        setLoadingMessages(true);
-        const effectiveLimit = limit ?? messagesLimitRef.current;
-        const res = await getSupportReplies(chatId, effectiveLimit);
-        const data: Message[] = res.data || [];
-
-        // Ensure messages are ordered oldest -> newest
-        data.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        );
-
-        const container = messagesContainerRef.current;
-        let prevScrollHeight = 0;
-        let prevScrollTop = 0;
-        if (preserveScroll && container) {
-          prevScrollHeight = container.scrollHeight;
-          prevScrollTop = container.scrollTop;
-        }
-
-        if (preserveScroll) {
-          // We're loading older messages: merge them by prepending any items
-          // that are not already present in the current messages array.
-          setMessages((prev) => {
-            // If prev is empty just set to data
-            if (!prev || prev.length === 0) return data;
-
-            // Build a map of existing IDs for quick lookup
-            const existingIds = new Set(prev.map((m) => m._id));
-            const newOlder = data.filter((m) => !existingIds.has(m._id));
-
-            // If server returned the same or fewer messages than before,
-            // and none are new, keep prev as is.
-            if (newOlder.length === 0) return prev;
-
-            // Prepend older messages while preserving oldest->newest order
-            return [...newOlder, ...prev];
-          });
-        } else {
-          // Initial load or explicit refresh: replace the message list
-          setMessages(data);
-        }
-
-        // Update hasMoreMessages (if server returned fewer than requested, no more older messages)
-        if (limit && data.length < limit) setHasMoreMessages(false);
-        else if (!limit && data.length < messagesLimit)
-          setHasMoreMessages(false);
-        else setHasMoreMessages(true);
-
-        // After DOM updates, adjust scroll. Use double requestAnimationFrame which
-        // is more reliable than setTimeout(0) for waiting until browser paints.
-        const adjustScroll = () => {
-          if (!container) return;
-          if (preserveScroll && prevScrollHeight) {
-            // Compute how much the scrollHeight increased and keep the viewport
-            // roughly at the same content by increasing scrollTop by the delta.
-            const newScrollHeight = container.scrollHeight;
-            const delta = newScrollHeight - prevScrollHeight;
-            container.scrollTop = prevScrollTop + delta;
-          } else {
-            // default: scroll to bottom to show latest
-            container.scrollTop = container.scrollHeight;
-          }
-        };
-
-        requestAnimationFrame(() => requestAnimationFrame(adjustScroll));
-      } catch (error) {
-        console.error("Error refreshing messages:", error);
-      } finally {
-        setLoadingMessages(false);
-      }
+    (chatId: string) => {
+      getSupportReplies(chatId, messagesLimit, 1)
+        .then((res) => {
+          // Reverse to show earliest first, latest last
+          setMessages(res.data.reverse());
+          setMessagesPage(1);
+          setHasMoreMessages(res.metadata?.pages > 1);
+          setShouldScrollToBottom(true);
+        })
+        .catch((error) => {
+          console.error("Error refreshing messages:", error);
+        });
     },
     [messagesLimit],
   );
+
+  // Load more messages for infinite scroll
+  const loadMoreMessages = useCallback(() => {
+    if (loadingMoreMessages || !hasMoreMessages || !selectedChat) {
+      console.log("Load more blocked:", {
+        loadingMoreMessages,
+        hasMoreMessages,
+        selectedChat: !!selectedChat,
+      });
+      return;
+    }
+
+    console.log("Loading more messages, page:", messagesPage + 1);
+    setLoadingMoreMessages(true);
+    const nextPage = messagesPage + 1;
+
+    // Store current scroll position
+    const container = messagesContainerRef.current;
+    const previousScrollHeight = container?.scrollHeight || 0;
+    const previousScrollTop = container?.scrollTop || 0;
+
+    getSupportReplies(selectedChat._id, messagesLimit, nextPage)
+      .then((res) => {
+        const newMessages = res.data || [];
+        console.log(
+          "Loaded messages:",
+          newMessages.length,
+          "Total pages:",
+          res.metadata?.pages,
+        );
+        // Reverse new messages and prepend (older messages at top)
+        setMessages((prev) => [...newMessages.reverse(), ...prev]);
+        setMessagesPage(nextPage);
+        setHasMoreMessages(nextPage < (res.metadata?.pages || 1));
+        setLoadingMoreMessages(false);
+
+        // Restore scroll position after messages are added
+        setTimeout(() => {
+          if (container) {
+            const newScrollHeight = container.scrollHeight;
+            const scrollDiff = newScrollHeight - previousScrollHeight;
+            container.scrollTop = previousScrollTop + scrollDiff;
+          }
+        }, 50);
+      })
+      .catch((error) => {
+        console.error("Error loading more messages:", error);
+        setLoadingMoreMessages(false);
+      });
+  }, [
+    selectedChat,
+    messagesPage,
+    hasMoreMessages,
+    loadingMoreMessages,
+    messagesLimit,
+  ]);
 
   // Helper function to refresh chat list
   const refreshChatList = useCallback(() => {
@@ -189,8 +182,7 @@ export default function CustomerServiceComponent() {
     newSocket.on("support:chat:join", (data) => {
       const chatId = data?.chat?._id || data?.chat;
       if (selectedChat && chatId === selectedChat._id) {
-        // reload messages with current limit
-        refreshMessages(chatId, messagesLimitRef.current);
+        refreshMessages(chatId);
       }
     });
 
@@ -199,48 +191,22 @@ export default function CustomerServiceComponent() {
       const chatId = data?.chat?._id;
 
       if (selectedChat && chatId === selectedChat._id) {
+        // If the reply data is included in the event, add it immediately for better UX
         if (data.reply) {
-          setMessages((prev) => {
-            const next = [
-              ...prev,
-              {
-                _id: data.reply._id,
-                message: data.reply.message,
-                type: data.reply.type,
-                createdAt: data.reply.createdAt,
-                updatedAt: data.reply.updatedAt || data.reply.createdAt,
-              },
-            ];
-            next.sort(
-              (a, b) =>
-                new Date(a.createdAt).getTime() -
-                new Date(b.createdAt).getTime(),
-            );
-
-            // Auto-scroll if user is near bottom
-            const container = messagesContainerRef.current;
-            const isNearBottom = container
-              ? container.scrollHeight -
-                  container.scrollTop -
-                  container.clientHeight <=
-                160
-              : true;
-
-            // After state update, scroll if near bottom
-            requestAnimationFrame(() => {
-              if (container && isNearBottom)
-                container.scrollTop = container.scrollHeight;
-            });
-
-            return next;
-          });
+          setMessages((prev) => [
+            ...prev,
+            {
+              _id: data.reply._id,
+              message: data.reply.message,
+              type: data.reply.type,
+              createdAt: data.reply.createdAt,
+              updatedAt: data.reply.updatedAt || data.reply.createdAt,
+            },
+          ]);
         }
 
-        // refresh with current limit to remain consistent
-        setTimeout(
-          () => refreshMessages(chatId, messagesLimitRef.current),
-          300,
-        );
+        // Then refresh to ensure consistency with server after a short delay
+        setTimeout(() => refreshMessages(chatId), 300);
       }
       // Also refresh the chat list to update last message
       refreshChatList();
@@ -276,12 +242,21 @@ export default function CustomerServiceComponent() {
 
   useEffect(() => {
     if (selectedChat) {
-      setMessagesLimit(PAGE_SIZE);
+      setLoadingMessages(true);
+      setMessagesPage(1);
       setHasMoreMessages(true);
-      refreshMessages(selectedChat._id, PAGE_SIZE, false);
+      setShouldScrollToBottom(true);
+      getSupportReplies(selectedChat._id, messagesLimit, 1).then((res) => {
+        setMessages(res.data.reverse());
+        setHasMoreMessages(res.metadata?.pages > 1);
+        setLoadingMessages(false);
+      });
+    } else {
+      setMessages([]);
+      setMessagesPage(1);
+      setHasMoreMessages(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedChat]);
+  }, [selectedChat, messagesLimit]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -290,8 +265,9 @@ export default function CustomerServiceComponent() {
     try {
       await createSupportReply(selectedChat._id, newMessage);
       setNewMessage("");
+      setShouldScrollToBottom(true);
       // Immediately refresh messages after sending
-      refreshMessages(selectedChat._id, messagesLimitRef.current);
+      refreshMessages(selectedChat._id);
       // Also refresh chat list to update last message
       refreshChatList();
     } catch (error) {
@@ -300,6 +276,41 @@ export default function CustomerServiceComponent() {
       setSending(false);
     }
   };
+
+  // Handle scroll event for messages infinite scroll
+  const handleMessagesScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    // Check if scrolled to top (with small threshold)
+    const isNearTop = element.scrollTop < 50;
+
+    console.log(
+      "Scroll position:",
+      element.scrollTop,
+      "isNearTop:",
+      isNearTop,
+      "hasMore:",
+      hasMoreMessages,
+      "loading:",
+      loadingMoreMessages,
+    );
+
+    // Check if user is near bottom (to enable auto-scroll for new messages)
+    const isNearBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+    setShouldScrollToBottom(isNearBottom);
+
+    if (isNearTop && hasMoreMessages && !loadingMoreMessages) {
+      console.log("Triggering loadMoreMessages");
+      loadMoreMessages();
+    }
+  };
+
+  // Auto-scroll to bottom when new messages arrive (if user is near bottom)
+  useEffect(() => {
+    if (shouldScrollToBottom && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, shouldScrollToBottom]);
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -398,7 +409,7 @@ export default function CustomerServiceComponent() {
       </div>
 
       {/* Chat Messages */}
-      <div className="flex max-h-[80vh] flex-col rounded-2xl border border-gray-100 bg-white p-4 md:col-span-2 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-4 md:col-span-2 dark:border-gray-800 dark:bg-white/[0.03]">
         <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">
           المحادثة
         </h2>
@@ -411,104 +422,38 @@ export default function CustomerServiceComponent() {
             جاري تحميل الرسائل...
           </div>
         ) : (
-          <>
-            <div
-              ref={messagesContainerRef}
-              className="mb-4 flex-1 space-y-3 overflow-y-auto"
-              onScroll={(e) => {
-                const target = e.target as HTMLDivElement;
-                const nearBottom =
-                  target.scrollHeight -
-                    target.scrollTop -
-                    target.clientHeight <=
-                  160;
-                setIsNearBottom(nearBottom);
-                // load older messages when user scrolls near top
-                if (
-                  target.scrollTop <= 60 &&
-                  !loadingMessages &&
-                  hasMoreMessages &&
-                  selectedChat
-                ) {
-                  const nextLimit = messagesLimit + PAGE_SIZE;
-                  setMessagesLimit(nextLimit);
-                  // preserve scroll position when loading older messages
-                  refreshMessages(selectedChat._id, nextLimit, true);
-                }
-              }}
-            >
-              {/* Top loader shown when loading older messages and there are already messages */}
-              {loadingMessages && messages.length > 0 && (
-                <div className="flex items-center justify-center py-2">
-                  <svg
-                    className="h-5 w-5 animate-spin text-gray-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                    ></path>
-                  </svg>
-                </div>
-              )}
-              {messages.map((msg) => (
+          <div
+            ref={messagesContainerRef}
+            className="mb-4 flex-1 space-y-3 overflow-y-auto max-h-[90vh]"
+            onScroll={handleMessagesScroll}
+          >
+            {loadingMoreMessages && (
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+                جاري تحميل المزيد...
+              </div>
+            )}
+            {!hasMoreMessages && messages.length > messagesLimit && (
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+                لا توجد المزيد من الرسائل
+              </div>
+            )}
+            {messages.map((msg) => (
+              <div
+                key={msg._id}
+                className={`flex ${msg.type === "admin" ? "justify-end" : "justify-start"}`}
+              >
                 <div
-                  key={msg._id}
-                  className={`flex ${msg.type === "admin" ? "justify-end" : "justify-start"}`}
+                  className={`max-w-[70%] rounded-xl px-4 py-2 text-sm ${msg.type === "admin" ? "bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-200" : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-white/90"}`}
                 >
-                  <div
-                    className={`max-w-[70%] rounded-xl px-4 py-2 text-sm ${msg.type === "admin" ? "bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-200" : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-white/90"}`}
-                  >
-                    {msg.message}
-                    <div className="mt-1 text-end text-xs text-gray-400 dark:text-gray-500">
-                      {new Date(msg.createdAt).toLocaleTimeString()}
-                    </div>
+                  {msg.message}
+                  <div className="mt-1 text-end text-xs text-gray-400 dark:text-gray-500">
+                    {new Date(msg.createdAt).toLocaleTimeString()}
                   </div>
                 </div>
-              ))}
-            </div>
-            {/* Scroll-to-bottom button */}
-            {!isNearBottom && messages.length > 0 && (
-              <button
-                onClick={() => {
-                  const c = messagesContainerRef.current;
-                  if (c) c.scrollTop = c.scrollHeight;
-                  setIsNearBottom(true);
-                }}
-                className="fixed right-8 bottom-28 z-50 rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700"
-                title="انتقل إلى الرسائل الأخيرة"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3.293 9.707a1 1 0 011.414 0L10 15l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    d="M3.293 3.707a1 1 0 011.414 0L10 9l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            )}
-          </>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
         )}
         {/* Message Input */}
         {selectedChat && (
