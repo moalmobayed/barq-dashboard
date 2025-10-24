@@ -3,10 +3,12 @@ import { Vendor } from "./vendor";
 
 // types/offer.ts
 export interface CreateOfferPayload {
-  name: string;
+  nameAr: string;
+  nameEn: string;
   product: string;
   image: string;
-  description: string;
+  descriptionAr: string;
+  descriptionEn: string;
   discount: number;
   startDate: Date;
   endDate: Date;
@@ -15,11 +17,13 @@ export interface CreateOfferPayload {
 
 export interface Offer {
   _id: string;
-  name: string;
+  nameAr: string;
+  nameEn: string;
   shopId: Vendor;
   product: Product;
   image: string;
-  description: string;
+  descriptionAr: string;
+  descriptionEn: string;
   discount: number;
   startDate: Date;
   endDate: Date;

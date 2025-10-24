@@ -30,31 +30,37 @@ export function AddOfferModal({
   const [products, setProducts] = useState<Product[]>([]);
   const [vendor, setVendor] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [nameError, setNameError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
+  const [nameArError, setNameArError] = useState<string>("");
+  const [nameEnError, setNameEnError] = useState<string>("");
+  const [descriptionArError, setDescriptionArError] = useState<string>("");
+  const [descriptionEnError, setDescriptionEnError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
-    name: string;
+    nameAr: string;
+    nameEn: string;
     product: string;
     image: File;
-    description: string;
+    descriptionAr: string;
+    descriptionEn: string;
     discount: number;
     startDate: Date | undefined;
     endDate: Date | undefined;
     shopId: string;
   }>({
-    name: "",
+    nameAr: "",
+    nameEn: "",
     product: "",
     image: new File([], ""), // Initialize with an empty file
-    description: "",
+    descriptionAr: "",
+    descriptionEn: "",
     discount: 1,
     startDate: undefined,
     endDate: undefined,
     shopId: "",
   });
 
-  // Name validation function
-  const validateName = (name: string): string => {
+  // Name validation function (Arabic)
+  const validateNameAr = (name: string): string => {
     if (!name.trim()) {
       return "";
     }
@@ -67,7 +73,7 @@ export function AddOfferModal({
       return "الاسم طويل جداً";
     }
 
-    // Check for only Arabic, English, numbers, and spaces
+    // Check for only Arabic and spaces
     const validPattern = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+$/;
     if (!validPattern.test(name)) {
       return "الاسم يقبل الحروف العربية والمسافات فقط";
@@ -91,8 +97,41 @@ export function AddOfferModal({
     return "";
   };
 
-  // Description validation function
-  const validateDescription = (description: string): string => {
+  // Name validation function (English)
+  const validateNameEn = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "Name must be at least 2 characters";
+    }
+
+    if (name.length > 60) {
+      return "Name is too long";
+    }
+
+    // Check for only English letters and spaces
+    const validPattern = /^[a-zA-Z\s]+$/;
+    if (!validPattern.test(name)) {
+      return "Name accepts English letters and spaces only";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "Name cannot start or end with a space";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "Only one space between words";
+    }
+
+    return "";
+  };
+
+  // Description validation function (Arabic)
+  const validateDescriptionAr = (description: string): string => {
     if (!description.trim()) {
       return "";
     }
@@ -124,6 +163,39 @@ export function AddOfferModal({
     // Check if it's only spaces
     if (description.trim() === "") {
       return "الوصف لا يمكن أن يكون مسافات فقط";
+    }
+
+    return "";
+  };
+
+  // Description validation function (English)
+  const validateDescriptionEn = (description: string): string => {
+    if (!description.trim()) {
+      return "";
+    }
+
+    if (description.length < 10) {
+      return "Description must be at least 10 characters";
+    }
+
+    if (description.length > 300) {
+      return "Description is too long";
+    }
+
+    // Check for English letters, numbers, spaces, and common punctuation only
+    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
+    if (!validPattern.test(description)) {
+      return "Description accepts English letters, numbers, spaces, and punctuation only";
+    }
+
+    // Check for leading or trailing spaces
+    if (description.startsWith(" ") || description.endsWith(" ")) {
+      return "Description cannot start or end with a space";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(description)) {
+      return "Only one space between words";
     }
 
     return "";
@@ -182,23 +254,41 @@ export function AddOfferModal({
         return;
       }
 
-      // Handle name field validation
-      if (field === "name") {
+      // Handle nameAr field validation
+      if (field === "nameAr") {
         // Limit to 60 characters
         if (value.length > 60) {
           return;
         }
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setNameError(validateName(value));
+        setNameArError(validateNameAr(value));
       }
-      // Handle description field validation
-      else if (field === "description") {
+      // Handle nameEn field validation
+      else if (field === "nameEn") {
+        // Limit to 60 characters
+        if (value.length > 60) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setNameEnError(validateNameEn(value));
+      }
+      // Handle descriptionAr field validation
+      else if (field === "descriptionAr") {
         // Limit to 300 characters
         if (value.length > 300) {
           return;
         }
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setDescriptionError(validateDescription(value));
+        setDescriptionArError(validateDescriptionAr(value));
+      }
+      // Handle descriptionEn field validation
+      else if (field === "descriptionEn") {
+        // Limit to 300 characters
+        if (value.length > 300) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setDescriptionEnError(validateDescriptionEn(value));
       }
       // Handle other fields
       else {
@@ -214,26 +304,46 @@ export function AddOfferModal({
 
     try {
       // Validate all fields before submission
-      const nameValidationError = validateName(formData.name);
-      const descriptionValidationError = validateDescription(
-        formData.description,
+      const nameArValidationError = validateNameAr(formData.nameAr);
+      const nameEnValidationError = validateNameEn(formData.nameEn);
+      const descriptionArValidationError = validateDescriptionAr(
+        formData.descriptionAr,
+      );
+      const descriptionEnValidationError = validateDescriptionEn(
+        formData.descriptionEn,
       );
 
-      setNameError(nameValidationError);
-      setDescriptionError(descriptionValidationError);
+      setNameArError(nameArValidationError);
+      setNameEnError(nameEnValidationError);
+      setDescriptionArError(descriptionArValidationError);
+      setDescriptionEnError(descriptionEnValidationError);
 
       // Check if there are any validation errors
-      if (nameValidationError || descriptionValidationError) {
+      if (
+        nameArValidationError ||
+        nameEnValidationError ||
+        descriptionArValidationError ||
+        descriptionEnValidationError
+      ) {
         setIsLoading(false);
         return;
       }
 
       // Validation for required fields
-      if (!formData.name) {
+      if (!formData.nameAr) {
         setToast({
           variant: "error",
           title: "حقل مطلوب",
-          message: "اسم العرض مطلوب.",
+          message: "اسم العرض بالعربي مطلوب.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+      if (!formData.nameEn) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "اسم العرض بالإنجليزي مطلوب.",
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -256,11 +366,20 @@ export function AddOfferModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
-      if (!formData.description) {
+      if (!formData.descriptionAr) {
         setToast({
           variant: "error",
           title: "حقل مطلوب",
-          message: "وصف العرض مطلوب.",
+          message: "وصف العرض بالعربي مطلوب.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+      if (!formData.descriptionEn) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "وصف العرض بالإنجليزي مطلوب.",
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -313,10 +432,12 @@ export function AddOfferModal({
       }
 
       const payloadRaw: CreateOfferPayload = {
-        name: formData.name,
+        nameAr: formData.nameAr,
+        nameEn: formData.nameEn,
         product: formData.product,
         image: imageUrl,
-        description: formData.description,
+        descriptionAr: formData.descriptionAr,
+        descriptionEn: formData.descriptionEn,
         discount: formData.discount,
         startDate: formData.startDate,
         endDate: formData.endDate,
@@ -338,10 +459,12 @@ export function AddOfferModal({
       });
       setTimeout(() => setToast(null), 5000);
       setFormData({
-        name: "",
+        nameAr: "",
+        nameEn: "",
         product: "",
         image: new File([], ""), // Initialize with an empty file
-        description: "",
+        descriptionAr: "",
+        descriptionEn: "",
         discount: 1,
         startDate: undefined,
         endDate: undefined,
@@ -373,17 +496,21 @@ export function AddOfferModal({
 
   const handleModalClose = () => {
     setFormData({
-      name: "",
+      nameAr: "",
+      nameEn: "",
       product: "",
       image: new File([], ""),
-      description: "",
+      descriptionAr: "",
+      descriptionEn: "",
       discount: 1,
       startDate: undefined,
       endDate: undefined,
       shopId: "",
     });
-    setNameError("");
-    setDescriptionError("");
+    setNameArError("");
+    setNameEnError("");
+    setDescriptionArError("");
+    setDescriptionEnError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -413,7 +540,7 @@ export function AddOfferModal({
                   />
                 </div>
 
-                {/* Name */}
+                {/* Name Arabic */}
                 <div>
                   <Label>
                     الاسم بالعربي <span className="text-error-500">*</span>
@@ -421,10 +548,26 @@ export function AddOfferModal({
                   <Input
                     type="text"
                     placeholder="ادخل اسم العرض بالعربي"
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    error={!!nameError}
-                    hint={nameError || `${formData.name.length}/60`}
+                    value={formData.nameAr}
+                    onChange={(e) => handleChange("nameAr", e.target.value)}
+                    error={!!nameArError}
+                    hint={nameArError || `${formData.nameAr.length}/60`}
+                    required
+                  />
+                </div>
+
+                {/* Name English */}
+                <div>
+                  <Label>
+                    الاسم بالإنجليزي <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter offer name in English"
+                    value={formData.nameEn}
+                    onChange={(e) => handleChange("nameEn", e.target.value)}
+                    error={!!nameEnError}
+                    hint={nameEnError || `${formData.nameEn.length}/60`}
                     required
                   />
                 </div>
@@ -464,7 +607,7 @@ export function AddOfferModal({
                   />
                 </div>
 
-                {/* Description */}
+                {/* Description Arabic */}
                 <div>
                   <Label>
                     الوصف بالعربي <span className="text-error-500">*</span>
@@ -472,13 +615,35 @@ export function AddOfferModal({
                   <Input
                     type="text"
                     placeholder="ادخل وصف المنتج بالعربي"
-                    value={formData.description}
+                    value={formData.descriptionAr}
                     onChange={(e) =>
-                      handleChange("description", e.target.value)
+                      handleChange("descriptionAr", e.target.value)
                     }
-                    error={!!descriptionError}
+                    error={!!descriptionArError}
                     hint={
-                      descriptionError || `${formData.description.length}/300`
+                      descriptionArError ||
+                      `${formData.descriptionAr.length}/300`
+                    }
+                    required
+                  />
+                </div>
+
+                {/* Description English */}
+                <div>
+                  <Label>
+                    الوصف بالإنجليزي <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter product description in English"
+                    value={formData.descriptionEn}
+                    onChange={(e) =>
+                      handleChange("descriptionEn", e.target.value)
+                    }
+                    error={!!descriptionEnError}
+                    hint={
+                      descriptionEnError ||
+                      `${formData.descriptionEn.length}/300`
                     }
                     required
                   />
@@ -620,29 +785,35 @@ export function EditOfferModal({
   onSuccess = () => {},
 }) {
   const [toast, setToast] = useState<AlertProps | null>(null);
-  const [nameError, setNameError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
+  const [nameArError, setNameArError] = useState<string>("");
+  const [nameEnError, setNameEnError] = useState<string>("");
+  const [descriptionArError, setDescriptionArError] = useState<string>("");
+  const [descriptionEnError, setDescriptionEnError] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState<{
-    name: string;
+    nameAr: string;
+    nameEn: string;
     image: string | File;
-    description: string;
+    descriptionAr: string;
+    descriptionEn: string;
     discount: number;
     startDate: Date;
     endDate: Date;
   }>({
-    name: offer.name || "",
+    nameAr: offer.nameAr || "",
+    nameEn: offer.nameEn || "",
     image: offer.image || "",
-    description: offer.description || "",
+    descriptionAr: offer.descriptionAr || "",
+    descriptionEn: offer.descriptionEn || "",
     discount: offer.discount || 0,
     startDate: offer.startDate || new Date(),
     endDate: offer.endDate || new Date(),
   });
 
-  // Name validation function
-  const validateName = (name: string): string => {
+  // Name validation function (Arabic)
+  const validateNameAr = (name: string): string => {
     if (!name.trim()) {
       return "";
     }
@@ -655,10 +826,10 @@ export function EditOfferModal({
       return "الاسم طويل جداً";
     }
 
-    // Check for only Arabic, English, numbers, and spaces
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    // Check for only Arabic and spaces
+    const validPattern = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+$/;
     if (!validPattern.test(name)) {
-      return "الاسم يقبل حروف وأرقام ومسافات فقط";
+      return "الاسم يقبل الحروف العربية والمسافات فقط";
     }
 
     // Check for leading or trailing spaces
@@ -671,16 +842,44 @@ export function EditOfferModal({
       return "مسافة واحدة فقط بين الكلمات";
     }
 
-    // Check if it's only spaces
-    if (name.trim() === "") {
-      return "الاسم لا يمكن أن يكون مسافات فقط";
+    return "";
+  };
+
+  // Name validation function (English)
+  const validateNameEn = (name: string): string => {
+    if (!name.trim()) {
+      return "";
+    }
+
+    if (name.length < 2) {
+      return "Name must be at least 2 characters";
+    }
+
+    if (name.length > 60) {
+      return "Name is too long";
+    }
+
+    // Check for only English letters and spaces
+    const validPattern = /^[a-zA-Z\s]+$/;
+    if (!validPattern.test(name)) {
+      return "Name accepts English letters and spaces only";
+    }
+
+    // Check for leading or trailing spaces
+    if (name.startsWith(" ") || name.endsWith(" ")) {
+      return "Name cannot start or end with a space";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(name)) {
+      return "Only one space between words";
     }
 
     return "";
   };
 
-  // Description validation function
-  const validateDescription = (description: string): string => {
+  // Description validation function (Arabic)
+  const validateDescriptionAr = (description: string): string => {
     if (!description.trim()) {
       return "";
     }
@@ -709,9 +908,37 @@ export function EditOfferModal({
       return "مسافة واحدة فقط بين الكلمات";
     }
 
-    // Check if it's only spaces
-    if (description.trim() === "") {
-      return "الوصف لا يمكن أن يكون مسافات فقط";
+    return "";
+  };
+
+  // Description validation function (English)
+  const validateDescriptionEn = (description: string): string => {
+    if (!description.trim()) {
+      return "";
+    }
+
+    if (description.length < 10) {
+      return "Description must be at least 10 characters";
+    }
+
+    if (description.length > 300) {
+      return "Description is too long";
+    }
+
+    // Check for English letters, numbers, spaces, and common punctuation only
+    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
+    if (!validPattern.test(description)) {
+      return "Description accepts English letters, numbers, spaces, and punctuation only";
+    }
+
+    // Check for leading or trailing spaces
+    if (description.startsWith(" ") || description.endsWith(" ")) {
+      return "Description cannot start or end with a space";
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(description)) {
+      return "Only one space between words";
     }
 
     return "";
@@ -722,23 +949,41 @@ export function EditOfferModal({
     value: string | string[] | File | undefined,
   ) => {
     if (typeof value === "string") {
-      // Handle name field validation
-      if (field === "name") {
+      // Handle nameAr field validation
+      if (field === "nameAr") {
         // Limit to 60 characters
         if (value.length > 60) {
           return;
         }
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setNameError(validateName(value));
+        setNameArError(validateNameAr(value));
       }
-      // Handle description field validation
-      else if (field === "description") {
+      // Handle nameEn field validation
+      else if (field === "nameEn") {
+        // Limit to 60 characters
+        if (value.length > 60) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setNameEnError(validateNameEn(value));
+      }
+      // Handle descriptionAr field validation
+      else if (field === "descriptionAr") {
         // Limit to 300 characters
         if (value.length > 300) {
           return;
         }
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setDescriptionError(validateDescription(value));
+        setDescriptionArError(validateDescriptionAr(value));
+      }
+      // Handle descriptionEn field validation
+      else if (field === "descriptionEn") {
+        // Limit to 300 characters
+        if (value.length > 300) {
+          return;
+        }
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        setDescriptionEnError(validateDescriptionEn(value));
       }
       // Handle other fields
       else {
@@ -754,16 +999,27 @@ export function EditOfferModal({
 
     try {
       // Validate all fields before submission
-      const nameValidationError = validateName(formData.name);
-      const descriptionValidationError = validateDescription(
-        formData.description,
+      const nameArValidationError = validateNameAr(formData.nameAr);
+      const nameEnValidationError = validateNameEn(formData.nameEn);
+      const descriptionArValidationError = validateDescriptionAr(
+        formData.descriptionAr,
+      );
+      const descriptionEnValidationError = validateDescriptionEn(
+        formData.descriptionEn,
       );
 
-      setNameError(nameValidationError);
-      setDescriptionError(descriptionValidationError);
+      setNameArError(nameArValidationError);
+      setNameEnError(nameEnValidationError);
+      setDescriptionArError(descriptionArValidationError);
+      setDescriptionEnError(descriptionEnValidationError);
 
       // Check if there are any validation errors
-      if (nameValidationError || descriptionValidationError) {
+      if (
+        nameArValidationError ||
+        nameEnValidationError ||
+        descriptionArValidationError ||
+        descriptionEnValidationError
+      ) {
         setIsLoading(false);
         return;
       }
@@ -778,9 +1034,11 @@ export function EditOfferModal({
       }
 
       const payloadRaw: Partial<CreateOfferPayload> = {
-        name: formData.name,
+        nameAr: formData.nameAr,
+        nameEn: formData.nameEn,
         image: imageUrl,
-        description: formData.description,
+        descriptionAr: formData.descriptionAr,
+        descriptionEn: formData.descriptionEn,
         discount: formData.discount,
         startDate: formData.startDate,
         endDate: formData.endDate,
@@ -826,15 +1084,19 @@ export function EditOfferModal({
 
   const handleModalClose = () => {
     setFormData({
-      name: offer.name || "",
+      nameAr: offer.nameAr || "",
+      nameEn: offer.nameEn || "",
       image: offer.image || "",
-      description: offer.description || "",
+      descriptionAr: offer.descriptionAr || "",
+      descriptionEn: offer.descriptionEn || "",
       discount: offer.discount || 0,
       startDate: offer.startDate || new Date(),
       endDate: offer.endDate || new Date(),
     });
-    setNameError("");
-    setDescriptionError("");
+    setNameArError("");
+    setNameEnError("");
+    setDescriptionArError("");
+    setDescriptionEnError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -871,32 +1133,64 @@ export function EditOfferModal({
                   />
                 </div>
 
-                {/* Name */}
+                {/* Name Arabic */}
                 <div>
-                  <Label>الاسم</Label>
+                  <Label>الاسم بالعربي</Label>
                   <Input
                     type="text"
                     placeholder="ادخل اسم العرض بالعربي"
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    error={!!nameError}
-                    hint={nameError || `${formData.name.length}/60`}
+                    value={formData.nameAr}
+                    onChange={(e) => handleChange("nameAr", e.target.value)}
+                    error={!!nameArError}
+                    hint={nameArError || `${formData.nameAr.length}/60`}
                   />
                 </div>
 
-                {/* Description */}
+                {/* Name English */}
+                <div>
+                  <Label>الاسم بالإنجليزي</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter offer name in English"
+                    value={formData.nameEn}
+                    onChange={(e) => handleChange("nameEn", e.target.value)}
+                    error={!!nameEnError}
+                    hint={nameEnError || `${formData.nameEn.length}/60`}
+                  />
+                </div>
+
+                {/* Description Arabic */}
                 <div>
                   <Label>الوصف بالعربي</Label>
                   <Input
                     type="text"
                     placeholder="ادخل وصف المنتج بالعربي"
-                    value={formData.description}
+                    value={formData.descriptionAr}
                     onChange={(e) =>
-                      handleChange("description", e.target.value)
+                      handleChange("descriptionAr", e.target.value)
                     }
-                    error={!!descriptionError}
+                    error={!!descriptionArError}
                     hint={
-                      descriptionError || `${formData.description.length}/300`
+                      descriptionArError ||
+                      `${formData.descriptionAr.length}/300`
+                    }
+                  />
+                </div>
+
+                {/* Description English */}
+                <div>
+                  <Label>الوصف بالإنجليزي</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter product description in English"
+                    value={formData.descriptionEn}
+                    onChange={(e) =>
+                      handleChange("descriptionEn", e.target.value)
+                    }
+                    error={!!descriptionEnError}
+                    hint={
+                      descriptionEnError ||
+                      `${formData.descriptionEn.length}/300`
                     }
                   />
                 </div>

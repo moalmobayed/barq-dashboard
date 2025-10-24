@@ -272,15 +272,15 @@ export default function OffersTable() {
                                 src={
                                   offer.image || "/images/logo/barq-logo.png"
                                 }
-                                alt={offer.name}
+                                alt={offer.nameAr}
                                 className="size-10 rounded-full object-cover"
                               />
                               <div className="min-w-0">
                                 <span className="block truncate font-medium text-gray-800 dark:text-white/90">
-                                  {offer.name}
+                                  {offer.nameAr}
                                 </span>
                                 <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
-                                  {offer.description || "—"}
+                                  {offer.descriptionAr || "—"}
                                 </span>
                               </div>
                             </Link>
