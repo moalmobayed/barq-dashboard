@@ -216,36 +216,6 @@ export function AddProductModal({
     return "";
   };
 
-  const formatPrice = (value: string): string => {
-    // Remove all non-numeric characters except decimal point
-    let cleaned = value.replace(/[^0-9.]/g, "");
-
-    // Handle decimal point - only allow one and not at the beginning
-    const parts = cleaned.split(".");
-    if (parts.length > 2) {
-      cleaned = parts[0] + "." + parts.slice(1).join("");
-    }
-
-    // Don't allow decimal point at the beginning
-    if (cleaned.startsWith(".")) {
-      cleaned = cleaned.substring(1);
-    }
-
-    // Limit to 7 digits before decimal point
-    if (parts[0] && parts[0].length > 7) {
-      parts[0] = parts[0].substring(0, 7);
-      cleaned = parts.join(".");
-    }
-
-    // Add commas every 3 digits
-    if (parts[0]) {
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      cleaned = parts.join(".");
-    }
-
-    return cleaned;
-  };
-
   const handleNameArChange = (value: string) => {
     // Limit to 50 characters
     const limitedValue = value.slice(0, 50);
@@ -303,21 +273,35 @@ export function AddProductModal({
   };
 
   const handlePriceChange = (value: string) => {
-    const formattedValue = formatPrice(value);
+    // For number input, value may be "" or a numeric string like "3.5"
+    const cleaned = value.replace(/,/g, "").trim();
 
-    // Check if the formatted value exceeds 7 digits before decimal point
-    const digitsBeforeDecimal = formattedValue.split(".")[0].replace(/,/g, "");
-    if (digitsBeforeDecimal.length > 7) {
-      return; // Don't update if it exceeds 7 digits
+    if (cleaned === "" || cleaned === ".") {
+      setFormData((prev) => ({ ...prev, price: 0 }));
+      setPriceError("");
+      return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      price: parseFloat(formattedValue.replace(/,/g, "")) || 0,
-    }));
+    // Parse float and clamp/round
+    let num = parseFloat(cleaned);
+    if (isNaN(num)) {
+      num = 0;
+    }
 
-    // Validate and set error
-    const error = validatePrice(formattedValue);
+    // Limit digits before decimal to 7
+    const [intPart] = cleaned.split(".");
+    if (intPart && intPart.replace(/[^0-9]/g, "").length > 7) {
+      return;
+    }
+
+    // clamp and round to 2 decimals
+    num = Math.min(Math.max(num, 0), 9999999);
+    num = Math.round(num * 100) / 100;
+
+    setFormData((prev) => ({ ...prev, price: num }));
+
+    // Validate and set error using the numeric string
+    const error = validatePrice(num.toString());
     setPriceError(error);
   };
 
@@ -692,14 +676,12 @@ export function AddProductModal({
                     السعر <span className="text-error-500">*</span>
                   </Label>
                   <Input
-                    type="text"
+                    type="number"
                     placeholder="ادخل سعر المنتج"
-                    value={
-                      formData.price === 0
-                        ? ""
-                        : formatPrice(formData.price.toString())
-                    }
-                    onChange={(e) => handleChange("price", e.target.value)}
+                    step={0.01}
+                    min="1"
+                    value={formData.price === 0 ? "" : formData.price}
+                    onChange={(e) => handlePriceChange(e.target.value)}
                     error={!!priceError}
                     hint={
                       priceError ||
@@ -1072,34 +1054,39 @@ export function EditProductModal({
     return "";
   };
 
-  const formatPrice = (value: string): string => {
-    // Remove all non-numeric characters except decimal point
-    let cleaned = value.replace(/[^0-9.]/g, "");
+  // Numeric price handler: accept number-like strings (including "" and "."),
+  // limit to 7 digits before decimal, clamp to [0, 9_999_999], and round to 2 decimals.
+  const handlePriceChange = (value: string) => {
+    // For number input, value may be "" or a numeric string like "3.5"
+    const cleaned = value.replace(/,/g, "").trim();
 
-    // Handle decimal point - only allow one and not at the beginning
-    const parts = cleaned.split(".");
-    if (parts.length > 2) {
-      cleaned = parts[0] + "." + parts.slice(1).join("");
+    if (cleaned === "" || cleaned === ".") {
+      setFormData((prev) => ({ ...prev, price: 0 }));
+      setPriceError("");
+      return;
     }
 
-    // Don't allow decimal point at the beginning
-    if (cleaned.startsWith(".")) {
-      cleaned = cleaned.substring(1);
+    // Parse float and clamp/round
+    let num = parseFloat(cleaned);
+    if (isNaN(num)) {
+      num = 0;
     }
 
-    // Limit to 7 digits before decimal point
-    if (parts[0] && parts[0].length > 7) {
-      parts[0] = parts[0].substring(0, 7);
-      cleaned = parts.join(".");
+    // Limit digits before decimal to 7
+    const [intPart] = cleaned.split(".");
+    if (intPart && intPart.replace(/[^0-9]/g, "").length > 7) {
+      return;
     }
 
-    // Add commas every 3 digits
-    if (parts[0]) {
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      cleaned = parts.join(".");
-    }
+    // clamp and round to 2 decimals
+    num = Math.min(Math.max(num, 0), 9999999);
+    num = Math.round(num * 100) / 100;
 
-    return cleaned;
+    setFormData((prev) => ({ ...prev, price: num }));
+
+    // Validate and set error using the numeric string
+    const error = validatePrice(num.toString());
+    setPriceError(error);
   };
 
   const handleNameArChange = (value: string) => {
@@ -1156,25 +1143,6 @@ export function EditProductModal({
     // Validate and set error
     const error = validateNameEn(processedValue);
     setNameEnError(error);
-  };
-
-  const handlePriceChange = (value: string) => {
-    const formattedValue = formatPrice(value);
-
-    // Check if the formatted value exceeds 7 digits before decimal point
-    const digitsBeforeDecimal = formattedValue.split(".")[0].replace(/,/g, "");
-    if (digitsBeforeDecimal.length > 7) {
-      return; // Don't update if it exceeds 7 digits
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      price: parseFloat(formattedValue.replace(/,/g, "")) || 0,
-    }));
-
-    // Validate and set error
-    const error = validatePrice(formattedValue);
-    setPriceError(error);
   };
 
   const handleDescriptionChange = (value: string) => {
@@ -1427,14 +1395,12 @@ export function EditProductModal({
                 <div>
                   <Label>السعر</Label>
                   <Input
-                    type="text"
+                    type="number"
                     placeholder="ادخل سعر المنتج"
-                    value={
-                      formData.price === 0
-                        ? ""
-                        : formatPrice(formData.price.toString())
-                    }
-                    onChange={(e) => handleChange("price", e.target.value)}
+                    step={0.01}
+                    min="1"
+                    value={formData.price === 0 ? "" : formData.price}
+                    onChange={(e) => handlePriceChange(e.target.value)}
                     error={!!priceError}
                     hint={
                       priceError ||
