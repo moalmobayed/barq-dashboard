@@ -151,7 +151,7 @@ export default function PrivacyPolicyComponent() {
           </h2>
 
           {/* Arabic Title */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="privacyAr">العنوان بالعربية</Label>
             <HTMLEditor
               value={formData.privacyAr}
@@ -159,7 +159,7 @@ export default function PrivacyPolicyComponent() {
               placeholder="أدخل عنوان سياسة الخصوصية بالعربية..."
               isRTL={true}
             />
-          </div>
+          </div> */}
 
           {/* Arabic Description */}
           <div className="space-y-2">
@@ -180,7 +180,7 @@ export default function PrivacyPolicyComponent() {
           </h2>
 
           {/* English Title */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="privacyEn" className="text-end">
               Title in English
             </Label>
@@ -189,7 +189,7 @@ export default function PrivacyPolicyComponent() {
               onChange={(value) => handleFieldChange("privacyEn", value)}
               placeholder="Enter privacy policy title in English..."
             />
-          </div>
+          </div> */}
 
           {/* English Description */}
           <div className="space-y-2">

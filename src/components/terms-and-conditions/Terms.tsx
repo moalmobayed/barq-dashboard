@@ -151,7 +151,7 @@ export default function TermsComponent() {
           </h2>
 
           {/* Arabic Title */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="termAr">العنوان بالعربية</Label>
             <HTMLEditor
               value={formData.termAr}
@@ -159,7 +159,7 @@ export default function TermsComponent() {
               placeholder="أدخل عنوان الشروط والأحكام بالعربية..."
               isRTL={true}
             />
-          </div>
+          </div> */}
 
           {/* Arabic Description */}
           <div className="space-y-2">
@@ -180,7 +180,7 @@ export default function TermsComponent() {
           </h2>
 
           {/* English Title */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="termEn" className="text-end">
               Title in English
             </Label>
@@ -189,7 +189,7 @@ export default function TermsComponent() {
               onChange={(value) => handleFieldChange("termEn", value)}
               placeholder="Enter terms & conditions title in English..."
             />
-          </div>
+          </div> */}
 
           {/* English Description */}
           <div className="space-y-2">

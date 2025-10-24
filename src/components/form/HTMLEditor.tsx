@@ -66,7 +66,7 @@ const HTMLEditor: React.FC<HTMLEditorProps> = ({
 
       <style jsx global>{`
         .html-editor .ql-editor {
-          min-height: 200px;
+          min-height: 300px;
         }
 
         /* RTL Support for Arabic text */
