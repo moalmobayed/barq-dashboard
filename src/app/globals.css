@@ -374,7 +374,7 @@
 }
 .flatpickr-day.nextMonthDay,
 .flatpickr-day.prevMonthDay {
-  @apply !text-gray-400;
+  @apply !text-gray-500 dark:!text-gray-300;
 }
 
 .flatpickr-months > .flatpickr-month {
@@ -468,6 +468,9 @@ span.flatpickr-weekday,
 .flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n + 1)),
 .flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n + 1)) {
   box-shadow: -10px 0 0 #465fff;
+}
+.flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover {
+  @apply !text-gray-300 dark:!text-white/20;
 }
 
 .flatpickr-months .flatpickr-prev-month svg,
