@@ -54,7 +54,9 @@ export function AddProductModal({
     shopId: string;
     description: string;
     category: string;
+    categories: string[];
     image: File;
+    images: File[];
   }>({
     nameAr: "",
     nameEn: "",
@@ -63,7 +65,9 @@ export function AddProductModal({
     shopId: "",
     description: "",
     category: "",
+    categories: [],
     image: new File([], ""),
+    images: [],
   });
 
   useEffect(() => {
@@ -341,6 +345,16 @@ export function AddProductModal({
     setAmountError(error);
   };
 
+  const handleAdditionalImagesChange = (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      setFormData((prev) => ({ ...prev, images: [] }));
+      return;
+    }
+
+    const fileArray = Array.from(files);
+    setFormData((prev) => ({ ...prev, images: fileArray }));
+  };
+
   const handleDescriptionChange = (value: string) => {
     // Limit to 300 characters
     const limitedValue = value.slice(0, 300);
@@ -539,6 +553,19 @@ export function AddProductModal({
         imageUrl = uploaded.data;
       }
 
+      let additionalImages: string[] = [];
+      if (formData.images.length > 0) {
+        const uploads = await Promise.all(
+          formData.images.map(async (file) => {
+            const uploaded = await uploadImage(file);
+            return uploaded?.data || uploaded?.url;
+          }),
+        );
+        additionalImages = uploads.filter(
+          (url): url is string => typeof url === "string" && url.length > 0,
+        );
+      }
+
       const payloadRaw: CreateProductPayload = {
         nameAr: formData.nameAr,
         nameEn: effectiveNameEn,
@@ -548,6 +575,7 @@ export function AddProductModal({
         description: formData.description,
         category: formData.category,
         image: imageUrl,
+        images: additionalImages,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -574,7 +602,9 @@ export function AddProductModal({
         shopId: "",
         description: "",
         category: "",
+        categories: [],
         image: new File([], ""),
+        images: [],
       });
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -608,7 +638,9 @@ export function AddProductModal({
       shopId: "",
       description: "",
       category: "",
+      categories: [],
       image: new File([], ""),
+      images: [],
     });
     setIsLoading(false);
     closeModal?.();
@@ -638,6 +670,23 @@ export function AddProductModal({
                     accept="image/*"
                     onChange={(e) => handleChange("image", e.target.files?.[0])}
                   />
+                </div>
+
+                {/* Additional Images */}
+                <div className="lg:col-span-2">
+                  <Label>صور إضافية (اختياري)</Label>
+                  <FileInput
+                    accept="image/*"
+                    multiple
+                    onChange={(e) =>
+                      handleAdditionalImagesChange(e.target.files)
+                    }
+                  />
+                  {formData.images.length > 0 && (
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      تم اختيار {formData.images.length} صورة إضافية.
+                    </p>
+                  )}
                 </div>
 
                 {/* Name (in Arabic) */}
@@ -905,6 +954,7 @@ export function EditProductModal({
     description: string;
     category: string;
     image: string | File;
+    images: string[];
   }>({
     nameAr: product.nameAr || "",
     nameEn: product.nameEn || "",
@@ -914,7 +964,30 @@ export function EditProductModal({
     description: product.description || "",
     category: product.category._id || "",
     image: product.image || new File([], ""),
+    images: product.images || [],
   });
+
+  const [newImages, setNewImages] = useState<File[]>([]);
+
+  const handleExistingImageRemove = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleNewImagesChange = (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      setNewImages([]);
+      return;
+    }
+
+    setNewImages(Array.from(files));
+  };
+
+  const handleRemoveNewImage = (index: number) => {
+    setNewImages((prev: File[]) => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -930,6 +1003,23 @@ export function EditProductModal({
 
     fetchData();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setFormData({
+      nameAr: product.nameAr || "",
+      nameEn: product.nameEn || "",
+      price: product.price || 0,
+      amount: product.amount || 0,
+      shopId: product.shopId._id || "",
+      description: product.description || "",
+      category: product.category._id || "",
+      image: product.image || "",
+      images: product.images || [],
+    });
+    setNewImages([]);
+  }, [isOpen, product]);
 
   // Fetch vendor-specific categories (categoryshops) when shop changes (like AddProductModal)
   useEffect(() => {
@@ -1265,6 +1355,20 @@ export function EditProductModal({
         imageUrl = formData.image;
       }
 
+      let galleryImages = [...formData.images];
+      if (newImages.length > 0) {
+        const uploads = await Promise.all(
+          newImages.map(async (file) => {
+            const uploaded = await uploadImage(file);
+            return uploaded?.data || uploaded?.url;
+          }),
+        );
+        const uploadedUrls = uploads.filter(
+          (url): url is string => typeof url === "string" && url.length > 0,
+        );
+        galleryImages = [...galleryImages, ...uploadedUrls];
+      }
+
       const payloadRaw: Partial<CreateProductPayload> = {
         nameAr: formData.nameAr,
         nameEn: formData.nameEn?.trim()
@@ -1276,6 +1380,7 @@ export function EditProductModal({
         category: formData.category,
         image: imageUrl,
         amount: formData.amount,
+        images: galleryImages,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -1326,6 +1431,7 @@ export function EditProductModal({
       description: product.description || "",
       category: product.category._id || "",
       image: product.image || new File([], ""),
+      images: product.images || [],
     });
     setIsLoading(false);
     closeModal?.();
@@ -1362,6 +1468,68 @@ export function EditProductModal({
                     accept="image/*"
                     onChange={(e) => handleChange("image", e.target.files?.[0])}
                   />
+                </div>
+
+                {formData.images.length > 0 && (
+                  <div className="lg:col-span-2">
+                    <Label>صور المنتج الحالية</Label>
+                    <div className="flex flex-wrap gap-4">
+                      {formData.images.map((imageUrl, index) => (
+                        <div
+                          key={`${imageUrl}-${index}`}
+                          className="relative flex flex-col items-center text-center"
+                        >
+                          <Image
+                            src={imageUrl}
+                            width={96}
+                            height={96}
+                            alt={`Product image ${index + 1}`}
+                            className="h-24 w-24 rounded-lg object-cover shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleExistingImageRemove(index)}
+                            className="text-error-500 mt-2 text-xs hover:underline"
+                          >
+                            إزالة الصورة
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="lg:col-span-2">
+                  <Label>إضافة صور جديدة</Label>
+                  <FileInput
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleNewImagesChange(e.target.files)}
+                  />
+                  {newImages.length > 0 && (
+                    <ul className="mt-2 space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                      {newImages.map((file, index) => (
+                        <li
+                          key={`${file.name}-${index}`}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <span
+                            className="flex-1 truncate text-start"
+                            dir="ltr"
+                          >
+                            {file.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveNewImage(index)}
+                            className="text-error-500 hover:underline"
+                          >
+                            إزالة
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Name (in Arabic) */}

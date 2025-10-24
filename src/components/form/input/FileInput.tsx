@@ -4,16 +4,31 @@ interface FileInputProps {
   className?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   accept?: string;
+  multiple?: boolean;
 }
 
-const FileInput: FC<FileInputProps> = ({ className, onChange, accept }) => {
+const FileInput: FC<FileInputProps> = ({
+  className,
+  onChange,
+  accept,
+  multiple = false,
+}) => {
   const [selectedFile, setSelectedFile] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file.name);
+    const { files } = event.target;
+
+    if (files && files.length > 0) {
+      if (multiple) {
+        if (files.length === 1) {
+          setSelectedFile(files[0].name);
+        } else {
+          setSelectedFile(`تم اختيار ${files.length} ملفات`);
+        }
+      } else {
+        setSelectedFile(files[0].name);
+      }
     } else {
       setSelectedFile("");
     }
@@ -33,6 +48,7 @@ const FileInput: FC<FileInputProps> = ({ className, onChange, accept }) => {
         type="file"
         className="absolute inset-0 cursor-pointer opacity-0"
         onChange={handleFileChange}
+        multiple={multiple}
         accept={accept}
       />
       <div className="focus:border-ring-brand-300 shadow-theme-xs flex h-11 w-full items-center overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
