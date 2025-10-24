@@ -20,6 +20,8 @@ import { AxiosError } from "axios";
 import { Product } from "@/types/product";
 import { fetchProducts } from "@/lib/api/products";
 import DatePicker from "../form/date-picker";
+import { Vendor } from "@/types/vendor";
+import { fetchVendors } from "@/lib/api/vendors";
 
 export function AddOfferModal({
   isOpen = false,
@@ -27,8 +29,9 @@ export function AddOfferModal({
   onSuccess = () => {},
 }) {
   const [toast, setToast] = useState<AlertProps | null>(null);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [vendor, setVendor] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
@@ -206,8 +209,12 @@ export function AddOfferModal({
 
     const fetchData = async () => {
       try {
-        const { data: products } = await fetchProducts(1, 1000);
-        setProducts(products);
+        const [vendorsResponse, productsResponse] = await Promise.all([
+          fetchVendors(1, 1000),
+          fetchProducts(1, 1000),
+        ]);
+        setVendors(vendorsResponse.data);
+        setProducts(productsResponse.data);
       } catch (err) {
         console.error("Failed to fetch data:", err);
       }
@@ -216,24 +223,21 @@ export function AddOfferModal({
     fetchData();
   }, [isOpen]);
 
-  // Fetch shop when product changes
+  // Filter products when shop changes
   useEffect(() => {
-    if (!formData.product) {
-      setVendor("");
-      setFormData((prev) => ({ ...prev, shopId: "" }));
+    if (!formData.shopId) {
+      setFilteredProducts([]);
+      setFormData((prev) => ({ ...prev, product: "" }));
       return;
     }
-    const prod = products.find((p) => p._id === formData.product);
-    if (prod) {
-      const shopName = prod.shopId?.name || "";
-      const shopId = prod.shopId?._id || "";
-      setVendor(shopName);
-      setFormData((prev) => ({ ...prev, shopId }));
-    } else {
-      setVendor("");
-      setFormData((prev) => ({ ...prev, shopId: "" }));
+    const filtered = products.filter((p) => p.shopId?._id === formData.shopId);
+    setFilteredProducts(filtered);
+
+    // Reset product selection if current product is not in filtered list
+    if (formData.product && !filtered.find((p) => p._id === formData.product)) {
+      setFormData((prev) => ({ ...prev, product: "" }));
     }
-  }, [formData.product, formData.shopId, products]);
+  }, [formData.shopId, products, formData.product]);
 
   const handleChange = (
     field: string,
@@ -572,19 +576,19 @@ export function AddOfferModal({
                   />
                 </div>
 
-                {/* Product */}
+                {/* Vendor */}
                 <div>
                   <Label>
-                    المنتج <span className="text-error-500">*</span>
+                    المتجر <span className="text-error-500">*</span>
                   </Label>
                   <div className="relative">
                     <Select
-                      options={products.map((prod) => ({
-                        value: prod._id,
-                        label: prod.nameAr,
+                      options={vendors.map((vendor) => ({
+                        value: vendor._id,
+                        label: vendor.name,
                       }))}
-                      placeholder="اختر المنتج"
-                      onChange={(val) => handleChange("product", val)}
+                      placeholder="اختر المتجر"
+                      onChange={(val) => handleChange("shopId", val)}
                       required
                     />
                     <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -593,18 +597,39 @@ export function AddOfferModal({
                   </div>
                 </div>
 
-                {/* Vendor (auto-filled) */}
+                {/* Product */}
                 <div>
                   <Label>
-                    المتجر <span className="text-error-500">*</span>
+                    المنتج <span className="text-error-500">*</span>
                   </Label>
-                  <Input
-                    type="text"
-                    value={vendor}
-                    placeholder={!vendor ? "يرجى اختيار منتج أولاً" : ""}
-                    disabled
-                    required
-                  />
+                  <div className="relative">
+                    <Select
+                      options={filteredProducts.map((prod) => ({
+                        value: prod._id,
+                        label: prod.nameAr,
+                      }))}
+                      placeholder={
+                        !formData.shopId
+                          ? "اختر المتجر أولاً"
+                          : filteredProducts.length === 0
+                            ? "لا توجد منتجات في هذا المتجر"
+                            : "اختر المنتج"
+                      }
+                      onChange={(val) => handleChange("product", val)}
+                      required
+                      disabled={
+                        !formData.shopId || filteredProducts.length === 0
+                      }
+                    />
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
+                  {formData.shopId && filteredProducts.length === 0 && (
+                    <p className="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                      المتجر المختار لا يحتوي على منتجات
+                    </p>
+                  )}
                 </div>
 
                 {/* Description Arabic */}
