@@ -36,11 +36,13 @@ export function AddVendorModal({
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
   const [locationError, setLocationError] = useState<string>("");
+  const [expectedTimeError, setExpectedTimeError] = useState<string>("");
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
     location: string;
     workingHours: [string, string];
+    expectedTime: string;
     profileImage: File;
     category: string;
     subcategories: string[];
@@ -49,6 +51,7 @@ export function AddVendorModal({
     mobile: "",
     location: "",
     workingHours: ["07:00", "15:00"],
+    expectedTime: "",
     profileImage: new File([], ""), // Initialize with an empty file
     category: "",
     subcategories: [],
@@ -179,6 +182,8 @@ export function AddVendorModal({
       handleMobileChange(value);
     } else if (field === "location" && typeof value === "string") {
       handleLocationChange(value);
+    } else if (field === "expectedTime" && typeof value === "string") {
+      handleExpectedTimeChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -247,6 +252,46 @@ export function AddVendorModal({
     // Validate and set error
     const error = validateLocation(processedValue);
     setLocationError(error);
+  };
+
+  // Expected Time validation function
+  const validateExpectedTime = (time: string): string => {
+    // Check if empty
+    if (!time || time.trim() === "") {
+      return "";
+    }
+
+    const timeNum = parseInt(time);
+
+    // Check if it's a valid number
+    if (isNaN(timeNum)) {
+      return "يجب أن يكون الوقت المتوقع رقماً";
+    }
+
+    // Check if it's a positive number
+    if (timeNum <= 0) {
+      return "يجب أن يكون الوقت المتوقع أكبر من صفر";
+    }
+
+    // Check maximum reasonable time (e.g., 300 minutes = 5 hours)
+    if (timeNum > 300) {
+      return "يجب أن لا يزيد الوقت المتوقع عن 300 دقيقة";
+    }
+
+    return "";
+  };
+
+  const handleExpectedTimeChange = (value: string) => {
+    // Only allow numbers
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    // Limit to 3 digits (max 999)
+    const limitedValue = numbersOnly.slice(0, 3);
+
+    setFormData((prev) => ({ ...prev, expectedTime: limitedValue }));
+
+    // Validate and set error
+    const error = validateExpectedTime(limitedValue);
+    setExpectedTimeError(error);
   };
 
   const handleSave = async () => {
@@ -333,6 +378,29 @@ export function AddVendorModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
+      if (!formData.expectedTime) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "متوسط وقت التحضير مطلوب.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
+      // Check for expectedTime validation errors
+      const expectedTimeValidationError = validateExpectedTime(
+        formData.expectedTime,
+      );
+      if (expectedTimeValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في الوقت المتوقع",
+          message: expectedTimeValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
       if (!formData.category) {
         setToast({
           variant: "error",
@@ -370,6 +438,7 @@ export function AddVendorModal({
         mobile: formData.mobile,
         location: formData.location,
         workingHours: formData.workingHours,
+        expectedTime: formData.expectedTime,
         profileImage: profileImageUrl,
         category: formData.category,
         subcategories: formData.subcategories,
@@ -395,6 +464,7 @@ export function AddVendorModal({
         mobile: "",
         location: "",
         workingHours: ["07:00", "15:00"],
+        expectedTime: "",
         profileImage: new File([], ""), // Initialize with an empty file
         category: "",
         subcategories: [],
@@ -429,6 +499,7 @@ export function AddVendorModal({
       mobile: "",
       location: "",
       workingHours: ["07:00", "15:00"],
+      expectedTime: "",
       profileImage: new File([], ""), // Initialize with an empty file
       category: "",
       subcategories: [],
@@ -436,6 +507,7 @@ export function AddVendorModal({
     setNameError("");
     setMobileError("");
     setLocationError("");
+    setExpectedTimeError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -546,6 +618,27 @@ export function AddVendorModal({
                       required
                     />
                   </div>
+                </div>
+
+                {/* Expected Time */}
+                <div>
+                  <Label>
+                    متوسط وقت التحضير (بالدقائق){" "}
+                    <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 30"
+                    value={formData.expectedTime}
+                    onChange={(e) =>
+                      handleChange("expectedTime", e.target.value)
+                    }
+                    error={!!expectedTimeError}
+                    hint={expectedTimeError}
+                    required
+                    min="1"
+                    max="300"
+                  />
                 </div>
 
                 {/* Active */}
@@ -683,12 +776,14 @@ export function EditVendorModal({
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
   const [locationError, setLocationError] = useState<string>("");
+  const [expectedTimeError, setExpectedTimeError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
     location: string;
     workingHours: [string, string];
+    expectedTime: string;
     profileImage: File | string;
     category: string;
     subcategories: string[];
@@ -700,6 +795,7 @@ export function EditVendorModal({
       Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
         ? vendor.workingHours
         : ["07:00", "15:00"],
+    expectedTime: vendor.expectedTime || "",
     profileImage: vendor.profileImage || "",
     category: vendor.category?._id || "",
     subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
@@ -878,6 +974,46 @@ export function EditVendorModal({
     setLocationError(error);
   };
 
+  // Expected Time validation function
+  const validateExpectedTime = (time: string): string => {
+    // Check if empty
+    if (!time || time.trim() === "") {
+      return "";
+    }
+
+    const timeNum = parseInt(time);
+
+    // Check if it's a valid number
+    if (isNaN(timeNum)) {
+      return "يجب أن يكون الوقت المتوقع رقماً";
+    }
+
+    // Check if it's a positive number
+    if (timeNum <= 0) {
+      return "يجب أن يكون الوقت المتوقع أكبر من صفر";
+    }
+
+    // Check maximum reasonable time (e.g., 300 minutes = 5 hours)
+    if (timeNum > 300) {
+      return "يجب أن لا يزيد الوقت المتوقع عن 300 دقيقة";
+    }
+
+    return "";
+  };
+
+  const handleExpectedTimeChange = (value: string) => {
+    // Only allow numbers
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    // Limit to 3 digits (max 999)
+    const limitedValue = numbersOnly.slice(0, 3);
+
+    setFormData((prev) => ({ ...prev, expectedTime: limitedValue }));
+
+    // Validate and set error
+    const error = validateExpectedTime(limitedValue);
+    setExpectedTimeError(error);
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | undefined,
@@ -888,6 +1024,8 @@ export function EditVendorModal({
       handleMobileChange(value);
     } else if (field === "location" && typeof value === "string") {
       handleLocationChange(value);
+    } else if (field === "expectedTime" && typeof value === "string") {
+      handleExpectedTimeChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -933,6 +1071,30 @@ export function EditVendorModal({
         return;
       }
 
+      if (!formData.expectedTime) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "متوسط وقت التحضير مطلوب.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
+      // Check for expectedTime validation errors
+      const expectedTimeValidationError = validateExpectedTime(
+        formData.expectedTime,
+      );
+      if (expectedTimeValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في الوقت المتوقع",
+          message: expectedTimeValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
       let profileImageUrl = "";
 
       if (formData.profileImage instanceof File) {
@@ -947,6 +1109,7 @@ export function EditVendorModal({
         mobile: formData.mobile,
         location: formData.location,
         workingHours: formData.workingHours,
+        expectedTime: formData.expectedTime,
         profileImage: profileImageUrl,
         category: formData.category,
         subcategories: formData.subcategories,
@@ -1001,6 +1164,7 @@ export function EditVendorModal({
         Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
           ? vendor.workingHours
           : ["07:00", "15:00"],
+      expectedTime: vendor.expectedTime || "",
       profileImage: vendor.profileImage || "",
       category: vendor.category?._id || "",
       subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
@@ -1008,6 +1172,7 @@ export function EditVendorModal({
     setNameError("");
     setMobileError("");
     setLocationError("");
+    setExpectedTimeError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -1107,6 +1272,23 @@ export function EditVendorModal({
                       required
                     />
                   </div>
+                </div>
+                <div>
+                  <Label>
+                    متوسط وقت التحضير (بالدقائق){" "}
+                    <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 30"
+                    value={formData.expectedTime}
+                    onChange={(e) =>
+                      handleChange("expectedTime", e.target.value)
+                    }
+                    error={!!expectedTimeError}
+                    hint={expectedTimeError}
+                    required
+                  />
                 </div>
                 <div>
                   <Label>نشط</Label>

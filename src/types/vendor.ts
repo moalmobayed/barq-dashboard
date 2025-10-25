@@ -7,6 +7,7 @@ export interface CreateVendorPayload {
   mobile: string;
   location: string;
   workingHours: [string, string];
+  expectedTime: string;
   profileImage: string;
   category: string;
   subcategories: string[];
@@ -24,6 +25,7 @@ export interface Vendor {
   location?: string;
   rating?: number;
   workingHours?: [string, string];
+  expectedTime: string;
   category?: Category;
   subcategories?: Subcategory[];
   reviewCount?: number;
