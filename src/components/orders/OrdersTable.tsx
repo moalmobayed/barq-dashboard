@@ -283,7 +283,8 @@ export default function OrdersTable() {
                           <Badge
                             size="sm"
                             color={
-                              order.orderStatus === "completed"
+                              order.orderStatus === "completed" ||
+                              order.orderStatus === "shipped"
                                 ? "success"
                                 : order.orderStatus === "processing" ||
                                     order.orderStatus === "pending"
@@ -295,12 +296,13 @@ export default function OrdersTable() {
                           >
                             {order.orderStatus === "completed"
                               ? "تم التوصيل"
-                              : order.orderStatus === "processing" ||
-                                  order.orderStatus === "pending"
-                                ? "جارِ التنفيذ"
-                                : order.orderStatus === "cancelled"
-                                  ? "ملغاة"
-                                  : order.orderStatus}
+                              : order.orderStatus === "shipped"
+                                ? "تم الشحن"
+                                : order.orderStatus === "pending"
+                                  ? "جارِ التنفيذ"
+                                  : order.orderStatus === "cancelled"
+                                    ? "ملغاة"
+                                    : order.orderStatus}
                           </Badge>
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
