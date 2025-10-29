@@ -298,7 +298,8 @@ export default function OrdersTable() {
                               ? "تم التوصيل"
                               : order.orderStatus === "shipped"
                                 ? "تم الشحن"
-                                : order.orderStatus === "pending"
+                                : order.orderStatus === "processing" ||
+                                    order.orderStatus === "pending"
                                   ? "جارِ التنفيذ"
                                   : order.orderStatus === "cancelled"
                                     ? "ملغاة"

@@ -368,36 +368,38 @@ export default function OrderDetailsComponent() {
       </div>
 
       {/* تفاصيل التوصيل */}
-      <div className="flex h-fit flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]">
-        <div className="mb-2 font-bold text-gray-800 dark:text-white">
-          تفاصيل التوصيل
-        </div>
-        <div className="flex flex-col gap-1 divide-y-2 text-sm">
-          <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
-            <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
-              اسم المندوب
-            </span>
-            <span className="font-medium text-gray-700 dark:text-white/90">
-              <span className="dark:text-white/90">
-                {order.deliveryAgent?.name ?? "-"}
-              </span>
-            </span>
+      {order.deliveryAgent && (
+        <div className="flex h-fit flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]">
+          <div className="mb-2 font-bold text-gray-800 dark:text-white">
+            تفاصيل التوصيل
           </div>
-          <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
-            <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
-              رقم المندوب
-            </span>
-            <span className="flex items-center gap-2 font-medium text-gray-700 dark:text-white/90">
-              {order.deliveryAgent?.mobile && (
-                <CiPhone className="text-xl text-blue-600" />
-              )}
-              <span className="dark:text-white/90">
-                {order.deliveryAgent?.mobile ?? "-"}
+          <div className="flex flex-col gap-1 divide-y-2 text-sm">
+            <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
+              <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
+                اسم المندوب
               </span>
-            </span>
+              <span className="font-medium text-gray-700 dark:text-white/90">
+                <span className="dark:text-white/90">
+                  {order.deliveryAgent?.name ?? "-"}
+                </span>
+              </span>
+            </div>
+            <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
+              <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
+                رقم المندوب
+              </span>
+              <span className="flex items-center gap-2 font-medium text-gray-700 dark:text-white/90">
+                {order.deliveryAgent?.mobile && (
+                  <CiPhone className="text-xl text-blue-600" />
+                )}
+                <span className="dark:text-white/90">
+                  {order.deliveryAgent?.mobile ?? "-"}
+                </span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ملاحظات العميل */}
       {/* <div className="flex flex-col gap-2 rounded-2xl border border-gray-100 dark:border-white/10  bg-white p-4 ">
