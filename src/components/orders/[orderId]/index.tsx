@@ -10,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { CiLocationOn, CiPhone } from "react-icons/ci";
 import { BASE_URL } from "@/lib/config";
 import Badge from "@/components/ui/badge/Badge";
+import { MdPersonOutline } from "react-icons/md";
 
 export default function OrderDetailsComponent() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -225,12 +226,17 @@ export default function OrderDetailsComponent() {
         </div>
 
         <div className="flex flex-col gap-1 divide-y-2 text-sm">
-          {/* <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
-            <span>اسم العميل</span>
-            <span className="font-medium text-gray-700 dark:text-white/90">
-              {order.userId.mobile ?? "-"}
+          <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
+            <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
+              اسم العميل
             </span>
-          </div> */}
+            <span className="flex items-center gap-2 font-medium text-gray-700 dark:text-white/90">
+              <MdPersonOutline className="text-xl text-blue-600" />
+              <span className="dark:text-white/90">
+                {order.userId?.name ?? "-"}
+              </span>
+            </span>
+          </div>
           <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
             <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
               رقم الهاتف

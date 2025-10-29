@@ -418,10 +418,10 @@ export function EditTownModal({
     commisionAmount: number;
     expectedTime: number;
   }>({
-    nameAr: "",
-    nameEn: "",
-    commisionAmount: 0,
-    expectedTime: 0,
+    nameAr: town.nameAr || "",
+    nameEn: town.nameEn || "",
+    commisionAmount: town.commisionAmount || 0,
+    expectedTime: town.expectedTime || 0,
   });
 
   // Arabic name validation function

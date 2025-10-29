@@ -9,6 +9,7 @@ export interface OrderUserRef {
   _id: string;
   mobile: string;
   id: string;
+  name: string;
 }
 
 export interface DeliveryAddress {
