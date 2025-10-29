@@ -369,7 +369,7 @@ export default function OrderDetailsComponent() {
         <div className="flex flex-col gap-1 divide-y-2 text-sm">
           <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
             <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
-              اسم المنسوب
+              اسم المندوب
             </span>
             <span className="font-medium text-gray-700 dark:text-white/90">
               <span className="dark:text-white/90">
@@ -379,7 +379,7 @@ export default function OrderDetailsComponent() {
           </div>
           <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
             <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
-              رقم المنسوب
+              رقم المندوب
             </span>
             <span className="flex items-center gap-2 font-medium text-gray-700 dark:text-white/90">
               {order.deliveryAgent?.mobile && (
