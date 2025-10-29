@@ -20,6 +20,7 @@ import {
   MdWidgets,
   MdSecurity,
   MdPerson,
+  MdLocationOn,
 } from "react-icons/md";
 
 type NavItem = {
@@ -69,6 +70,11 @@ const navItems: NavItem[] = [
     icon: <MdPerson />,
     name: "العملاء",
     path: "/customers",
+  },
+  {
+    icon: <MdLocationOn />,
+    name: "المناطق",
+    path: "/towns",
   },
   {
     icon: <MdLocalOffer />,
