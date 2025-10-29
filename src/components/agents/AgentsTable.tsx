@@ -234,7 +234,7 @@ export default function AgentsTable() {
                         </TableCell>
                         <TableCell>⭐ {agent.rating}</TableCell>
                         <TableCell>{agent.reviewCount}</TableCell>
-                        <TableCell>{agent.commissionRate}</TableCell>
+                        <TableCell>{agent.commissionRate}%</TableCell>
                         <TableCell className="space-x-2">
                           <EditAgentButton agent={agent} onSuccess={refetch} />
                           <DeleteAgentButton

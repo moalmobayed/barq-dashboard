@@ -291,7 +291,7 @@ export function AddAgentModal({
 
                 {/* Comission Rate */}
                 <div>
-                  <Label>معدل العمولة</Label>
+                  <Label>معدل العمولة (%)</Label>
                   <Input
                     type="number"
                     placeholder="ادخل معدل العمولة"
@@ -629,7 +629,7 @@ export function EditAgentModal({
                 </div>
                 {/* Commission Rate */}
                 <div>
-                  <Label>معدل العمولة</Label>
+                  <Label>معدل العمولة (%)</Label>
                   <Input
                     type="number"
                     placeholder="0"

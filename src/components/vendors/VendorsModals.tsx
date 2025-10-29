@@ -217,10 +217,10 @@ export function AddVendorModal({
       return "يجب أن لا يقل العنوان عن 10 أحرف";
     }
 
-    // Check for invalid characters (only allow Arabic, English letters, numbers, and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z0-9\s]+$/;
+    // Check for invalid characters (allow Arabic, English letters, numbers, spaces, and common address symbols)
+    const validPattern = /^[\u0600-\u06FFa-zA-Z0-9\s.,#\/\-]+$/;
     if (!validPattern.test(normalizedLocation)) {
-      return "العنوان يقبل الحروف والأرقام والمسافات فقط";
+      return "العنوان يقبل الحروف والأرقام وبعض الرموز مثل - / # . ,";
     }
 
     return "";
@@ -265,17 +265,17 @@ export function AddVendorModal({
 
     // Check if it's a valid number
     if (isNaN(timeNum)) {
-      return "يجب أن يكون الوقت المتوقع رقماً";
+      return "يجب أن يكون وثت التحضير المتوقع رقماً";
     }
 
     // Check if it's a positive number
     if (timeNum <= 0) {
-      return "يجب أن يكون الوقت المتوقع أكبر من صفر";
+      return "يجب أن يكون وثت التحضير المتوقع أكبر من صفر";
     }
 
     // Check maximum reasonable time (e.g., 300 minutes = 5 hours)
     if (timeNum > 300) {
-      return "يجب أن لا يزيد الوقت المتوقع عن 300 دقيقة";
+      return "يجب أن لا يزيد وثت التحضير المتوقع عن 300 دقيقة";
     }
 
     return "";
@@ -395,7 +395,7 @@ export function AddVendorModal({
       if (expectedTimeValidationError) {
         setToast({
           variant: "error",
-          title: "خطأ في الوقت المتوقع",
+          title: "خطأ في وثت التحضير المتوقع",
           message: expectedTimeValidationError,
         });
         setTimeout(() => setToast(null), 5000);
@@ -937,10 +937,10 @@ export function EditVendorModal({
       return "يجب أن لا يقل العنوان عن 10 أحرف";
     }
 
-    // Check for invalid characters (only allow Arabic, English letters, numbers, and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z0-9\s]+$/;
+    // Check for invalid characters (allow Arabic, English letters, numbers, spaces, and common address symbols)
+    const validPattern = /^[\u0600-\u06FFa-zA-Z0-9\s.,#\/\-]+$/;
     if (!validPattern.test(normalizedLocation)) {
-      return "العنوان يقبل الحروف والأرقام والمسافات فقط";
+      return "العنوان يقبل الحروف والأرقام وبعض الرموز مثل - / # . ,";
     }
 
     return "";
@@ -976,26 +976,21 @@ export function EditVendorModal({
 
   // Expected Time validation function
   const validateExpectedTime = (time: string): string => {
-    // Check if empty
-    if (!time || time.trim() === "") {
-      return "";
-    }
-
     const timeNum = parseInt(time);
 
     // Check if it's a valid number
     if (isNaN(timeNum)) {
-      return "يجب أن يكون الوقت المتوقع رقماً";
+      return "يجب أن يكون وثت التحضير المتوقع رقماً";
     }
 
     // Check if it's a positive number
     if (timeNum <= 0) {
-      return "يجب أن يكون الوقت المتوقع أكبر من صفر";
+      return "يجب أن يكون وثت التحضير المتوقع أكبر من صفر";
     }
 
     // Check maximum reasonable time (e.g., 300 minutes = 5 hours)
     if (timeNum > 300) {
-      return "يجب أن لا يزيد الوقت المتوقع عن 300 دقيقة";
+      return "يجب أن لا يزيد وثت التحضير المتوقع عن 300 دقيقة";
     }
 
     return "";
@@ -1071,16 +1066,6 @@ export function EditVendorModal({
         return;
       }
 
-      if (!formData.expectedTime) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "متوسط وقت التحضير مطلوب.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
-
       // Check for expectedTime validation errors
       const expectedTimeValidationError = validateExpectedTime(
         formData.expectedTime,
@@ -1088,7 +1073,7 @@ export function EditVendorModal({
       if (expectedTimeValidationError) {
         setToast({
           variant: "error",
-          title: "خطأ في الوقت المتوقع",
+          title: "خطأ في وثت التحضير المتوقع",
           message: expectedTimeValidationError,
         });
         setTimeout(() => setToast(null), 5000);
@@ -1274,10 +1259,7 @@ export function EditVendorModal({
                   </div>
                 </div>
                 <div>
-                  <Label>
-                    متوسط وقت التحضير (بالدقائق){" "}
-                    <span className="text-error-500">*</span>
-                  </Label>
+                  <Label>متوسط وقت التحضير (بالدقائق)</Label>
                   <Input
                     type="number"
                     placeholder="مثال: 30"
@@ -1287,7 +1269,6 @@ export function EditVendorModal({
                     }
                     error={!!expectedTimeError}
                     hint={expectedTimeError}
-                    required
                   />
                 </div>
                 <div>
