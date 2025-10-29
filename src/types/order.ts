@@ -1,6 +1,7 @@
 import { Vendor } from "./vendor";
 import { Product } from "./product";
 import { SetStateAction } from "react";
+import { Town } from "./town";
 
 export type Coordinates = [number, number];
 
@@ -8,14 +9,6 @@ export interface OrderUserRef {
   _id: string;
   mobile: string;
   id: string;
-}
-
-export interface Town {
-  _id: string;
-  nameAr: string;
-  nameEn: string;
-  expectedTime: number;
-  commisionAmount: number;
 }
 
 export interface DeliveryAddress {

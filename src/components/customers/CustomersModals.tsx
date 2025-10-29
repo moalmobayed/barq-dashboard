@@ -14,12 +14,13 @@ import {
   updateCustomer,
 } from "@/lib/api/customers";
 import { uploadImage } from "@/lib/api/uploadImage";
-import { getAllTowns, Town } from "@/lib/api/towns";
+import { getAllTowns } from "@/lib/api/towns";
 import { CreateCustomerPayload, Customer } from "@/types/customer";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
 import { AxiosError } from "axios";
 import Select from "../form/Select";
+import { Town } from "@/types/town";
 
 const ADDRESS_ALLOWED_PATTERN = /^[\u0600-\u06FFa-zA-Z0-9\s.,#\/\-]+$/;
 
@@ -527,7 +528,7 @@ export function AddCustomerModal({
                     value={formData.town}
                     onChange={(value) => handleChange("town", value)}
                     options={towns.map((town) => ({
-                      label: town.nameAr || town.name,
+                      label: town.nameAr || town.nameEn,
                       value: town._id,
                     }))}
                     placeholder="اختر المدينة"
