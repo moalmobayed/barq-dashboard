@@ -32,6 +32,15 @@ export async function deleteProduct(productId: string) {
   });
 }
 
+export async function getSingleProduct(productId: string): Promise<Product> {
+  const response = await axios.get(`${BASE_URL}/product/single/${productId}`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return response.data.data.product;
+}
+
 export const fetchProducts = async (
   page: number,
   limit: number,
@@ -44,6 +53,15 @@ export const fetchProducts = async (
     data: response.data.data,
     pages: response.data.metadata.pages,
   };
+};
+
+export const getAllProducts = async () => {
+  const res = await axios.get(`${BASE_URL}/product/all-products`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return res.data;
 };
 
 export const fetchProductsByKeyword = async (
