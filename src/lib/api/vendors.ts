@@ -76,7 +76,7 @@ export const fetchVendorsByKeyword = async (
   };
 };
 
-export const fetchVendorsBasic = async (): Promise<{
+export const getAllVendors = async (): Promise<{
   data: Vendor[];
 }> => {
   const response = await axios.get(`${BASE_URL}/public/all-vendors`);

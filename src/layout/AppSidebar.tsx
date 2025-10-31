@@ -82,6 +82,11 @@ const navItems: NavItem[] = [
     path: "/offers",
   },
   {
+    icon: <MdWidgets />,
+    name: "البنرات",
+    path: "/banners",
+  },
+  {
     icon: <MdAdminPanelSettings />,
     name: "المشرفون",
     path: "/admins",
