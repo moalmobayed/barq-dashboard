@@ -58,6 +58,15 @@ export const fetchOffers = async (
   };
 };
 
+export const getAllOffers = async () => {
+  const res = await axios.get(`${BASE_URL}/offers/all-offers`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return res.data;
+};
+
 export const fetchOffersByKeyword = async (
   keyword: string,
   page: number,
