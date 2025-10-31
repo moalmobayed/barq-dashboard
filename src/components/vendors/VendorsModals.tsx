@@ -44,6 +44,7 @@ export function AddVendorModal({
     workingHours: [string, string];
     expectedTime: string;
     profileImage: File;
+    coverImage: File;
     category: string;
     subcategories: string[];
   }>({
@@ -53,6 +54,7 @@ export function AddVendorModal({
     workingHours: ["07:00", "15:00"],
     expectedTime: "",
     profileImage: new File([], ""), // Initialize with an empty file
+    coverImage: new File([], ""), // Initialize with an empty file
     category: "",
     subcategories: [],
   });
@@ -424,6 +426,20 @@ export function AddVendorModal({
         return;
       }
 
+      if (
+        !formData.coverImage ||
+        !(formData.coverImage instanceof File) ||
+        formData.coverImage.size === 0
+      ) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "صورة الغلاف مطلوبة.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
       let profileImageUrl = "";
       if (
         formData.profileImage instanceof File &&
@@ -433,6 +449,15 @@ export function AddVendorModal({
         profileImageUrl = uploaded.data;
       }
 
+      let coverImageUrl = "";
+      if (
+        formData.coverImage instanceof File &&
+        formData.coverImage.size > 0
+      ) {
+        const uploaded = await uploadImage(formData.coverImage);
+        coverImageUrl = uploaded.data;
+      }
+
       const payloadRaw: CreateVendorPayload = {
         name: formData.name,
         mobile: formData.mobile,
@@ -440,6 +465,7 @@ export function AddVendorModal({
         workingHours: formData.workingHours,
         expectedTime: formData.expectedTime,
         profileImage: profileImageUrl,
+        coverImage: coverImageUrl,
         category: formData.category,
         subcategories: formData.subcategories,
         role: "shop",
@@ -466,6 +492,7 @@ export function AddVendorModal({
         workingHours: ["07:00", "15:00"],
         expectedTime: "",
         profileImage: new File([], ""), // Initialize with an empty file
+        coverImage: new File([], ""), // Initialize with an empty file
         category: "",
         subcategories: [],
       });
@@ -501,6 +528,7 @@ export function AddVendorModal({
       workingHours: ["07:00", "15:00"],
       expectedTime: "",
       profileImage: new File([], ""), // Initialize with an empty file
+      coverImage: new File([], ""), // Initialize with an empty file
       category: "",
       subcategories: [],
     });
@@ -527,14 +555,27 @@ export function AddVendorModal({
               </h5>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Profile Image */}
-                <div className="lg:col-span-2">
+                <div>
                   <Label>
-                    صورة الملف الشخصي <span className="text-error-500">*</span>
+                    صورة الشعار (Logo) <span className="text-error-500">*</span>
                   </Label>
                   <FileInput
                     accept="image/*"
                     onChange={(e) =>
                       handleChange("profileImage", e.target.files?.[0])
+                    }
+                  />
+                </div>
+
+                {/* Cover Image */}
+                <div>
+                  <Label>
+                    صورة الغلاف (Cover) <span className="text-error-500">*</span>
+                  </Label>
+                  <FileInput
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleChange("coverImage", e.target.files?.[0])
                     }
                   />
                 </div>
@@ -785,6 +826,7 @@ export function EditVendorModal({
     workingHours: [string, string];
     expectedTime: string;
     profileImage: File | string;
+    coverImage: File | string;
     category: string;
     subcategories: string[];
   }>({
@@ -797,6 +839,7 @@ export function EditVendorModal({
         : ["07:00", "15:00"],
     expectedTime: vendor.expectedTime || "",
     profileImage: vendor.profileImage || "",
+    coverImage: vendor.coverImage || "",
     category: vendor.category?._id || "",
     subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
   });
@@ -1089,6 +1132,15 @@ export function EditVendorModal({
         profileImageUrl = formData.profileImage;
       }
 
+      let coverImageUrl = "";
+
+      if (formData.coverImage instanceof File) {
+        const uploaded = await uploadImage(formData.coverImage);
+        coverImageUrl = uploaded.data || uploaded.url;
+      } else if (typeof formData.coverImage === "string") {
+        coverImageUrl = formData.coverImage;
+      }
+
       const payloadRaw: Partial<CreateVendorPayload> = {
         name: formData.name,
         mobile: formData.mobile,
@@ -1096,6 +1148,7 @@ export function EditVendorModal({
         workingHours: formData.workingHours,
         expectedTime: formData.expectedTime,
         profileImage: profileImageUrl,
+        coverImage: coverImageUrl,
         category: formData.category,
         subcategories: formData.subcategories,
         role: "shop",
@@ -1151,6 +1204,7 @@ export function EditVendorModal({
           : ["07:00", "15:00"],
       expectedTime: vendor.expectedTime || "",
       profileImage: vendor.profileImage || "",
+      coverImage: vendor.coverImage || "",
       category: vendor.category?._id || "",
       subcategories: vendor.subcategories?.map((sc) => sc._id) || [],
     });
@@ -1176,8 +1230,8 @@ export function EditVendorModal({
                 معلومات المتجر
               </h5>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div className="lg:col-span-2">
-                  <Label>صورة الملف الشخصي</Label>
+                <div>
+                  <Label>صورة الشعار (Logo)</Label>
                   {typeof formData.profileImage === "string" &&
                     formData.profileImage && (
                       <Image
@@ -1192,6 +1246,25 @@ export function EditVendorModal({
                     accept="image/*"
                     onChange={(e) =>
                       handleChange("profileImage", e.target.files?.[0])
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>صورة الغلاف (Cover)</Label>
+                  {typeof formData.coverImage === "string" &&
+                    formData.coverImage && (
+                      <Image
+                        src={formData.coverImage}
+                        width={160}
+                        height={90}
+                        alt="Current Cover"
+                        className="mb-4 justify-self-center"
+                      />
+                    )}
+                  <FileInput
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleChange("coverImage", e.target.files?.[0])
                     }
                   />
                 </div>
