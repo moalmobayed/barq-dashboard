@@ -309,7 +309,9 @@ export function AddTownModal({
 
                 {/* Commission Amount */}
                 <div>
-                  <Label>مبلغ العمولة</Label>
+                  <Label>
+                    مبلغ العمولة <span className="text-error-500">*</span>
+                  </Label>
                   <Input
                     type="number"
                     placeholder="0"
@@ -323,7 +325,10 @@ export function AddTownModal({
 
                 {/* Expected Time */}
                 <div>
-                  <Label>الوقت المتوقع</Label>
+                  <Label>
+                    الوقت المتوقع (بالدقائق){" "}
+                    <span className="text-error-500">*</span>
+                  </Label>
                   <Input
                     type="number"
                     placeholder="0"
