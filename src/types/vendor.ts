@@ -9,6 +9,7 @@ export interface CreateVendorPayload {
   workingHours: [string, string];
   expectedTime: string;
   profileImage: string;
+  coverImage?: string;
   category: string;
   subcategories: string[];
   role: string;
@@ -20,6 +21,7 @@ export interface Vendor {
   name: string;
   mobile: string;
   profileImage?: string;
+  coverImage?: string;
   role: string;
   isActive?: boolean;
   location?: string;
