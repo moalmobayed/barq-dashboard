@@ -21,7 +21,7 @@ import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import Image from "next/image";
 import { fetchCategories } from "@/lib/api/categories";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
-import { fetchVendorsBasic } from "@/lib/api/vendors";
+import { getAllVendors } from "@/lib/api/vendors";
 import { Vendor } from "@/types/vendor";
 import { fetchCategoryshopsByVendor } from "@/lib/api/categoryshop";
 import { AxiosError } from "axios";
@@ -80,7 +80,7 @@ export function AddProductModal({
         const { data: baseCategories } = await fetchCategories();
         setCategories(baseCategories);
         // Always fetch vendors so we have label even if locked
-        const { data: vendorsList } = await fetchVendorsBasic();
+        const { data: vendorsList } = await getAllVendors();
 
         setVendors(vendorsList);
         // Preselect vendor if provided
@@ -1072,7 +1072,7 @@ export function EditProductModal({
 
     const fetchData = async () => {
       try {
-        const { data: vendors } = await fetchVendorsBasic();
+        const { data: vendors } = await getAllVendors();
         setVendors(vendors);
       } catch (err) {
         console.error("Failed to fetch data:", err);
