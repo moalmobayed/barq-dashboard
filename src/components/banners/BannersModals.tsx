@@ -15,11 +15,9 @@ import FileInput from "../form/input/FileInput";
 import { uploadImage } from "@/lib/api/uploadImage";
 import Image from "next/image";
 import { getAllProducts } from "@/lib/api/products";
-import { getAllOffers } from "@/lib/api/offers";
 import { getAllVendors } from "@/lib/api/vendors";
 import { Product } from "@/types/product";
 import { Vendor } from "@/types/vendor";
-import { Offer } from "@/types/offer";
 
 export function AddBannerModal({
   isOpen = false,
@@ -41,7 +39,6 @@ export function AddBannerModal({
   // Fetch data for dropdowns
   const [products, setProducts] = useState<Product[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedTypes, setFetchedTypes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -58,17 +55,16 @@ export function AddBannerModal({
       }
 
       try {
-        if (formData.bannerType === "Product") {
+        if (
+          formData.bannerType === "Product" ||
+          formData.bannerType === "Offer"
+        ) {
           const productsRes = await getAllProducts();
           setProducts(productsRes.data || []);
         } else if (formData.bannerType === "User") {
           const vendorsRes = await getAllVendors();
           setVendors(vendorsRes.data || []);
-        } else if (formData.bannerType === "Offer") {
-          const offersRes = await getAllOffers();
-          setOffers(offersRes.data || []);
         }
-
         // Mark this type as fetched
         setFetchedTypes((prev) => new Set(prev).add(formData.bannerType));
       } catch (error) {
@@ -178,6 +174,7 @@ export function AddBannerModal({
   const getItemOptions = () => {
     switch (formData.bannerType) {
       case "Product":
+      case "Offer":
         return products.map((product) => ({
           value: product._id,
           label: product.nameAr,
@@ -186,11 +183,6 @@ export function AddBannerModal({
         return vendors.map((vendor) => ({
           value: vendor._id,
           label: vendor.name,
-        }));
-      case "Offer":
-        return offers.map((offer) => ({
-          value: offer._id,
-          label: offer.nameAr,
         }));
       default:
         return [];
@@ -244,9 +236,10 @@ export function AddBannerModal({
                 {formData.bannerType !== "General" && (
                   <div className="lg:col-span-2">
                     <Label>
-                      {formData.bannerType === "Product" && "المنتج"}
+                      {(formData.bannerType === "Product" ||
+                        formData.bannerType === "Offer") &&
+                        "المنتج"}
                       {formData.bannerType === "User" && "المتجر"}
-                      {formData.bannerType === "Offer" && "العرض"}
                       <span className="text-error-500">*</span>
                     </Label>
                     <Select
@@ -258,7 +251,7 @@ export function AddBannerModal({
                           ? "المنتج"
                           : formData.bannerType === "User"
                             ? "المتجر"
-                            : "العرض"
+                            : "المنتج المطبق عليه العرض"
                       }`}
                     />
                   </div>
@@ -351,7 +344,6 @@ export function EditBannerModal({
   // Fetch data for dropdowns
   const [products, setProducts] = useState<Product[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedTypes, setFetchedTypes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -368,15 +360,15 @@ export function EditBannerModal({
       }
 
       try {
-        if (formData.bannerType === "Product") {
+        if (
+          formData.bannerType === "Product" ||
+          formData.bannerType === "Offer"
+        ) {
           const productsRes = await getAllProducts();
           setProducts(productsRes.data || []);
         } else if (formData.bannerType === "User") {
           const vendorsRes = await getAllVendors();
           setVendors(vendorsRes.data || []);
-        } else if (formData.bannerType === "Offer") {
-          const offersRes = await getAllOffers();
-          setOffers(offersRes.data || []);
         }
 
         // Mark this type as fetched
@@ -477,6 +469,7 @@ export function EditBannerModal({
   const getItemOptions = () => {
     switch (formData.bannerType) {
       case "Product":
+      case "Offer":
         return products.map((product) => ({
           value: product._id,
           label: product.nameAr,
@@ -485,11 +478,6 @@ export function EditBannerModal({
         return vendors.map((vendor) => ({
           value: vendor._id,
           label: vendor.name,
-        }));
-      case "Offer":
-        return offers.map((offer) => ({
-          value: offer._id,
-          label: offer.nameAr,
         }));
       default:
         return [];
@@ -550,9 +538,10 @@ export function EditBannerModal({
                 {formData.bannerType !== "General" && (
                   <div className="lg:col-span-2">
                     <Label>
-                      {formData.bannerType === "Product" && "المنتج"}
+                      {(formData.bannerType === "Product" ||
+                        formData.bannerType === "Offer") &&
+                        "المنتج"}
                       {formData.bannerType === "User" && "المتجر"}
-                      {formData.bannerType === "Offer" && "العرض"}
                       <span className="text-error-500">*</span>
                     </Label>
                     <Select
@@ -564,7 +553,7 @@ export function EditBannerModal({
                           ? "المنتج"
                           : formData.bannerType === "User"
                             ? "المتجر"
-                            : "العرض"
+                            : "المنتج المطبق عليه العرض"
                       }`}
                     />
                   </div>
