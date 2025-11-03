@@ -23,13 +23,13 @@ export interface ProfileResponse {
 export interface UpdateProfilePayload {
   name?: string;
   email?: string;
+  fcmToken?: string;
 }
 
 export interface ChangePasswordPayload {
   currentPassword: string;
   password: string;
 }
-
 
 // Get admin profile
 export async function getAdminProfile(): Promise<ProfileResponse> {
