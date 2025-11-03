@@ -35,11 +35,13 @@ export function AddVendorModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
+  const [hotlineError, setHotlineError] = useState<string>("");
   const [locationError, setLocationError] = useState<string>("");
   const [expectedTimeError, setExpectedTimeError] = useState<string>("");
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
+    hotline: string;
     location: string;
     workingHours: [string, string];
     expectedTime: string;
@@ -50,6 +52,7 @@ export function AddVendorModal({
   }>({
     name: "",
     mobile: "",
+    hotline: "",
     location: "",
     workingHours: ["07:00", "15:00"],
     expectedTime: "",
@@ -139,8 +142,30 @@ export function AddVendorModal({
     }
 
     // Check minimum length (5-11 digits)
-    if (mobile.length < 5 || mobile.length > 11) {
-      return "يرجى ادخال رقم الهاتف الصحيح";
+    // Check length exactly 11 digits
+    if (mobile.length !== 11) {
+      return "يرجى ادخال رقم هاتف مكون من 11 رقمًا";
+    }
+
+    return "";
+  };
+
+  // Hotline validation function
+  const validateHotline = (hotline: string): string => {
+    // Check if empty
+    if (!hotline || hotline.trim() === "") {
+      return "";
+    }
+
+    // Check if only numbers
+    const numbersOnly = /^[0-9]+$/;
+    if (!numbersOnly.test(hotline)) {
+      return "الخط الساخن يقبل الأرقام فقط";
+    }
+
+    // Check minimum length (5-11 digits)
+    if (hotline.length < 5 || hotline.length > 11) {
+      return "يرجى ادخال رقم الخط الساخن الصحيح (5-11 رقم)";
     }
 
     return "";
@@ -182,6 +207,8 @@ export function AddVendorModal({
       handleNameChange(value);
     } else if (field === "mobile" && typeof value === "string") {
       handleMobileChange(value);
+    } else if (field === "hotline" && typeof value === "string") {
+      handleHotlineChange(value);
     } else if (field === "location" && typeof value === "string") {
       handleLocationChange(value);
     } else if (field === "expectedTime" && typeof value === "string") {
@@ -201,6 +228,18 @@ export function AddVendorModal({
     // Validate and set error
     const error = validateMobile(limitedValue);
     setMobileError(error);
+  };
+
+  const handleHotlineChange = (value: string) => {
+    // Only allow numbers, limit to 11 digits
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    const limitedValue = numbersOnly.slice(0, 11);
+
+    setFormData((prev) => ({ ...prev, hotline: limitedValue }));
+
+    // Validate and set error
+    const error = validateHotline(limitedValue);
+    setHotlineError(error);
   };
 
   // Location validation function
@@ -344,6 +383,20 @@ export function AddVendorModal({
         return;
       }
 
+      // Check for hotline validation errors (optional field)
+      if (formData.hotline) {
+        const hotlineValidationError = validateHotline(formData.hotline);
+        if (hotlineValidationError) {
+          setToast({
+            variant: "error",
+            title: "خطأ في رقم الخط الساخن",
+            message: hotlineValidationError,
+          });
+          setTimeout(() => setToast(null), 5000);
+          return;
+        }
+      }
+
       // Check for location validation errors
       const locationValidationError = validateLocation(formData.location);
       if (locationValidationError) {
@@ -461,6 +514,7 @@ export function AddVendorModal({
       const payloadRaw: CreateVendorPayload = {
         name: formData.name,
         mobile: formData.mobile,
+        hotline: formData.hotline,
         location: formData.location,
         workingHours: formData.workingHours,
         expectedTime: formData.expectedTime,
@@ -488,6 +542,7 @@ export function AddVendorModal({
       setFormData({
         name: "",
         mobile: "",
+        hotline: "",
         location: "",
         workingHours: ["07:00", "15:00"],
         expectedTime: "",
@@ -524,6 +579,7 @@ export function AddVendorModal({
     setFormData({
       name: "",
       mobile: "",
+      hotline: "",
       location: "",
       workingHours: ["07:00", "15:00"],
       expectedTime: "",
@@ -534,6 +590,7 @@ export function AddVendorModal({
     });
     setNameError("");
     setMobileError("");
+    setHotlineError("");
     setLocationError("");
     setExpectedTimeError("");
     setIsLoading(false);
@@ -609,6 +666,19 @@ export function AddVendorModal({
                     error={!!mobileError}
                     hint={mobileError || `${formData.mobile.length}/11`}
                     required
+                  />
+                </div>
+
+                {/* Hotline */}
+                <div>
+                  <Label>الخط الساخن</Label>
+                  <Input
+                    type="text"
+                    placeholder="ادخل رقم الخط الساخن"
+                    value={formData.hotline}
+                    onChange={(e) => handleChange("hotline", e.target.value)}
+                    error={!!hotlineError}
+                    hint={hotlineError || `${formData.hotline.length}/11`}
                   />
                 </div>
 
@@ -816,12 +886,14 @@ export function EditVendorModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
+  const [hotlineError, setHotlineError] = useState<string>("");
   const [locationError, setLocationError] = useState<string>("");
   const [expectedTimeError, setExpectedTimeError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
+    hotline: string;
     location: string;
     workingHours: [string, string];
     expectedTime: string;
@@ -832,6 +904,7 @@ export function EditVendorModal({
   }>({
     name: vendor.name || "",
     mobile: vendor.mobile || "",
+    hotline: vendor.hotline || "",
     location: vendor.location || "",
     workingHours:
       Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
@@ -964,6 +1037,38 @@ export function EditVendorModal({
     setMobileError(error);
   };
 
+  // Hotline validation function
+  const validateHotline = (hotline: string): string => {
+    // Hotline is optional, return no error if empty
+    if (!hotline || hotline.trim() === "") {
+      return "";
+    }
+
+    // Check if it contains only numbers
+    if (!/^[0-9]+$/.test(hotline)) {
+      return "الخط الساخن يقبل الأرقام فقط";
+    }
+
+    // Check length (5-11 digits)
+    if (hotline.length < 5 || hotline.length > 11) {
+      return "يرجى ادخال رقم الخط الساخن الصحيح (5-11 رقم)";
+    }
+
+    return "";
+  };
+
+  const handleHotlineChange = (value: string) => {
+    // Only allow numbers, limit to 11 digits
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    const limitedValue = numbersOnly.slice(0, 11);
+
+    setFormData((prev) => ({ ...prev, hotline: limitedValue }));
+
+    // Validate and set error
+    const error = validateHotline(limitedValue);
+    setHotlineError(error);
+  };
+
   // Location validation function
   const validateLocation = (location: string): string => {
     // Remove extra spaces and normalize
@@ -1060,6 +1165,8 @@ export function EditVendorModal({
       handleNameChange(value);
     } else if (field === "mobile" && typeof value === "string") {
       handleMobileChange(value);
+    } else if (field === "hotline" && typeof value === "string") {
+      handleHotlineChange(value);
     } else if (field === "location" && typeof value === "string") {
       handleLocationChange(value);
     } else if (field === "expectedTime" && typeof value === "string") {
@@ -1095,6 +1202,20 @@ export function EditVendorModal({
         });
         setTimeout(() => setToast(null), 5000);
         return;
+      }
+
+      // Check for hotline validation errors (if provided)
+      if (formData.hotline && formData.hotline.trim() !== "") {
+        const hotlineValidationError = validateHotline(formData.hotline);
+        if (hotlineValidationError) {
+          setToast({
+            variant: "error",
+            title: "خطأ في الخط الساخن",
+            message: hotlineValidationError,
+          });
+          setTimeout(() => setToast(null), 5000);
+          return;
+        }
       }
 
       // Check for location validation errors
@@ -1144,6 +1265,7 @@ export function EditVendorModal({
       const payloadRaw: Partial<CreateVendorPayload> = {
         name: formData.name,
         mobile: formData.mobile,
+        hotline: formData.hotline,
         location: formData.location,
         workingHours: formData.workingHours,
         expectedTime: formData.expectedTime,
@@ -1197,6 +1319,7 @@ export function EditVendorModal({
     setFormData({
       name: vendor.name || "",
       mobile: vendor.mobile || "",
+      hotline: vendor.hotline || "",
       location: vendor.location || "",
       workingHours:
         Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
@@ -1210,6 +1333,7 @@ export function EditVendorModal({
     });
     setNameError("");
     setMobileError("");
+    setHotlineError("");
     setLocationError("");
     setExpectedTimeError("");
     setIsLoading(false);
@@ -1290,6 +1414,17 @@ export function EditVendorModal({
                     error={!!mobileError}
                     hint={mobileError || `${formData.mobile.length}/11`}
                     required
+                  />
+                </div>
+                <div>
+                  <Label>الخط الساخن</Label>
+                  <Input
+                    type="text"
+                    placeholder="ادخل رقم الخط الساخن (5-11 رقم)"
+                    value={formData.hotline}
+                    onChange={(e) => handleChange("hotline", e.target.value)}
+                    error={!!hotlineError}
+                    hint={hotlineError || `${formData.hotline.length}/11`}
                   />
                 </div>
                 <div>
