@@ -3,6 +3,7 @@ import "./globals.css";
 
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import NotificationHandler from "@/components/common/NotificationHandler";
 
 // const outfit = Outfit({
 //   subsets: ["latin"],
@@ -25,7 +26,10 @@ export default function RootLayout({
     <html lang="ar" dir="rtl">
       <body className={`${rubik.className} dark:bg-gray-900`}>
         <ThemeProvider>
-          <SidebarProvider>{children}</SidebarProvider>
+          <SidebarProvider>
+            <NotificationHandler />
+            {children}
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
