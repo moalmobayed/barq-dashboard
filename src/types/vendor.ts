@@ -5,6 +5,7 @@ import { Subcategory } from "./subcategory";
 export interface CreateVendorPayload {
   name: string;
   mobile: string;
+  hotline?: string;
   location: string;
   workingHours: [string, string];
   expectedTime: string;
@@ -20,6 +21,7 @@ export interface Vendor {
   _id: string;
   name: string;
   mobile: string;
+  hotline?: string;
   profileImage?: string;
   coverImage?: string;
   role: string;
