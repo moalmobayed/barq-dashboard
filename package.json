@@ -22,6 +22,7 @@
     "apexcharts": "^4.3.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.11.0",
+    "firebase": "^12.5.0",
     "flatpickr": "^4.6.13",
     "next": "15.2.3",
     "react": "^19.0.0",
