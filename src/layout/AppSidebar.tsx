@@ -89,7 +89,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <MdWidgets />,
-    name: "البانرات",
+    name: "الإعلانات",
     path: "/banners",
   },
   {
