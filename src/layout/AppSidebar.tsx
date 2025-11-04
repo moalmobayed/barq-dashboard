@@ -21,6 +21,7 @@ import {
   MdSecurity,
   MdPerson,
   MdLocationOn,
+  MdNotifications,
 } from "react-icons/md";
 
 type NavItem = {
@@ -70,6 +71,11 @@ const navItems: NavItem[] = [
     icon: <MdPerson />,
     name: "العملاء",
     path: "/customers",
+  },
+  {
+    icon: <MdNotifications />,
+    name: "الاشعارات",
+    path: "/notifications",
   },
   {
     icon: <MdLocationOn />,
