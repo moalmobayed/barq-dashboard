@@ -6,14 +6,14 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "البانرات | برق",
-  description: "هذه هي صفحة البانرات حيث يمكنك إدارة بيانات البانرات.",
+  title: "الإعلانات | برق",
+  description: "هذه هي صفحة الإعلانات حيث يمكنك إدارة بيانات الإعلانات.",
 };
 
 export default function Banners() {
   return (
     <div>
-      <PageBreadcrumb pageTitle="البانرات" />
+      <PageBreadcrumb pageTitle="الإعلانات" />
 
       <div
         className={`space-y-6 rounded-2xl border border-t border-gray-100 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]`}
