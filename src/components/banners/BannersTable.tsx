@@ -143,7 +143,7 @@ export default function BannersTable() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="البحث عن البانرات..."
+            placeholder="البحث عن الإعلانات..."
             className="h-11 w-full rounded-lg border border-gray-500 bg-transparent py-2.5 ps-12 pe-14 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
           />
         </div>
@@ -189,7 +189,7 @@ export default function BannersTable() {
                     الصورة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    نوع البانر
+                    نوع الإعلان
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     العنصر
@@ -241,11 +241,11 @@ export default function BannersTable() {
                       >
                         <div className="flex flex-col items-center gap-2">
                           <MdWidgets className="h-12 w-12 text-gray-300 dark:text-gray-600" />
-                          <p className="text-sm font-medium">لا توجد بانرات</p>
+                          <p className="text-sm font-medium">لا توجد إعلانات</p>
                           <p className="text-xs text-gray-400 dark:text-gray-500">
                             {searchTerm.trim()
                               ? "لم يتم العثور على نتائج للبحث"
-                              : "لم يتم إضافة أي بانرات بعد"}
+                              : "لم يتم إضافة أي إعلانات بعد"}
                           </p>
                         </div>
                       </td>
