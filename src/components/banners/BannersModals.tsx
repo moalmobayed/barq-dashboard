@@ -98,7 +98,7 @@ export function AddBannerModal({
         setToast({
           variant: "error",
           title: "حقل مطلوب",
-          message: "صورة البانر مطلوبة.",
+          message: "صورة الإعلان مطلوبة.",
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -108,7 +108,7 @@ export function AddBannerModal({
         setToast({
           variant: "error",
           title: "حقل مطلوب",
-          message: "يجب اختيار عنصر للبانر.",
+          message: "يجب اختيار عنصر للإعلان.",
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -127,8 +127,8 @@ export function AddBannerModal({
       await createBanner(payload);
       setToast({
         variant: "success",
-        title: "نجح إنشاء البانر",
-        message: "تم إنشاء البانر بنجاح",
+        title: "نجح إنشاء الإعلان",
+        message: "تم إنشاء الإعلان بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
       setFormData({
@@ -141,10 +141,10 @@ export function AddBannerModal({
       if (err instanceof AxiosError) {
         setToast({
           variant: "error",
-          title: "خطأ في إنشاء البانر",
+          title: "خطأ في إنشاء الإعلان",
           message:
             err.response?.data?.message ||
-            "فشل في إنشاء البانر. يرجى المحاولة مرة أخرى",
+            "فشل في إنشاء الإعلان. يرجى المحاولة مرة أخرى",
         });
       } else {
         setToast({
@@ -200,13 +200,13 @@ export function AddBannerModal({
           <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
             <div>
               <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-                إضافة بانر
+                إضافة إعلان
               </h5>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Banner Image */}
                 <div className="lg:col-span-2">
                   <Label>
-                    صورة البانر <span className="text-error-500">*</span>
+                    صورة الإعلان <span className="text-error-500">*</span>
                   </Label>
                   <FileInput
                     accept="image/*"
@@ -217,7 +217,7 @@ export function AddBannerModal({
                 {/* Banner Type */}
                 <div className="lg:col-span-2">
                   <Label>
-                    نوع البانر <span className="text-error-500">*</span>
+                    نوع الإعلان <span className="text-error-500">*</span>
                   </Label>
                   <Select
                     value={formData.bannerType}
@@ -228,7 +228,7 @@ export function AddBannerModal({
                       { value: "User", label: "متجر" },
                       { value: "Offer", label: "عرض" },
                     ]}
-                    placeholder="اختر نوع البانر"
+                    placeholder="اختر نوع الإعلان"
                   />
                 </div>
 
@@ -312,7 +312,7 @@ export function AddBannerButton({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <>
       <Button size="md" variant="primary" onClick={openModal}>
-        + إضافة بانر
+        + إضافة إعلان
       </Button>
       <AddBannerModal
         isOpen={isOpen}
@@ -403,7 +403,7 @@ export function EditBannerModal({
         setToast({
           variant: "error",
           title: "حقل مطلوب",
-          message: "يجب اختيار عنصر للبانر.",
+          message: "يجب اختيار عنصر للإعلان.",
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -427,8 +427,8 @@ export function EditBannerModal({
       await updateBanner(banner._id, payload);
       setToast({
         variant: "success",
-        title: "نجح تحديث البانر",
-        message: "تم تحديث البانر بنجاح",
+        title: "نجح تحديث الإعلان",
+        message: "تم تحديث الإعلان بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
@@ -436,10 +436,10 @@ export function EditBannerModal({
       if (err instanceof AxiosError) {
         setToast({
           variant: "error",
-          title: "خطأ في تحديث البانر",
+          title: "خطأ في تحديث الإعلان",
           message:
             err.response?.data?.message ||
-            "فشل في تحديث البانر. يرجى المحاولة مرة أخرى",
+            "فشل في تحديث الإعلان. يرجى المحاولة مرة أخرى",
         });
       } else {
         setToast({
@@ -495,12 +495,12 @@ export function EditBannerModal({
           <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
             <div>
               <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-                تعديل البانر
+                تعديل الإعلان
               </h5>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Banner Image */}
                 <div className="lg:col-span-2">
-                  <Label>صورة البانر</Label>
+                  <Label>صورة الإعلان</Label>
                   {typeof formData.image === "string" && formData.image && (
                     <Image
                       src={formData.image}
@@ -519,7 +519,7 @@ export function EditBannerModal({
                 {/* Banner Type */}
                 <div className="lg:col-span-2">
                   <Label>
-                    نوع البانر <span className="text-error-500">*</span>
+                    نوع الإعلان <span className="text-error-500">*</span>
                   </Label>
                   <Select
                     value={formData.bannerType}
@@ -530,7 +530,7 @@ export function EditBannerModal({
                       { value: "User", label: "متجر" },
                       { value: "Offer", label: "عرض" },
                     ]}
-                    placeholder="اختر نوع البانر"
+                    placeholder="اختر نوع الإعلان"
                   />
                 </div>
 
@@ -644,8 +644,8 @@ export function DeleteBannerModal({
       await deleteBanner(bannerId);
       setToast({
         variant: "success",
-        title: "نجح حذف البانر",
-        message: "تم حذف البانر بنجاح",
+        title: "نجح حذف الإعلان",
+        message: "تم حذف الإعلان بنجاح",
       });
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
@@ -654,10 +654,10 @@ export function DeleteBannerModal({
       if (err instanceof AxiosError) {
         setToast({
           variant: "error",
-          title: "خطأ في حذف البانر",
+          title: "خطأ في حذف الإعلان",
           message:
             err.response?.data?.message ||
-            "فشل في حذف البانر. يرجى المحاولة مرة أخرى",
+            "فشل في حذف الإعلان. يرجى المحاولة مرة أخرى",
         });
       } else {
         setToast({
@@ -680,11 +680,11 @@ export function DeleteBannerModal({
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
         <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
           <h4 className="mb-5 px-2 pb-3 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-            حذف البانر
+            حذف الإعلان
           </h4>
 
           <p className="text-gray-800 dark:text-white/90">
-            هل أنت متأكد أنك تريد حذف هذا البانر؟
+            هل أنت متأكد أنك تريد حذف هذا الإعلان؟
           </p>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
