@@ -1,43 +1,51 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-
-const notifications = [
-  {
-    id: 1,
-    userName: "محمد طارق",
-    avatar: "/images/user/owner.png",
-    message: "يريد تعديل مشروع",
-    project: "تطبيق التوصيل - برق",
-    status: "online",
-    time: "منذ 5 دقائق",
-  },
-  {
-    id: 2,
-    userName: "أحمد عبد الله",
-    avatar: "/images/user/owner.png",
-    message: "يريد صلاحيات جديدة في",
-    project: "لوحة التحكم",
-    status: "offline",
-    time: "منذ 10 دقائق",
-  },
-  {
-    id: 3,
-    userName: "منة خالد",
-    avatar: "/images/user/owner.png",
-    message: "أرسلت تقرير جديد بخصوص",
-    project: "مشروع السوق",
-    status: "online",
-    time: "منذ 30 دقيقة",
-  },
-];
+import {
+  getNotifications,
+  getUnreadNotificationsCount,
+  markNotificationAsSeen,
+} from "@/lib/api/notifications";
+import { Notification } from "@/types/notification";
 
 export default function NotificationDropdown() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch notifications and unread count
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [notificationsRes, unreadRes] = await Promise.all([
+        getNotifications(1, 5), // Get latest 5 notifications
+        getUnreadNotificationsCount(),
+      ]);
+      setNotifications(notificationsRes.data);
+      setUnreadCount(unreadRes.data);
+      
+      // Trigger event to notify other components about new data
+      window.dispatchEvent(new CustomEvent('notifications-updated', { 
+        detail: { timestamp: Date.now() } 
+      }));
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -49,7 +57,55 @@ export default function NotificationDropdown() {
 
   const handleClick = () => {
     toggleDropdown();
-    setNotifying(false);
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as seen if not already seen
+    if (!notification.seen) {
+      try {
+        await markNotificationAsSeen(notification._id);
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif._id === notification._id ? { ...notif, seen: true } : notif,
+          ),
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      } catch (error) {
+        console.error("Error marking notification as seen:", error);
+      }
+    }
+
+    // Navigate to order if metadata exists
+    if (notification.metadata) {
+      closeDropdown();
+      router.push(`/orders/${notification.metadata}`);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMs = now.getTime() - date.getTime();
+      const diffInMinutes = Math.floor(diffInMs / 60000);
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      const diffInDays = Math.floor(diffInHours / 24);
+
+      if (diffInMinutes < 1) return "الآن";
+      if (diffInMinutes < 60) return `منذ ${diffInMinutes} دقيقة`;
+      if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
+      if (diffInDays === 1) return "أمس";
+      if (diffInDays < 7) return `منذ ${diffInDays} أيام`;
+
+      return date.toLocaleDateString("ar-EG", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
   };
 
   return (
@@ -60,7 +116,7 @@ export default function NotificationDropdown() {
       >
         <span
           className={`absolute end-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
-            !notifying ? "hidden" : "flex"
+            unreadCount === 0 ? "hidden" : "flex"
           }`}
         >
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
@@ -88,7 +144,7 @@ export default function NotificationDropdown() {
       >
         <div className="mb-3 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
           <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            الإشعارات
+            الإشعارات {unreadCount > 0 && `(${unreadCount})`}
           </h5>
           <button
             onClick={toggleDropdown}
@@ -112,46 +168,69 @@ export default function NotificationDropdown() {
         </div>
 
         <ul className="custom-scrollbar flex h-auto flex-col overflow-y-auto">
-          {notifications.map((item) => (
-            <li key={item.id}>
-              <DropdownItem
-                onItemClick={closeDropdown}
-                className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-              >
-                <span className="relative z-1 block h-10 w-full max-w-10 rounded-full">
-                  <Image
-                    width={40}
-                    height={40}
-                    src={item.avatar}
-                    alt={item.userName}
-                    className="w-full overflow-hidden rounded-full"
-                  />
-                </span>
-
-                <span className="block">
-                  <span className="text-theme-sm mb-1.5 block space-x-1 text-start text-gray-500 dark:text-gray-400">
-                    <span className="inline-block font-medium text-gray-800 dark:text-white/90">
-                      {item.userName}
-                    </span>
-                    <span className="inline-block">{item.message}</span>
-                    <span className="inline-block font-medium text-gray-800 dark:text-white/90">
-                      {item.project}
-                    </span>
+          {isLoading ? (
+            <div className="flex h-32 items-center justify-center">
+              <div className="border-primary-500 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex h-32 items-center justify-center text-gray-500 dark:text-gray-400">
+              لا توجد إشعارات
+            </div>
+          ) : (
+            notifications.map((item) => (
+              <li key={item._id}>
+                <DropdownItem
+                  onItemClick={() => handleNotificationClick(item)}
+                  className={`flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 ${
+                    !item.seen ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
+                  }`}
+                >
+                  <span className="bg-primary-100 dark:bg-primary-900/30 relative z-1 flex h-10 w-full max-w-10 items-center justify-center rounded-full">
+                    {!item.seen && (
+                      <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-blue-500"></span>
+                    )}
+                    <svg
+                      className="text-primary-600 dark:text-primary-400 h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                      />
+                    </svg>
                   </span>
 
-                  <span className="text-theme-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <span>مشروع</span>
-                    <span className="h-1 w-1 rounded-full bg-gray-400"></span>
-                    <span>{item.time}</span>
+                  <span className="block flex-1">
+                    <span className="text-theme-sm mb-1.5 block text-start">
+                      <span className="block font-medium text-gray-800 dark:text-white/90">
+                        {item.titleAr}
+                      </span>
+                      <span className="block text-sm text-gray-600 dark:text-gray-400">
+                        {item.contentAr.length > 60
+                          ? `${item.contentAr.slice(0, 60)}...`
+                          : item.contentAr}
+                      </span>
+                    </span>
+
+                    <span className="text-theme-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <span>{item.type}</span>
+                      <span className="h-1 w-1 rounded-full bg-gray-400"></span>
+                      <span>{formatDate(item.createdAt)}</span>
+                    </span>
                   </span>
-                </span>
-              </DropdownItem>
-            </li>
-          ))}
+                </DropdownItem>
+              </li>
+            ))
+          )}
         </ul>
 
         <Link
-          href="/"
+          href="/notifications"
+          onClick={closeDropdown}
           className="mt-3 block rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
         >
           عرض كل الإشعارات
