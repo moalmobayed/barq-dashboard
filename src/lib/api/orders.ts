@@ -72,6 +72,20 @@ export async function getOrderStatsSummary(filters?: {
   return res.data;
 }
 
+// PATCH /orders/:orderId
+export async function updateOrder(
+  orderId: string,
+  data: {
+    deliveryAgent?: string;
+    orderStatus?: "pending" | "processing" | "completed" | "cancelled" | "shipped";
+  },
+): Promise<Order> {
+  const res = await axios.put<Order>(`${BASE_URL}/orders/${orderId}`, data, {
+    headers: { ...authHeaders() },
+  });
+  return res.data;
+}
+
 // DELETE /orders/:orderId
 export async function deleteOrderByAdmin(orderId: string): Promise<void> {
   await axios.delete(`${BASE_URL}/orders/${orderId}`, {
