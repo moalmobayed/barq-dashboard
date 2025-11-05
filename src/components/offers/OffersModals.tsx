@@ -685,7 +685,7 @@ export function AddOfferModal({
                     placeholder="أدخل قيمة الخصم للعرض"
                     min="1"
                     max="100"
-                    step={0.1}
+                    // step={0.1}
                     value={formData.discount}
                     onChange={(e) => handleChange("discount", e.target.value)}
                     required
@@ -1242,7 +1242,7 @@ export function EditOfferModal({
                     placeholder="أدخل قيمة الخصم للعرض"
                     min="1"
                     max="100"
-                    step={0.1}
+                    // step={0.1}
                     value={
                       typeof formData.discount === "number"
                         ? formData.discount
