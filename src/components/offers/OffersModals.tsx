@@ -245,7 +245,7 @@ export function AddOfferModal({
     value: string | string[] | File | undefined,
   ) => {
     if (typeof value === "string") {
-      // Handle discount field specially: parse as number and round to 2 decimals
+      // Handle discount field specially: parse as number and round to 1 decimal
       if (field === "discount") {
         // Allow empty string -> set to 0
         const raw = value === "" ? "0" : value;
@@ -253,12 +253,11 @@ export function AddOfferModal({
         if (isNaN(num)) num = 0;
         // clamp between 0 and 100 (percentage)
         num = Math.min(Math.max(num, 0), 100);
-        // round to 2 decimals
-        num = Math.round(num * 100) / 100;
+        // round to 1 decimal
+        num = Math.round(num * 10) / 10;
         setFormData((prev) => ({ ...prev, [field]: num }));
         return;
       }
-
       // Handle nameAr field validation
       if (field === "nameAr") {
         // Limit to 60 characters
@@ -976,6 +975,19 @@ export function EditOfferModal({
     value: string | string[] | File | undefined,
   ) => {
     if (typeof value === "string") {
+      // Handle discount field specially: parse as number and round to 1 decimal
+      if (field === "discount") {
+        // Allow empty string -> set to 0
+        const raw = value === "" ? "0" : value;
+        let num = parseFloat(raw);
+        if (isNaN(num)) num = 0;
+        // clamp between 0 and 100 (percentage)
+        num = Math.min(Math.max(num, 0), 100);
+        // round to 1 decimal
+        num = Math.round(num * 10) / 10;
+        setFormData((prev) => ({ ...prev, [field]: num }));
+        return;
+      }
       // Handle nameAr field validation
       if (field === "nameAr") {
         // Limit to 60 characters
