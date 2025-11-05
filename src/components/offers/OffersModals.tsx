@@ -247,12 +247,12 @@ export function AddOfferModal({
     if (typeof value === "string") {
       // Handle discount field specially: parse as number and round to 1 decimal
       if (field === "discount") {
-        // Allow empty string -> set to 0
-        const raw = value === "" ? "0" : value;
+        // Allow empty string -> set to 1
+        const raw = value === "" ? "1" : value;
         let num = parseFloat(raw);
-        if (isNaN(num)) num = 0;
-        // clamp between 0 and 100 (percentage)
-        num = Math.min(Math.max(num, 0), 100);
+        if (isNaN(num)) num = 1;
+        // clamp between 1 and 100 (percentage)
+        num = Math.min(Math.max(num, 1), 100);
         // round to 1 decimal
         num = Math.round(num * 10) / 10;
         setFormData((prev) => ({ ...prev, [field]: num }));
@@ -977,12 +977,12 @@ export function EditOfferModal({
     if (typeof value === "string") {
       // Handle discount field specially: parse as number and round to 1 decimal
       if (field === "discount") {
-        // Allow empty string -> set to 0
-        const raw = value === "" ? "0" : value;
+        // Allow empty string -> set to 1
+        const raw = value === "" ? "1" : value;
         let num = parseFloat(raw);
-        if (isNaN(num)) num = 0;
-        // clamp between 0 and 100 (percentage)
-        num = Math.min(Math.max(num, 0), 100);
+        if (isNaN(num)) num = 1;
+        // clamp between 1 and 100 (percentage)
+        num = Math.min(Math.max(num, 1), 100);
         // round to 1 decimal
         num = Math.round(num * 10) / 10;
         setFormData((prev) => ({ ...prev, [field]: num }));
