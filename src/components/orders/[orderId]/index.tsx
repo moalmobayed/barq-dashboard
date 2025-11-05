@@ -2,7 +2,7 @@
 
 import Button from "@/components/ui/button/Button";
 import { useOrder } from "@/hooks/useOrders";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,11 +11,45 @@ import { CiLocationOn, CiPhone } from "react-icons/ci";
 import { BASE_URL } from "@/lib/config";
 import Badge from "@/components/ui/badge/Badge";
 import { MdPersonOutline } from "react-icons/md";
+import { updateOrder } from "@/lib/api/orders";
+import { fetchAgents } from "@/lib/api/agents";
+import { Agent } from "@/types/agent";
+import Select from "@/components/form/Select";
+import Label from "@/components/form/Label";
+import { ChevronDownIcon } from "../../../../public/icons";
+import Alert, { AlertProps } from "@/components/ui/alert/Alert";
+import { AxiosError } from "axios";
 
 export default function OrderDetailsComponent() {
   const { orderId } = useParams<{ orderId: string }>();
   const router = useRouter();
   const { order, loading, error, refetch } = useOrder(orderId);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [toast, setToast] = useState<AlertProps | null>(null);
+
+  // Load agents on mount
+  useEffect(() => {
+    const loadAgents = async () => {
+      try {
+        const response = await fetchAgents(1, 1000);
+        setAgents(response.data);
+      } catch (err) {
+        console.error("Failed to fetch agents:", err);
+      }
+    };
+    loadAgents();
+  }, []);
+
+  // Set initial values when order loads
+  useEffect(() => {
+    if (order) {
+      setSelectedAgent(order.deliveryAgent?._id || "");
+      setSelectedStatus(order.orderStatus || "");
+    }
+  }, [order]);
 
   useEffect(() => {
     const socket = io(BASE_URL);
@@ -28,6 +62,75 @@ export default function OrderDetailsComponent() {
       socket.disconnect();
     };
   }, [orderId, refetch]);
+
+  const handleUpdateOrder = async () => {
+    setIsUpdating(true);
+    try {
+      const updateData: {
+        deliveryAgent?: string;
+        orderStatus?:
+          | "pending"
+          | "processing"
+          | "completed"
+          | "cancelled"
+          | "shipped";
+      } = {};
+
+      if (selectedAgent && selectedAgent !== order?.deliveryAgent?._id) {
+        updateData.deliveryAgent = selectedAgent;
+      }
+
+      if (selectedStatus && selectedStatus !== order?.orderStatus) {
+        updateData.orderStatus = selectedStatus as
+          | "pending"
+          | "processing"
+          | "completed"
+          | "cancelled"
+          | "shipped";
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        setToast({
+          variant: "info",
+          title: "لا توجد تغييرات",
+          message: "لم يتم تغيير أي بيانات",
+        });
+        setTimeout(() => setToast(null), 5000);
+        setIsUpdating(false);
+        return;
+      }
+
+      await updateOrder(orderId, updateData);
+      setToast({
+        variant: "success",
+        title: "تم التحديث بنجاح",
+        message: "تم تحديث بيانات الطلب بنجاح",
+      });
+      setTimeout(() => setToast(null), 5000);
+      refetch();
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في التحديث",
+          message:
+            err.response?.data?.message ||
+            "فشل في تحديث الطلب. يرجى المحاولة مرة أخرى",
+        });
+      } else {
+        setToast({
+          variant: "error",
+          title: "خطأ غير متوقع",
+          message: "حدث خطأ غير معروف",
+        });
+      }
+      setTimeout(() => setToast(null), 5000);
+      console.error("Failed to update order:", err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const coords = order?.deliveryAddress?.location;
   const mapUrl = coords
     ? `https://www.google.com/maps?q=${coords[0]},${coords[1]}`
@@ -99,7 +202,8 @@ export default function OrderDetailsComponent() {
               ? "تم التوصيل"
               : order.orderStatus === "shipped"
                 ? "تم الشحن"
-                : order.orderStatus === "pending"
+                : order.orderStatus === "pending" ||
+                    order.orderStatus === "processing"
                   ? "جارِ التنفيذ"
                   : order.orderStatus === "cancelled"
                     ? "ملغاة"
@@ -368,15 +472,60 @@ export default function OrderDetailsComponent() {
       </div>
 
       {/* تفاصيل التوصيل */}
-      {order.deliveryAgent && (
-        <div className="flex h-fit flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]">
-          <div className="mb-2 font-bold text-gray-800 dark:text-white">
-            تفاصيل التوصيل
+      <div className="flex h-fit flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/10 dark:bg-white/[0.05]">
+        <div className="mb-2 font-bold text-gray-800 dark:text-white">
+          تفاصيل التوصيل
+        </div>
+
+        {/* Order Status */}
+        <div>
+          <Label>حالة الطلب</Label>
+          <div className="relative">
+            <Select
+              options={[
+                { value: "pending", label: "قيد الانتظار" },
+                { value: "processing", label: "جاري التنفيذ" },
+                { value: "shipped", label: "تم الشحن" },
+                { value: "completed", label: "تم التوصيل" },
+                { value: "cancelled", label: "ملغي" },
+              ]}
+              placeholder="اختر حالة الطلب"
+              value={selectedStatus}
+              onChange={(val) => setSelectedStatus(val)}
+            />
+            <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+              <ChevronDownIcon />
+            </span>
           </div>
-          <div className="flex flex-col gap-1 divide-y-2 text-sm">
+        </div>
+
+        {/* Delivery Agent */}
+        <div>
+          <Label>مندوب التوصيل</Label>
+          <div className="relative">
+            <Select
+              options={[
+                ...agents.map((agent) => ({
+                  value: agent._id,
+                  label: agent.name,
+                })),
+              ]}
+              placeholder="اختر مندوب التوصيل"
+              value={selectedAgent}
+              onChange={(val) => setSelectedAgent(val)}
+            />
+            <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+              <ChevronDownIcon />
+            </span>
+          </div>
+        </div>
+
+        {/* Current Delivery Agent Info */}
+        {order?.deliveryAgent && (
+          <div className="flex flex-col gap-1 divide-y-2 rounded-lg border bg-gray-50 p-3 text-sm dark:border-white/10 dark:bg-white/5">
             <div className="flex flex-col justify-between gap-2 py-2 dark:border-white/10">
               <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
-                اسم المندوب
+                المندوب الحالي
               </span>
               <span className="font-medium text-gray-700 dark:text-white/90">
                 <span className="dark:text-white/90">
@@ -398,8 +547,40 @@ export default function OrderDetailsComponent() {
               </span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Update Button */}
+        <Button
+          size="sm"
+          onClick={handleUpdateOrder}
+          disabled={isUpdating}
+          className="w-full"
+        >
+          {isUpdating && (
+            <svg
+              className="h-4 w-4 animate-spin text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          )}
+          تحديث الطلب
+        </Button>
+      </div>
 
       {/* ملاحظات العميل */}
       {/* <div className="flex flex-col gap-2 rounded-2xl border border-gray-100 dark:border-white/10  bg-white p-4 ">
@@ -408,6 +589,12 @@ export default function OrderDetailsComponent() {
           لا توجد أي ملاحظات
         </div>
       </div> */}
+
+      {toast && (
+        <div className="fixed end-4 top-4 z-[9999] max-w-sm">
+          <Alert {...toast} />
+        </div>
+      )}
     </div>
   );
 }
