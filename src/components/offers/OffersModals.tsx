@@ -76,10 +76,11 @@ export function AddOfferModal({
       return "الاسم طويل جداً";
     }
 
-    // Check for only Arabic and spaces
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+$/;
+    // Check for Arabic letters, numbers, spaces, and punctuation
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF0-9\s،؛؟!.\-()]+$/;
     if (!validPattern.test(name)) {
-      return "الاسم يقبل الحروف العربية والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
     }
 
     // Check for leading or trailing spaces
@@ -114,10 +115,10 @@ export function AddOfferModal({
       return "Name is too long";
     }
 
-    // Check for only English letters and spaces
-    const validPattern = /^[a-zA-Z\s]+$/;
+    // Check for English letters, numbers, spaces, and punctuation
+    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
     if (!validPattern.test(name)) {
-      return "Name accepts English letters and spaces only";
+      return "Name accepts English letters, numbers, spaces, and punctuation only";
     }
 
     // Check for leading or trailing spaces
@@ -851,10 +852,11 @@ export function EditOfferModal({
       return "الاسم طويل جداً";
     }
 
-    // Check for only Arabic and spaces
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+$/;
+    // Check for Arabic letters, numbers, spaces, and punctuation
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF0-9\s،؛؟!.\-()]+$/;
     if (!validPattern.test(name)) {
-      return "الاسم يقبل الحروف العربية والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
     }
 
     // Check for leading or trailing spaces
@@ -884,10 +886,10 @@ export function EditOfferModal({
       return "Name is too long";
     }
 
-    // Check for only English letters and spaces
-    const validPattern = /^[a-zA-Z\s]+$/;
+    // Check for English letters, numbers, spaces, and punctuation
+    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
     if (!validPattern.test(name)) {
-      return "Name accepts English letters and spaces only";
+      return "Name accepts English letters, numbers, spaces, and punctuation only";
     }
 
     // Check for leading or trailing spaces
