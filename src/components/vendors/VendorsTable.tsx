@@ -260,7 +260,7 @@ export default function VendorsTable() {
                           </Link>
                         </TableCell>
                         <TableCell>{vendor.category?.nameEn}</TableCell>
-                        <TableCell>{vendor.location}</TableCell>
+                        <TableCell>{vendor.location?.slice(0, 20)}...</TableCell>
                         <TableCell>
                           <Badge
                             size="sm"
