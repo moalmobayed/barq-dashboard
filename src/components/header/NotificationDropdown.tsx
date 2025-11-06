@@ -115,7 +115,7 @@ export default function NotificationDropdown() {
         onClick={handleClick}
       >
         <span
-          className={`absolute end-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
+          className={`absolute end-0 animate-pulse top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
             unreadCount === 0 ? "hidden" : "flex"
           }`}
         >
