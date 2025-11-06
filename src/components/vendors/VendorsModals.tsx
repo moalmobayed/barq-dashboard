@@ -83,6 +83,7 @@ export function AddVendorModal({
   useEffect(() => {
     if (!formData.category) {
       setSubcategories([]);
+      setFormData((prev) => ({ ...prev, subcategories: [] }));
       return;
     }
 
@@ -97,6 +98,7 @@ export function AddVendorModal({
       } catch (err) {
         console.error("Failed to fetch subcategories:", err);
         setSubcategories([]);
+        setFormData((prev) => ({ ...prev, subcategories: [] }));
       }
     };
 
@@ -503,10 +505,7 @@ export function AddVendorModal({
       }
 
       let coverImageUrl = "";
-      if (
-        formData.coverImage instanceof File &&
-        formData.coverImage.size > 0
-      ) {
+      if (formData.coverImage instanceof File && formData.coverImage.size > 0) {
         const uploaded = await uploadImage(formData.coverImage);
         coverImageUrl = uploaded.data;
       }
@@ -627,7 +626,8 @@ export function AddVendorModal({
                 {/* Cover Image */}
                 <div>
                   <Label>
-                    صورة الغلاف (Cover) <span className="text-error-500">*</span>
+                    صورة الغلاف (Cover){" "}
+                    <span className="text-error-500">*</span>
                   </Label>
                   <FileInput
                     accept="image/*"
@@ -790,6 +790,7 @@ export function AddVendorModal({
 
                 {/* Subcategories */}
                 <MultiSelect
+                  key={formData.category || "no-category"} // Force re-render when category changes
                   label="الفئات الفرعية"
                   placeholder={
                     !formData.category
@@ -930,9 +931,13 @@ export function EditVendorModal({
     };
 
     fetchData();
+  }, [isOpen]);
 
+  // Fetch subcategories when category changes
+  useEffect(() => {
     if (!formData.category) {
       setSubcategories([]);
+      setFormData((prev) => ({ ...prev, subcategories: [] }));
       return;
     }
 
@@ -942,14 +947,21 @@ export function EditVendorModal({
           formData.category,
         );
         setSubcategories(subcategories);
+
+        // Only reset subcategories if the category changed from a different value
+        // (not on initial load when vendor data is set)
+        if (vendor.category?._id !== formData.category) {
+          setFormData((prev) => ({ ...prev, subcategories: [] }));
+        }
       } catch (err) {
         console.error("Failed to fetch subcategories:", err);
         setSubcategories([]);
+        setFormData((prev) => ({ ...prev, subcategories: [] }));
       }
     };
 
     fetchSubcategoriesForCategory();
-  }, [isOpen, formData.category, vendor]);
+  }, [formData.category, vendor.category?._id]);
 
   // Name validation function
   const validateName = (name: string): string => {
@@ -1509,6 +1521,7 @@ export function EditVendorModal({
                   </div>
                 </div>
                 <MultiSelect
+                  key={formData.category || "no-category"} // Force re-render when category changes
                   label="الفئات الفرعية"
                   placeholder={
                     !formData.category
