@@ -44,14 +44,12 @@ export function AddProductModal({
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
   const [priceError, setPriceError] = useState<string>("");
-  const [amountError, setAmountError] = useState<string>("");
   const [descriptionArError, setDescriptionArError] = useState<string>("");
   const [descriptionEnError, setDescriptionEnError] = useState<string>("");
   const [formData, setFormData] = useState<{
     nameAr: string;
     nameEn: string;
     price: number;
-    amount: number;
     shopId: string;
     descriptionAr: string;
     descriptionEn: string;
@@ -63,7 +61,6 @@ export function AddProductModal({
     nameAr: "",
     nameEn: "",
     price: 0,
-    amount: 0,
     shopId: "",
     descriptionAr: "",
     descriptionEn: "",
@@ -312,42 +309,6 @@ export function AddProductModal({
     setPriceError(error);
   };
 
-  const validateAmount = (amount: string): string => {
-    const normalizedAmount = amount.replace(/,/g, "").trim();
-
-    if (!normalizedAmount) {
-      return "";
-    }
-
-    if (!/^\d+$/.test(normalizedAmount)) {
-      return "الكمية تقبل الأرقام فقط";
-    }
-
-    const numericAmount = parseInt(normalizedAmount, 10);
-
-    if (Number.isNaN(numericAmount) || numericAmount < 1) {
-      return "يرجى ادخال كمية المنتج";
-    }
-
-    if (numericAmount > 9999999) {
-      return "الكمية لا يمكن أن تتجاوز 9,999,999";
-    }
-
-    return "";
-  };
-
-  const handleAmountChange = (value: string) => {
-    const digitsOnly = value.replace(/\D/g, "").slice(0, 7);
-
-    setFormData((prev) => ({
-      ...prev,
-      amount: digitsOnly ? parseInt(digitsOnly, 10) : 0,
-    }));
-
-    const error = validateAmount(digitsOnly);
-    setAmountError(error);
-  };
-
   const handleAdditionalImagesChange = (files: FileList | null) => {
     if (!files || files.length === 0) {
       setFormData((prev) => ({ ...prev, images: [] }));
@@ -424,8 +385,6 @@ export function AddProductModal({
       handleNameEnChange(value);
     } else if (field === "price" && typeof value === "string") {
       handlePriceChange(value);
-    } else if (field === "amount" && typeof value === "string") {
-      handleAmountChange(value);
     } else if (field === "descriptionAr" && typeof value === "string") {
       handleDescriptionArChange(value);
     } else if (field === "descriptionEn" && typeof value === "string") {
@@ -494,28 +453,6 @@ export function AddProductModal({
           variant: "error",
           title: "خطأ في السعر",
           message: priceValidationError,
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
-
-      if (!formData.amount) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "كمية المنتج مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        setIsLoading(false);
-        return;
-      }
-
-      const amountValidationError = validateAmount(formData.amount.toString());
-      if (amountValidationError) {
-        setToast({
-          variant: "error",
-          title: "خطأ في الكمية",
-          message: amountValidationError,
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -624,7 +561,6 @@ export function AddProductModal({
         nameEn: effectiveNameEn,
         price: formData.price,
         shopId: formData.shopId,
-        amount: formData.amount,
         descriptionAr: formData.descriptionAr,
         descriptionEn: effectiveDescriptionEn,
         category: formData.category,
@@ -652,7 +588,6 @@ export function AddProductModal({
         nameAr: "",
         nameEn: "",
         price: 0,
-        amount: 0,
         shopId: "",
         descriptionAr: "",
         descriptionEn: "",
@@ -689,7 +624,6 @@ export function AddProductModal({
       nameAr: "",
       nameEn: "",
       price: 0,
-      amount: 0,
       shopId: "",
       descriptionAr: "",
       descriptionEn: "",
@@ -791,25 +725,6 @@ export function AddProductModal({
                     hint={
                       priceError ||
                       `${formData.price.toString().replace(/,/g, "").length}/7`
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Amount */}
-                <div>
-                  <Label>
-                    الكمية <span className="text-error-500">*</span>
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder="ادخل كمية المنتج"
-                    value={formData.amount === 0 ? "" : formData.amount}
-                    onChange={(e) => handleChange("amount", e.target.value)}
-                    error={!!amountError}
-                    hint={
-                      amountError ||
-                      `${formData.amount.toString().replace(/,/g, "").length}/7`
                     }
                     required
                   />
@@ -1025,7 +940,6 @@ export function EditProductModal({
     nameAr: string;
     nameEn: string;
     price: number;
-    amount: number;
     shopId: string;
     descriptionAr: string;
     descriptionEn: string;
@@ -1036,7 +950,6 @@ export function EditProductModal({
     nameAr: product.nameAr || "",
     nameEn: product.nameEn || "",
     price: product.price || 0,
-    amount: product.amount || 0,
     shopId: product.shopId._id || "",
     descriptionAr: product.descriptionAr || "",
     descriptionEn: product.descriptionEn || "",
@@ -1089,7 +1002,6 @@ export function EditProductModal({
       nameAr: product.nameAr || "",
       nameEn: product.nameEn || "",
       price: product.price || 0,
-      amount: product.amount || 0,
       shopId: product.shopId._id || "",
       descriptionAr: product.descriptionAr || "",
       descriptionEn: product.descriptionEn || "",
@@ -1508,7 +1420,6 @@ export function EditProductModal({
           : formData.descriptionAr.trim(),
         category: formData.category,
         image: imageUrl,
-        amount: formData.amount,
         images: galleryImages,
       };
       // Remove empty-string fields
@@ -1555,7 +1466,6 @@ export function EditProductModal({
       nameAr: product.nameAr || "",
       nameEn: product.nameEn || "",
       price: product.price || 0,
-      amount: product.amount || 0,
       shopId: product.shopId._id || "",
       descriptionAr: product.descriptionAr || "",
       descriptionEn: product.descriptionEn || "",
@@ -1705,17 +1615,6 @@ export function EditProductModal({
                       `${formData.price.toString().replace(/,/g, "").length}/7`
                     }
                     className="!direction-ltr !text-left"
-                  />
-                </div>
-
-                {/* Amount */}
-                <div>
-                  <Label>الكمية</Label>
-                  <Input
-                    type="number"
-                    placeholder="10"
-                    value={formData.amount}
-                    onChange={(e) => handleChange("amount", e.target.value)}
                   />
                 </div>
 
