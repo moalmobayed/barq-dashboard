@@ -2,7 +2,7 @@ export interface CreateProductPayload {
   nameAr: string;
   nameEn: string;
   price: number;
-  amount: number;
+  amount?: number;
   shopId: string;
   descriptionEn: string;
   descriptionAr: string;
