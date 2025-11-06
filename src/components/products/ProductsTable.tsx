@@ -162,9 +162,6 @@ export default function ProductsTable() {
                     التقييم
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    الوصف
-                  </TableCell>
-                  <TableCell isHeader className="text-start font-medium">
                     الإجراءات
                   </TableCell>
                 </TableRow>
@@ -196,7 +193,7 @@ export default function ProductsTable() {
                         </div>
                       </TableCell>
 
-                      {Array.from({ length: 6 }).map((_, cellIdx) => (
+                      {Array.from({ length: 5 }).map((_, cellIdx) => (
                         <TableCell
                           key={cellIdx}
                           className="px-4 py-6 text-center text-gray-500"
@@ -251,7 +248,7 @@ export default function ProductsTable() {
                             />
                             <div>
                               <span className="block font-medium text-gray-800 dark:text-white/90">
-                                {product.nameEn || "-"} | {product.nameAr || "-"}
+                                {product.nameAr.slice(0, 12) || "-"}
                               </span>
                               <span className="text-sm">
                                 {product.price || "-"} ج.م
@@ -264,9 +261,6 @@ export default function ProductsTable() {
                         <TableCell>{product.soldTimes}</TableCell>
                         <TableCell>{product.reviewCount}</TableCell>
                         <TableCell>⭐ {product.rating}</TableCell>
-                        <TableCell>
-                          {product.descriptionAr?.slice(0, 50)}...
-                        </TableCell>
                         <TableCell className="space-x-4">
                           <EditProductButton
                             product={product}
