@@ -308,17 +308,17 @@ export function AddVendorModal({
 
     // Check if it's a valid number
     if (isNaN(timeNum)) {
-      return "يجب أن يكون وثت التحضير المتوقع رقماً";
+      return "يجب أن يكون وقت التحضير المتوقع رقماً";
     }
 
     // Check if it's a positive number
     if (timeNum <= 0) {
-      return "يجب أن يكون وثت التحضير المتوقع أكبر من صفر";
+      return "يجب أن يكون وقت التحضير المتوقع أكبر من صفر";
     }
 
     // Check maximum reasonable time (e.g., 300 minutes = 5 hours)
     if (timeNum > 300) {
-      return "يجب أن لا يزيد وثت التحضير المتوقع عن 300 دقيقة";
+      return "يجب أن لا يزيد وقت التحضير المتوقع عن 300 دقيقة";
     }
 
     return "";
@@ -452,7 +452,7 @@ export function AddVendorModal({
       if (expectedTimeValidationError) {
         setToast({
           variant: "error",
-          title: "خطأ في وثت التحضير المتوقع",
+          title: "خطأ في وقت التحضير المتوقع",
           message: expectedTimeValidationError,
         });
         setTimeout(() => setToast(null), 5000);
@@ -1140,17 +1140,17 @@ export function EditVendorModal({
 
     // Check if it's a valid number
     if (isNaN(timeNum)) {
-      return "يجب أن يكون وثت التحضير المتوقع رقماً";
+      return "يجب أن يكون وقت التحضير المتوقع رقماً";
     }
 
     // Check if it's a positive number
     if (timeNum <= 0) {
-      return "يجب أن يكون وثت التحضير المتوقع أكبر من صفر";
+      return "يجب أن يكون وقت التحضير المتوقع أكبر من صفر";
     }
 
     // Check maximum reasonable time (e.g., 300 minutes = 5 hours)
     if (timeNum > 300) {
-      return "يجب أن لا يزيد وثت التحضير المتوقع عن 300 دقيقة";
+      return "يجب أن لا يزيد وقت التحضير المتوقع عن 300 دقيقة";
     }
 
     return "";
@@ -1249,7 +1249,7 @@ export function EditVendorModal({
       if (expectedTimeValidationError) {
         setToast({
           variant: "error",
-          title: "خطأ في وثت التحضير المتوقع",
+          title: "خطأ في وقت التحضير المتوقع",
           message: expectedTimeValidationError,
         });
         setTimeout(() => setToast(null), 5000);
