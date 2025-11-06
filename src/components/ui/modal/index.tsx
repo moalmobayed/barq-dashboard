@@ -1,6 +1,6 @@
 // src/components/ui/modal/index.tsx
 "use client";
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,24 +19,6 @@ export const Modal: React.FC<ModalProps> = ({
   showCloseButton = true, // Default to true for backwards compatibility
   isFullscreen = false,
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen, onClose]);
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -58,13 +40,9 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div className="modal fixed inset-0 z-999 flex items-center justify-center overflow-y-auto">
       {!isFullscreen && (
-        <div
-          className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
-          onClick={onClose}
-        ></div>
+        <div className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"></div>
       )}
       <div
-        ref={modalRef}
         className={`${contentClasses} ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
