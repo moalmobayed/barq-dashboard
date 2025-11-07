@@ -17,7 +17,7 @@ export default function InfoCard({
         {label}
       </span>
       <span
-        className={`mt-0.5 block break-all font-medium text-gray-800 dark:text-white/90 ${mono ? "font-mono text-[12px]" : ""}`}
+        className={`mt-0.5 block break-words font-medium text-gray-800 dark:text-white/90 ${mono ? "font-mono text-[12px]" : ""}`}
       >
         {value}
       </span>
