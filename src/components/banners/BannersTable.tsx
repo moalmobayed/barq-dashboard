@@ -22,7 +22,6 @@ import { MdWidgets } from "react-icons/md";
 import Image from "next/image";
 import { getSingleProduct } from "@/lib/api/products";
 import { getSingleVendor } from "@/lib/api/vendors";
-import { getSingleOffer } from "@/lib/api/offers";
 
 const limits = [5, 10, 20, 50];
 
@@ -51,15 +50,15 @@ export default function BannersTable() {
         if (!banner.item) continue;
 
         try {
-          if (banner.bannerType === "Product") {
+          if (
+            banner.bannerType === "Product" ||
+            banner.bannerType === "Offer"
+          ) {
             const product = await getSingleProduct(banner.item);
             names[banner.item] = product.nameAr;
           } else if (banner.bannerType === "User") {
             const vendor = await getSingleVendor(banner.item);
             names[banner.item] = vendor.name;
-          } else if (banner.bannerType === "Offer") {
-            const offer = await getSingleOffer(banner.item);
-            names[banner.item] = offer.nameAr;
           }
         } catch (error) {
           console.error(`Failed to fetch item name for ${banner.item}:`, error);
@@ -263,12 +262,26 @@ export default function BannersTable() {
                           />
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
-                          <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                            {banner.bannerType === "Product" && "منتج"}
-                            {banner.bannerType === "User" && "متجر"}
-                            {banner.bannerType === "Offer" && "عرض"}
-                            {banner.bannerType === "General" && "عام"}
-                          </span>
+                          {banner.bannerType === "Product" && (
+                            <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                              منتج
+                            </span>
+                          )}
+                          {banner.bannerType === "User" && (
+                            <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                              متجر
+                            </span>
+                          )}
+                          {banner.bannerType === "Offer" && (
+                            <span className="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+                              عرض
+                            </span>
+                          )}
+                          {banner.bannerType === "General" && (
+                            <span className="inline-flex rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                              عام
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           <span className="text-gray-800 dark:text-white/90">
