@@ -8,13 +8,13 @@ export interface CreateVendorPayload {
   hotline?: string;
   location: string;
   workingHours: [string, string];
+  isActive?: boolean;
   expectedTime: string;
   profileImage: string;
   coverImage?: string;
   category: string;
   subcategories: string[];
   role: string;
-  isActive?: boolean;
 }
 
 export interface Vendor {
