@@ -298,7 +298,7 @@ export function AddTownModal({
                   <Label>الاسم (بالإنجليزية)</Label>
                   <Input
                     type="text"
-                    placeholder="Enter the town name in English"
+                    placeholder="Enter the area name in English"
                     value={formData.nameEn}
                     onChange={(e) => handleChange("nameEn", e.target.value)}
                     error={!!nameEnError}
@@ -310,7 +310,7 @@ export function AddTownModal({
                 {/* Commission Amount */}
                 <div>
                   <Label>
-                    مبلغ العمولة <span className="text-error-500">*</span>
+                    مبلغ التوصيل <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="number"
@@ -677,7 +677,7 @@ export function EditTownModal({
                   <Label>الاسم (بالإنجليزية)</Label>
                   <Input
                     type="text"
-                    placeholder="Enter the town name in English"
+                    placeholder="Enter the area name in English"
                     value={formData.nameEn}
                     onChange={(e) => handleChange("nameEn", e.target.value)}
                     error={!!nameEnError}
@@ -688,7 +688,7 @@ export function EditTownModal({
 
                 {/* Commission Amount */}
                 <div>
-                  <Label>مبلغ العمولة</Label>
+                  <Label>مبلغ التوصيل</Label>
                   <Input
                     type="number"
                     placeholder="0"
