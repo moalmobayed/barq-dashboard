@@ -14,7 +14,7 @@ import Pagination from "../tables/Pagination";
 import { AddTownButton, DeleteTownButton, EditTownButton } from "./TownsModals";
 import Skeleton from "react-loading-skeleton";
 import { fetchTownsByKeyword } from "@/lib/api/towns";
-import { MdThumbDown } from "react-icons/md";
+import { MdLocationOn } from "react-icons/md";
 
 const limits = [5, 10, 20, 50];
 
@@ -190,7 +190,7 @@ export default function TownsTable() {
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <MdThumbDown className="h-12 w-12 text-gray-300 dark:text-gray-600" />
+                          <MdLocationOn className="h-12 w-12 text-gray-300 dark:text-gray-600" />
                           <p className="text-sm font-medium">لا توجد مناطق</p>
                           <p className="text-xs text-gray-400 dark:text-gray-500">
                             {searchTerm.trim()
