@@ -897,6 +897,7 @@ export function EditVendorModal({
     hotline: string;
     location: string;
     workingHours: [string, string];
+    isActive: boolean;
     expectedTime: string;
     profileImage: File | string;
     coverImage: File | string;
@@ -911,6 +912,7 @@ export function EditVendorModal({
       Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
         ? vendor.workingHours
         : ["07:00", "15:00"],
+    isActive: vendor.isActive || true,
     expectedTime: vendor.expectedTime || "",
     profileImage: vendor.profileImage || "",
     coverImage: vendor.coverImage || "",
@@ -1171,7 +1173,7 @@ export function EditVendorModal({
 
   const handleChange = (
     field: string,
-    value: string | string[] | File | undefined,
+    value: string | string[] | File | boolean | undefined,
   ) => {
     if (field === "name" && typeof value === "string") {
       handleNameChange(value);
@@ -1186,6 +1188,9 @@ export function EditVendorModal({
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
+
+    console.log(field, value);
+    console.log(formData);
   };
 
   const handleSave = async () => {
@@ -1276,17 +1281,17 @@ export function EditVendorModal({
 
       const payloadRaw: Partial<CreateVendorPayload> = {
         name: formData.name,
-        mobile: formData.mobile,
+        ...(formData.mobile !== vendor.mobile && { mobile: formData.mobile }),
         hotline: formData.hotline,
         location: formData.location,
         workingHours: formData.workingHours,
+        isActive: formData.isActive,
         expectedTime: formData.expectedTime,
         profileImage: profileImageUrl,
         coverImage: coverImageUrl,
         category: formData.category,
         subcategories: formData.subcategories,
         role: "shop",
-        isActive: true,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -1337,6 +1342,7 @@ export function EditVendorModal({
         Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
           ? vendor.workingHours
           : ["07:00", "15:00"],
+      isActive: vendor.isActive || true,
       expectedTime: vendor.expectedTime || "",
       profileImage: vendor.profileImage || "",
       coverImage: vendor.coverImage || "",
@@ -1493,7 +1499,13 @@ export function EditVendorModal({
                 </div>
                 <div>
                   <Label>نشط</Label>
-                  <Switch label="" defaultChecked={true} />
+                  <Switch
+                    label=""
+                    defaultChecked={formData.isActive}
+                    onChange={() =>
+                      handleChange("isActive", !formData.isActive)
+                    }
+                  />
                 </div>
               </div>
             </div>
