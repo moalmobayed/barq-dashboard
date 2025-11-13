@@ -341,22 +341,27 @@ export function AddCustomerModal({
         name: formData.name,
         mobile: formData.mobile,
         profileImage: profileImageUrl,
-        location: [
-          parseFloat(formData.latitude),
-          parseFloat(formData.longitude),
-        ],
-        fullAddress: formData.fullAddress,
-        addressLabel: formData.addressLabel,
-        town: formData.town,
+        defaultAddress: {
+          location: [
+            parseFloat(formData.latitude),
+            parseFloat(formData.longitude),
+          ],
+          fullAddress: formData.fullAddress,
+          addressLabel: formData.addressLabel,
+          town: formData.town,
+        },
         isDefault: true, // Always true
       };
-      // Remove empty-string fields
-      const payload = Object.fromEntries(
-        Object.entries(payloadRaw).filter((entry) => {
-          const v = entry[1] as unknown;
-          return typeof v === "string" ? v.trim() !== "" : true;
-        }),
-      ) as CreateCustomerPayload;
+      // Remove empty-string fields from defaultAddress
+      const payload: CreateCustomerPayload = {
+        ...payloadRaw,
+        defaultAddress: Object.fromEntries(
+          Object.entries(payloadRaw.defaultAddress).filter((entry) => {
+            const v = entry[1] as unknown;
+            return typeof v === "string" ? v.trim() !== "" : true;
+          }),
+        ) as typeof payloadRaw.defaultAddress,
+      };
 
       await createCustomer(payload);
       setToast({
@@ -648,19 +653,45 @@ export function EditCustomerModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
-  const [defaultAddressError, setDefaultAddressError] = useState<string>("");
+  const [fullAddressError, setFullAddressError] = useState<string>("");
+  const [addressLabelError, setAddressLabelError] = useState<string>("");
+  const [townError, setTownError] = useState<string>("");
+  const [latitudeError, setLatitudeError] = useState<string>("");
+  const [longitudeError, setLongitudeError] = useState<string>("");
+  const [towns, setTowns] = useState<Town[]>([]);
 
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
     role: "customer";
-    defaultAddress: string;
+    fullAddress: string;
+    addressLabel: string;
+    town: string;
+    latitude: string;
+    longitude: string;
   }>({
     name: customer.name || "",
     mobile: customer.mobile || "",
     role: "customer",
-    defaultAddress: customer.defaultAddress || "",
+    fullAddress: customer.defaultAddress?.fullAddress || "",
+    addressLabel: customer.defaultAddress?.addressLabel || "",
+    town: customer.defaultAddress?.town || "",
+    latitude: customer.defaultAddress?.location?.[0]?.toString() || "",
+    longitude: customer.defaultAddress?.location?.[1]?.toString() || "",
   });
+
+  // Fetch towns on component mount
+  useEffect(() => {
+    const fetchTownsData = async () => {
+      try {
+        const response = await getAllTowns();
+        setTowns(response.data || []);
+      } catch (error) {
+        console.error("Failed to fetch towns:", error);
+      }
+    };
+    fetchTownsData();
+  }, []);
 
   // Name validation function
   const validateName = (name: string): string => {
@@ -748,13 +779,13 @@ export function EditCustomerModal({
     setMobileError(error);
   };
 
-  const handleDefaultAddressChange = (value: string) => {
+  const handleFullAddressChange = (value: string) => {
     const processedValue = sanitizeAddressInput(value);
 
-    setFormData((prev) => ({ ...prev, defaultAddress: processedValue }));
+    setFormData((prev) => ({ ...prev, fullAddress: processedValue }));
 
     const error = validateDefaultAddressValue(processedValue);
-    setDefaultAddressError(error);
+    setFullAddressError(error);
   };
 
   const handleChange = (
@@ -765,8 +796,8 @@ export function EditCustomerModal({
       handleNameChange(value);
     } else if (field === "mobile" && typeof value === "string") {
       handleMobileChange(value);
-    } else if (field === "defaultAddress" && typeof value === "string") {
-      handleDefaultAddressChange(value);
+    } else if (field === "fullAddress" && typeof value === "string") {
+      handleFullAddressChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -806,37 +837,56 @@ export function EditCustomerModal({
         }
       }
 
-      const defaultAddressValidationError = validateDefaultAddressValue(
-        formData.defaultAddress,
-      );
-      if (defaultAddressValidationError) {
-        setDefaultAddressError(defaultAddressValidationError);
-        setToast({
-          variant: "error",
-          title: "خطأ في العنوان",
-          message: defaultAddressValidationError,
-        });
-        setTimeout(() => setToast(null), 5000);
-        setIsLoading(false);
-        return;
+      // Validate fullAddress if provided
+      if (formData.fullAddress.trim()) {
+        const fullAddressValidationError = validateDefaultAddressValue(
+          formData.fullAddress,
+        );
+        if (fullAddressValidationError) {
+          setFullAddressError(fullAddressValidationError);
+          setToast({
+            variant: "error",
+            title: "خطأ في العنوان",
+            message: fullAddressValidationError,
+          });
+          setTimeout(() => setToast(null), 5000);
+          setIsLoading(false);
+          return;
+        }
       }
 
       const payloadRaw: Partial<CreateCustomerPayload> = {
         name: formData.name,
         mobile: formData.mobile,
-        fullAddress: formData.defaultAddress,
-        addressLabel: "المنزل",
-        town: "671a3c89b2f1b98d2ef541c5", // Default town ID
-        location: [30.06263, 31.24967], // Default location
+        defaultAddress: {
+          fullAddress: formData.fullAddress,
+          addressLabel: formData.addressLabel,
+          town: formData.town,
+          location: [
+            parseFloat(formData.latitude) ||
+              customer.defaultAddress?.location?.[0] ||
+              30.06263,
+            parseFloat(formData.longitude) ||
+              customer.defaultAddress?.location?.[1] ||
+              31.24967,
+          ],
+        },
         isDefault: true,
       };
-      // Remove empty-string fields
-      const payload = Object.fromEntries(
-        Object.entries(payloadRaw).filter((entry) => {
-          const v = entry[1] as unknown;
-          return typeof v === "string" ? v.trim() !== "" : true;
-        }),
-      ) as Partial<CreateCustomerPayload>;
+      // Remove empty-string fields from defaultAddress
+      const payload: Partial<CreateCustomerPayload> = {
+        name: payloadRaw.name,
+        mobile: payloadRaw.mobile,
+        isDefault: payloadRaw.isDefault,
+        defaultAddress: payloadRaw.defaultAddress
+          ? (Object.fromEntries(
+              Object.entries(payloadRaw.defaultAddress).filter((entry) => {
+                const v = entry[1] as unknown;
+                return typeof v === "string" ? v.trim() !== "" : true;
+              }),
+            ) as typeof payloadRaw.defaultAddress)
+          : undefined,
+      };
 
       await updateCustomer(customer._id, payload);
       setToast({
@@ -874,11 +924,19 @@ export function EditCustomerModal({
       name: customer.name || "",
       mobile: customer.mobile || "",
       role: "customer",
-      defaultAddress: customer.defaultAddress || "",
+      fullAddress: customer.defaultAddress?.fullAddress || "",
+      addressLabel: customer.defaultAddress?.addressLabel || "",
+      town: customer.defaultAddress?.town || "",
+      latitude: customer.defaultAddress?.location?.[0]?.toString() || "",
+      longitude: customer.defaultAddress?.location?.[1]?.toString() || "",
     });
     setMobileError("");
     setNameError("");
-    setDefaultAddressError("");
+    setFullAddressError("");
+    setAddressLabelError("");
+    setTownError("");
+    setLatitudeError("");
+    setLongitudeError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -923,22 +981,85 @@ export function EditCustomerModal({
                     required
                   />
                 </div>
-                {/* Default Address */}
-                <div>
-                  <Label>العنوان</Label>
+
+                {/* Full Address */}
+                <div className="lg:col-span-2">
+                  <Label>العنوان الكامل</Label>
                   <Input
                     type="text"
-                    placeholder="ادخل عنوان العميل"
-                    value={formData.defaultAddress}
+                    placeholder="ادخل العنوان الكامل"
+                    value={formData.fullAddress}
                     onChange={(e) =>
-                      handleChange("defaultAddress", e.target.value)
+                      handleChange("fullAddress", e.target.value)
                     }
-                    error={!!defaultAddressError}
+                    error={!!fullAddressError}
                     hint={
-                      defaultAddressError ||
-                      `${formData.defaultAddress.length}/50`
+                      fullAddressError || `${formData.fullAddress.length}/50`
                     }
-                    required
+                  />
+                </div>
+
+                {/* Address Label */}
+                <div>
+                  <Label>تسمية العنوان</Label>
+                  <Input
+                    type="text"
+                    placeholder="مثال: المنزل، العمل، الشقة"
+                    value={formData.addressLabel}
+                    onChange={(e) =>
+                      handleChange("addressLabel", e.target.value)
+                    }
+                    error={!!addressLabelError}
+                    hint={addressLabelError}
+                  />
+                </div>
+
+                {/* Town */}
+                <div>
+                  <Label>المدينة</Label>
+                  <Select
+                    value={formData.town}
+                    onChange={(value) => handleChange("town", value)}
+                    options={towns.map((town) => ({
+                      label: town.nameAr || town.nameEn,
+                      value: town._id,
+                    }))}
+                    placeholder="اختر المدينة"
+                  />
+                  {townError && (
+                    <span className="text-error-500 text-xs">{townError}</span>
+                  )}
+                </div>
+
+                {/* Latitude */}
+                <div>
+                  <Label>
+                    خط العرض (Latitude)
+                    <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="مثال: 30.06263"
+                    value={formData.latitude}
+                    onChange={(e) => handleChange("latitude", e.target.value)}
+                    error={!!latitudeError}
+                    hint={latitudeError}
+                  />
+                </div>
+
+                {/* Longitude */}
+                <div>
+                  <Label>
+                    خط الطول (Longitude)
+                    <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="مثال: 31.24967"
+                    value={formData.longitude}
+                    onChange={(e) => handleChange("longitude", e.target.value)}
+                    error={!!longitudeError}
+                    hint={longitudeError}
                   />
                 </div>
               </div>

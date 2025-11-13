@@ -209,12 +209,12 @@ export default function CustomersTable() {
                       <TableRow key={customer._id}>
                         <TableCell>
                           <span className="block font-medium text-gray-800 dark:text-white/90">
-                            {customer.name}
+                            {customer.name || "بدون اسم"}
                           </span>
-                          <span className="text-sm">{customer.mobile}</span>
+                          <span className="text-sm">{customer.mobile || "بدون هاتف"}</span>
                         </TableCell>
-                        <TableCell>{customer.defaultAddress}</TableCell>
-                        <TableCell>{customer.loyalPoints}</TableCell>
+                        <TableCell>{customer.defaultAddress?.fullAddress || "بدون عنوان"}</TableCell>
+                        <TableCell>{customer.loyalPoints || 0}</TableCell>
                         <TableCell className="space-x-2">
                           <EditCustomerButton
                             customer={customer}
