@@ -912,7 +912,7 @@ export function EditVendorModal({
       Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
         ? vendor.workingHours
         : ["07:00", "15:00"],
-    isActive: vendor.isActive || true,
+    isActive: vendor.isActive || false,
     expectedTime: vendor.expectedTime || "",
     profileImage: vendor.profileImage || "",
     coverImage: vendor.coverImage || "",
@@ -1188,9 +1188,6 @@ export function EditVendorModal({
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
-
-    console.log(field, value);
-    console.log(formData);
   };
 
   const handleSave = async () => {
