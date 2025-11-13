@@ -181,7 +181,9 @@ export default function VendorDetailsComponent() {
               الوضع
             </h3>
             <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="h-2 w-2 rounded-full bg-green-500"></span>
+              <span
+                className={`h-2 w-2 rounded-full ${vendor.isActive ? "bg-green-500" : "bg-red-500"}`}
+              ></span>
               {vendor.isActive ? "الحساب فعال" : "الحساب غير فعال"}
             </div>
           </div>
