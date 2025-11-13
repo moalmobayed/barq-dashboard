@@ -259,12 +259,12 @@ export default function OffersTable() {
                         return new Date(t).toISOString().slice(0, 10);
                       };
                       return (
-                        <TableRow key={offer._id}>
+                        <TableRow key={offer._id} className="break-words">
                           {/* Offer (image + name + description) */}
-                          <TableCell className="text-start">
+                          <TableCell className="text-start break-words">
                             <Link
                               href={`/offers/${offer._id}`}
-                              className="hover:bg-brand-gray/20 dark:hover:bg-brand-gray/15 flex items-center gap-3 px-5 py-4 sm:px-6"
+                              className="hover:bg-brand-gray/20 dark:hover:bg-brand-gray/15 flex max-w-2xs items-center gap-3 px-5 py-4 break-words sm:px-6"
                             >
                               <Image
                                 width={40}
@@ -277,10 +277,11 @@ export default function OffersTable() {
                               />
                               <div className="min-w-0">
                                 <span className="block truncate font-medium text-gray-800 dark:text-white/90">
-                                  {offer.nameAr}
+                                  {offer.nameAr || offer.nameEn || "بدون اسم"}
                                 </span>
                                 <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
-                                  {offer.descriptionAr || "—"}
+                                  {offer.descriptionAr.slice(0, 50) ||
+                                    "بدون وصف"}
                                 </span>
                               </div>
                             </Link>
@@ -289,17 +290,17 @@ export default function OffersTable() {
                           <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
                             {offer.product?.nameAr ||
                               offer.product?.nameEn ||
-                              "—"}
+                              "بدون منتج"}
                           </TableCell>
                           {/* Vendor */}
                           <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
-                            {offer.shopId?.name || "—"}
+                            {offer.shopId?.name || "بدون متجر"}
                           </TableCell>
                           {/* Price & Discount */}
                           <TableCell className="px-4 py-3 text-start text-gray-700 dark:text-gray-300">
                             {offer.product?.price != null ? (
                               <div className="flex flex-col gap-1">
-                                <div className="flex items-center flex-wrap gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                   <span
                                     className={`${offer.discount > 0 ? "text-[11px] text-gray-400 line-through dark:text-gray-500" : "text-sm text-gray-800 dark:text-gray-200"}`}
                                   >
@@ -321,7 +322,7 @@ export default function OffersTable() {
                                   )}
                                 </div>
                                 <Badge size="sm" color="info" variant="light">
-                                  {offer.discount.toFixed(2)}%
+                                  {offer.discount?.toFixed(2) || "0"}%
                                 </Badge>
                               </div>
                             ) : (
@@ -330,9 +331,9 @@ export default function OffersTable() {
                           </TableCell>
                           {/* Duration */}
                           <TableCell className="px-4 py-3 text-start text-xs text-gray-600 dark:text-gray-400">
-                            {formatDate(offer.startDate)}
+                            {formatDate(offer.startDate) || "-"}
                             <MdOutlineKeyboardArrowLeft className="inline-block" />
-                            {formatDate(offer.endDate)}
+                            {formatDate(offer.endDate) || "-"}
                           </TableCell>
                           {/* Status */}
                           <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
