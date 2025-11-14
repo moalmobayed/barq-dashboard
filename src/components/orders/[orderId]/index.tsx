@@ -264,6 +264,47 @@ export default function OrderDetailsComponent() {
                 : "-"}
             </span>
           </div>
+
+          {/* Review Section */}
+          {order.review && (
+            <div className="flex flex-col gap-3 py-2 dark:border-white/10">
+              <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
+                تقييم العميل
+              </span>
+              
+              {/* Rating Stars */}
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className={`h-4 w-4 ${
+                        star <= (order.review?.rating || 0)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "fill-gray-300 text-gray-300 dark:fill-gray-600 dark:text-gray-600"
+                      }`}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  ({order.review?.rating || 0}/5)
+                </span>
+              </div>
+
+              {/* Review Content */}
+              {order.review?.content && (
+                <div className="rounded-lg bg-gray-50 p-3 dark:bg-white/5">
+                  <p className="text-xs text-gray-700 dark:text-white/90">
+                    {order.review.content}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
