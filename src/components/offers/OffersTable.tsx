@@ -280,7 +280,7 @@ export default function OffersTable() {
                                   {offer.nameAr || offer.nameEn || "بدون اسم"}
                                 </span>
                                 <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
-                                  {offer.descriptionAr.slice(0, 50) ||
+                                  {offer.descriptionAr?.slice(0, 50) ||
                                     "بدون وصف"}
                                 </span>
                               </div>
@@ -322,7 +322,7 @@ export default function OffersTable() {
                                   )}
                                 </div>
                                 <Badge size="sm" color="info" variant="light">
-                                  {offer.discount?.toFixed(2) || "0"}%
+                                  {offer.discount > 0 ? offer.discount.toFixed(2) : "0"}%
                                 </Badge>
                               </div>
                             ) : (
