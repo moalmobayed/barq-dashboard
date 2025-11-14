@@ -74,14 +74,18 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
     field: keyof CreateCategoryshopPayload,
     value: string,
   ) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    // Limit to 50 characters
+    const limitedValue = value.slice(0, 50);
+    setForm((prev) => ({ ...prev, [field]: limitedValue }));
   };
 
   const handleEditChange = (
     field: keyof CreateCategoryshopPayload,
     value: string,
   ) => {
-    setEditForm((prev) => ({ ...prev, [field]: value }));
+    // Limit to 50 characters
+    const limitedValue = value.slice(0, 50);
+    setEditForm((prev) => ({ ...prev, [field]: limitedValue }));
   };
 
   const handleCreate = async () => {
@@ -212,7 +216,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                 key={cat._id}
                 className="hover:border-brand-500 hover:bg-brand-500/5 hover:dark:border-brand-400 flex h-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 transition-all dark:border-white/10 dark:bg-white/[0.05]"
               >
-                <span className="font-medium text-gray-700 dark:text-white/80">
+                <span className="font-medium text-gray-700 md:max-w-52 md:break-words dark:text-white/80">
                   {cat.nameAr}
                   {cat.nameEn && cat.nameEn.trim() !== cat.nameAr.trim()
                     ? ` / ${cat.nameEn}`
@@ -264,6 +268,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   placeholder="اسم القسم بالعربية"
                   value={form.nameAr}
                   onChange={(e) => handleChange("nameAr", e.target.value)}
+                  hint={`${form.nameAr.length}/50`}
                   required
                 />
               </div>
@@ -276,6 +281,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   placeholder="اسم القسم بالإنجليزية"
                   value={form.nameEn}
                   onChange={(e) => handleChange("nameEn", e.target.value)}
+                  hint={`${form.nameEn.length}/50`}
                   required
                   dir="ltr"
                 />
@@ -317,6 +323,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   placeholder="اسم القسم بالعربية"
                   value={editForm.nameAr}
                   onChange={(e) => handleEditChange("nameAr", e.target.value)}
+                  hint={`${editForm.nameAr.length}/50`}
                 />
               </div>
               <div>
@@ -326,6 +333,7 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   placeholder="اسم القسم بالإنجليزية"
                   value={editForm.nameEn}
                   onChange={(e) => handleEditChange("nameEn", e.target.value)}
+                  hint={`${editForm.nameEn.length}/50`}
                   dir="ltr"
                 />
               </div>
