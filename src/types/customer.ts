@@ -3,12 +3,10 @@ export interface CreateCustomerPayload {
   name: string;
   mobile: string;
   profileImage?: string;
-  defaultAddress: {
-    addressLabel?: string;
-    fullAddress?: string;
-    location?: [number, number];
-    town?: string;
-  };
+  location?: [number, number];
+  addressLabel?: string;
+  fullAddress?: string;
+  town?: string;
   isDefault: boolean;
 }
 
