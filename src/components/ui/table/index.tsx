@@ -85,10 +85,7 @@ const TableCell: React.FC<TableCellProps> = ({
   const CellTag = isHeader ? "th" : "td";
   return (
     <CellTag
-      style={{
-        wordBreak: "break-word",
-      }}
-      className={`max-w-52 px-4 py-3 break-words text-gray-500 dark:text-gray-400 ${className}`}
+      className={`px-4 py-3 text-gray-500 dark:text-gray-400 md:max-w-52 md:break-words ${className}`}
     >
       {children}
     </CellTag>
