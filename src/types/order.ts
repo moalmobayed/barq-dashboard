@@ -71,4 +71,8 @@ export interface Order {
   redeemedPoints: number;
   isDeleted: boolean;
   pointsDiscount: number;
+  review?: {
+    content: string;
+    rating: number;
+  };
 }
