@@ -129,7 +129,12 @@ export default function OfferDetailsComponent() {
       <div className="space-y-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
+            <h1
+              style={{
+                wordBreak: "break-word",
+              }}
+              className="text-2xl font-semibold text-gray-800 dark:text-white/90"
+            >
               {offer.nameAr}
             </h1>
           </div>
@@ -200,7 +205,12 @@ export default function OfferDetailsComponent() {
                   <h2 className="mb-2 text-lg font-semibold text-gray-800 dark:text-white/90">
                     تفاصيل العرض
                   </h2>
-                  <p className="mb-4 text-sm leading-6 whitespace-pre-line text-gray-700 dark:text-gray-300">
+                  <p
+                    style={{
+                      wordBreak: "break-word",
+                    }}
+                    className="mb-4 text-sm whitespace-pre-line text-gray-700 dark:text-gray-300"
+                  >
                     {offer.descriptionAr || "لا يوجد وصف"}
                   </p>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -338,17 +348,30 @@ function PriceCard({
       </span>
       <div className="mt-0.5 flex flex-wrap items-baseline gap-3">
         <span
+          style={{
+            wordBreak: "break-word",
+          }}
           className={`text-[13px] font-medium text-gray-500 line-through dark:text-gray-400 ${!hasDiscount ? "opacity-50" : ""}`}
         >
           {original.toFixed(2)} ج.م
         </span>
         {hasDiscount && (
-          <span className="text-brand-600 dark:text-brand-300 text-base font-semibold">
+          <span
+            style={{
+              wordBreak: "break-word",
+            }}
+            className="text-brand-600 dark:text-brand-300 text-base font-semibold"
+          >
             {discounted.toFixed(2)} ج.م
           </span>
         )}
         {!hasDiscount && (
-          <span className="text-base font-semibold text-gray-800 dark:text-white/90">
+          <span
+            style={{
+              wordBreak: "break-word",
+            }}
+            className="text-base font-semibold text-gray-800 dark:text-white/90"
+          >
             {original.toFixed(2)} ج.م
           </span>
         )}
