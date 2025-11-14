@@ -218,6 +218,8 @@ export function AddCustomerModal({
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
+
+    console.log(formData);
   };
 
   const handleSave = async () => {
@@ -337,30 +339,18 @@ export function AddCustomerModal({
       const uploaded = await uploadImage(formData.profileImage);
       const profileImageUrl = uploaded.data;
 
-      const payloadRaw: CreateCustomerPayload = {
+      const payload: CreateCustomerPayload = {
         name: formData.name,
         mobile: formData.mobile,
         profileImage: profileImageUrl,
-        defaultAddress: {
-          location: [
-            parseFloat(formData.latitude),
-            parseFloat(formData.longitude),
-          ],
-          fullAddress: formData.fullAddress,
-          addressLabel: formData.addressLabel,
-          town: formData.town,
-        },
+        location: [
+          parseFloat(formData.latitude),
+          parseFloat(formData.longitude),
+        ],
+        fullAddress: formData.fullAddress,
+        addressLabel: formData.addressLabel,
+        town: formData.town,
         isDefault: true, // Always true
-      };
-      // Remove empty-string fields from defaultAddress
-      const payload: CreateCustomerPayload = {
-        ...payloadRaw,
-        defaultAddress: Object.fromEntries(
-          Object.entries(payloadRaw.defaultAddress).filter((entry) => {
-            const v = entry[1] as unknown;
-            return typeof v === "string" ? v.trim() !== "" : true;
-          }),
-        ) as typeof payloadRaw.defaultAddress,
       };
 
       await createCustomer(payload);
@@ -855,38 +845,34 @@ export function EditCustomerModal({
         }
       }
 
-      const payloadRaw: Partial<CreateCustomerPayload> = {
+      const payload: Partial<CreateCustomerPayload> = {
         name: formData.name,
         mobile: formData.mobile,
-        defaultAddress: {
-          fullAddress: formData.fullAddress,
-          addressLabel: formData.addressLabel,
-          town: formData.town,
-          location: [
-            parseFloat(formData.latitude) ||
-              customer.defaultAddress?.location?.[0] ||
-              30.06263,
-            parseFloat(formData.longitude) ||
-              customer.defaultAddress?.location?.[1] ||
-              31.24967,
-          ],
-        },
         isDefault: true,
       };
-      // Remove empty-string fields from defaultAddress
-      const payload: Partial<CreateCustomerPayload> = {
-        name: payloadRaw.name,
-        mobile: payloadRaw.mobile,
-        isDefault: payloadRaw.isDefault,
-        defaultAddress: payloadRaw.defaultAddress
-          ? (Object.fromEntries(
-              Object.entries(payloadRaw.defaultAddress).filter((entry) => {
-                const v = entry[1] as unknown;
-                return typeof v === "string" ? v.trim() !== "" : true;
-              }),
-            ) as typeof payloadRaw.defaultAddress)
-          : undefined,
-      };
+
+      // Add location if both latitude and longitude are provided
+      if (formData.latitude && formData.longitude) {
+        payload.location = [
+          parseFloat(formData.latitude),
+          parseFloat(formData.longitude),
+        ];
+      }
+
+      // Add fullAddress if provided
+      if (formData.fullAddress.trim()) {
+        payload.fullAddress = formData.fullAddress;
+      }
+
+      // Add addressLabel if provided
+      if (formData.addressLabel.trim()) {
+        payload.addressLabel = formData.addressLabel;
+      }
+
+      // Add town if provided
+      if (formData.town.trim()) {
+        payload.town = formData.town;
+      }
 
       await updateCustomer(customer._id, payload);
       setToast({
