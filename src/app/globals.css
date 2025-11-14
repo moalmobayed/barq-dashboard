@@ -370,7 +370,7 @@
 }
 
 .flatpickr-day {
-  @apply !text-xs !flex !items-center !font-medium text-gray-800 dark:text-white/90 dark:hover:!border-gray-300 dark:hover:!bg-gray-900;
+  @apply !flex !items-center !text-xs !font-medium text-gray-800 dark:text-white/90 dark:hover:!border-gray-300 dark:hover:!bg-gray-900;
 }
 .flatpickr-day.nextMonthDay,
 .flatpickr-day.prevMonthDay {
@@ -405,10 +405,10 @@
   @apply !end-7;
 }
 .flatpickr-days {
-  @apply !border-0 !w-[280px];
+  @apply !w-[280px] !border-0;
 }
 .dayContainer {
-  @apply !w-auto !min-w-auto !max-w-none;
+  @apply !w-auto !max-w-none !min-w-auto;
 }
 span.flatpickr-weekday,
 .flatpickr-months .flatpickr-month {
@@ -472,7 +472,8 @@ span.flatpickr-weekday,
 .flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n + 1)) {
   box-shadow: -10px 0 0 #465fff;
 }
-.flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover {
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
   @apply !text-gray-300 dark:!text-white/20;
 }
 
@@ -755,3 +756,5 @@ span.flatpickr-weekday,
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
+
+
