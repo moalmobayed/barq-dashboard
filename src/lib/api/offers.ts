@@ -45,7 +45,7 @@ export const fetchOffers = async (
   page?: number,
   limit?: number,
 ): Promise<{ data: Offer[]; pages: number }> => {
-  const response = await axios.get(`${BASE_URL}/offers`, {
+  const response = await axios.get(`${BASE_URL}/offers/admin`, {
     params: { page, limit },
     headers: {
       ...authHeaders(),
