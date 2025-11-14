@@ -242,7 +242,7 @@ export function AddOfferModal({
 
   const handleChange = (
     field: string,
-    value: string | string[] | File | undefined,
+    value: string | string[] | File | Date | undefined,
   ) => {
     if (typeof value === "string") {
       // Handle discount field specially: parse as number and round to 1 decimal
@@ -731,7 +731,19 @@ export function AddOfferModal({
                       return maxDate.toISOString().split("T")[0];
                     })()}
                     onChange={(dates, currentDateString) => {
-                      handleChange("endDate", currentDateString);
+                      // Set endDate to end of day (23:59:59)
+                      const endDateEndOfDay = currentDateString
+                        ? new Date(
+                            new Date(currentDateString).setHours(
+                              23,
+                              59,
+                              59,
+                              999,
+                            ),
+                          )
+                        : currentDateString;
+
+                      handleChange("endDate", endDateEndOfDay);
                     }}
                     required
                   />
@@ -972,7 +984,7 @@ export function EditOfferModal({
 
   const handleChange = (
     field: string,
-    value: string | string[] | File | undefined,
+    value: string | string[] | File | Date | undefined,
   ) => {
     if (typeof value === "string") {
       // Handle discount field specially: parse as number and round to 1 decimal
@@ -1286,7 +1298,18 @@ export function EditOfferModal({
                       return maxDate.toISOString().split("T")[0];
                     })()}
                     onChange={(dates, currentDateString) => {
-                      handleChange("endDate", currentDateString);
+                      // Set endDate to end of day (23:59:59)
+                      const endDateEndOfDay = currentDateString
+                        ? new Date(
+                            new Date(currentDateString).setHours(
+                              23,
+                              59,
+                              59,
+                              999,
+                            ),
+                          )
+                        : currentDateString;
+                      handleChange("endDate", endDateEndOfDay);
                     }}
                   />
                 </div>
