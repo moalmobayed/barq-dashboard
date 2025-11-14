@@ -115,7 +115,12 @@ export default function RecentOrders() {
                         />
                       </div>
                       <div>
-                        <p className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
+                        <p
+                          style={{
+                            wordBreak: "break-word",
+                          }}
+                          className="text-theme-sm font-medium text-gray-800 dark:text-white/90"
+                        >
                           {order.items?.[0]?.itemId?.nameAr ?? "اسم المنتج"}
                         </p>
                         <span className="text-theme-xs text-gray-500 dark:text-gray-400">
