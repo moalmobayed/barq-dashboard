@@ -18,10 +18,10 @@ import Image from "next/image";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
 import { AxiosError } from "axios";
 import { Product } from "@/types/product";
-import { fetchProducts } from "@/lib/api/products";
+import { getAllProducts } from "@/lib/api/products";
 import DatePicker from "../form/date-picker";
 import { Vendor } from "@/types/vendor";
-import { fetchVendors } from "@/lib/api/vendors";
+import { getAllVendors } from "@/lib/api/vendors";
 
 export function AddOfferModal({
   isOpen = false,
@@ -211,8 +211,8 @@ export function AddOfferModal({
     const fetchData = async () => {
       try {
         const [vendorsResponse, productsResponse] = await Promise.all([
-          fetchVendors(1, 1000),
-          fetchProducts(1, 1000),
+          getAllVendors(),
+          getAllProducts(),
         ]);
         setVendors(vendorsResponse.data);
         setProducts(productsResponse.data);
