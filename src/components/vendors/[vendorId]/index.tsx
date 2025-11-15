@@ -100,7 +100,7 @@ export default function VendorDetailsComponent() {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
-            {vendor.name}
+            {vendor.name || "تفاصيل المتجر"}
           </h1>
         </div>
         <Button size="sm" onClick={() => router.push("/vendors")}>
@@ -136,8 +136,8 @@ export default function VendorDetailsComponent() {
                   معلومات عامة
                 </h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <InfoCard label="الاسم" value={vendor.name} />
-                  <InfoCard label="الهاتف" value={vendor.mobile} />
+                  <InfoCard label="الاسم" value={vendor.name || "غير محدد"} />
+                  <InfoCard label="الهاتف" value={vendor.mobile || "غير محدد"} />
                   <InfoCard
                     label="الموقع"
                     value={vendor.location ? vendor.location : "غير محدد"}
@@ -150,7 +150,7 @@ export default function VendorDetailsComponent() {
                         : (vendor.workingHours ?? "غير محدد")
                     }
                   />
-                  <InfoCard label="التقييم" value={`${vendor.rating} ⭐`} />
+                  <InfoCard label="التقييم" value={`${vendor.rating ?? "غير محدد"} ⭐`} />
                   <InfoCard
                     label="عدد المراجعات"
                     value={`${vendor.reviewCount ?? 0}`}
@@ -266,6 +266,7 @@ export default function VendorDetailsComponent() {
                 <>
                   <EditVendorButton
                     vendor={vendor}
+                    showAsButton={true}
                     onSuccess={async () => {
                       try {
                         const data = await getSingleVendor(vendorId);
@@ -277,6 +278,7 @@ export default function VendorDetailsComponent() {
                   />
                   <DeleteVendorButton
                     vendorId={vendor._id}
+                    showAsButton={true}
                     onSuccess={() => router.push("/vendors")}
                   />
                   {/* Add Product for this vendor */}
