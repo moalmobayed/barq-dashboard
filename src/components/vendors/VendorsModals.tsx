@@ -1596,9 +1596,11 @@ export function EditVendorModal({
 export function EditVendorButton({
   vendor,
   onSuccess,
+  showAsButton = false,
 }: {
   vendor: Vendor;
   onSuccess?: () => void;
+  showAsButton?: boolean;
 }) {
   const { isOpen, openModal, closeModal } = useModal();
 
@@ -1609,9 +1611,16 @@ export function EditVendorButton({
 
   return (
     <>
-      <button onClick={openModal} className="text-sm text-blue-500">
-        <FaPencilAlt />
-      </button>
+      {showAsButton ? (
+        <Button size="md" variant="primary" onClick={openModal} className="border-yellow-500 bg-yellow-500 text-white hover:bg-yellow-600 dark:hover:bg-yellow-600">
+          <FaPencilAlt className="ml-2" />
+          تعديل المتجر
+        </Button>
+      ) : (
+        <button onClick={openModal} className="text-sm text-blue-500">
+          <FaPencilAlt />
+        </button>
+      )}
       <EditVendorModal
         isOpen={isOpen}
         closeModal={closeModal}
@@ -1703,9 +1712,11 @@ export function DeleteVendorModal({
 export function DeleteVendorButton({
   vendorId,
   onSuccess,
+  showAsButton = false,
 }: {
   vendorId: string;
   onSuccess?: () => void;
+  showAsButton?: boolean;
 }) {
   const { isOpen, openModal, closeModal } = useModal();
 
@@ -1716,9 +1727,16 @@ export function DeleteVendorButton({
 
   return (
     <>
-      <button onClick={openModal} className="text-sm text-red-500">
-        <FaTrashAlt />
-      </button>
+      {showAsButton ? (
+        <Button size="md" variant="primary" onClick={openModal} className="border-red-500 bg-red-500 text-white hover:bg-red-600 dark:hover:bg-red-600">
+          <FaTrashAlt className="ml-2" />
+          حذف المتجر
+        </Button>
+      ) : (
+        <button onClick={openModal} className="text-sm text-red-500">
+          <FaTrashAlt />
+        </button>
+      )}
       <DeleteVendorModal
         isOpen={isOpen}
         closeModal={closeModal}
