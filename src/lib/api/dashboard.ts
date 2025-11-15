@@ -52,3 +52,15 @@ export async function getDashboardAgentsPerformance() {
   );
   return res.data.data;
 }
+
+export async function getVendorPerformance(vendorId: string) {
+  const res = await axios.get(
+    `${BASE_URL}/admin/dashboard/vendors/${vendorId}/performance`,
+    {
+      headers: {
+        ...authHeaders(),
+      },
+    },
+  );
+  return res.data.data;
+}
