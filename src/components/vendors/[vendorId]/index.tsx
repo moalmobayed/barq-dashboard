@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { getSingleVendor } from "@/lib/api/vendors";
+import { getVendorPerformance } from "@/lib/api/dashboard";
 import { Vendor } from "@/types/vendor";
 import Button from "@/components/ui/button/Button";
 import Badge from "@/components/ui/badge/Badge";
@@ -19,6 +20,12 @@ export default function VendorDetailsComponent() {
   const { vendorId } = useParams<{ vendorId: string }>();
   const router = useRouter();
   const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [performance, setPerformance] = useState<{
+    barqEarn: number;
+    totalAmount: number;
+    totalEarnings: number;
+    completedOrders: number;
+  } | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +43,26 @@ export default function VendorDetailsComponent() {
       }
     };
     fetchVendor();
+  }, [vendorId]);
+
+  useEffect(() => {
+    if (!vendorId) return;
+    const fetchPerformance = async () => {
+      try {
+        const data = await getVendorPerformance(vendorId);
+        if (data && data.length > 0) {
+          setPerformance({
+            barqEarn: data[0].barqEarn,
+            totalAmount: data[0].totalAmount,
+            totalEarnings: data[0].totalEarnings,
+            completedOrders: data[0].completedOrders,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch vendor performance:", err);
+      }
+    };
+    fetchPerformance();
   }, [vendorId]);
 
   if (loading) {
@@ -176,6 +203,49 @@ export default function VendorDetailsComponent() {
 
         {/* Right column: Metadata */}
         <div className="space-y-6">
+          {/* Performance Section */}
+          {performance && (
+            <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.05]">
+              <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 dark:text-gray-400">
+                الأداء
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    عمولة برق
+                  </span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-white/90">
+                    {performance.barqEarn.toFixed(2)} ج.م
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    المبلغ الإجمالي
+                  </span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-white/90">
+                    {performance.totalAmount.toFixed(2)} ج.م
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    صافي ربح المتجر
+                  </span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-white/90">
+                    {performance.totalEarnings.toFixed(2)} ج.م
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    عدد الطلبات المكتملة
+                  </span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-white/90">
+                    {performance.completedOrders}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.05]">
             <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 dark:text-gray-400">
               الوضع
