@@ -216,11 +216,8 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                 key={cat._id}
                 className="hover:border-brand-500 hover:bg-brand-500/5 hover:dark:border-brand-400 flex h-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 transition-all dark:border-white/10 dark:bg-white/[0.05]"
               >
-                <span className="font-medium text-gray-700 md:max-w-52 md:break-words dark:text-white/80">
+                <span className="font-medium overflow-x-hidden text-gray-700 md:max-w-52 dark:text-white/80">
                   {cat.nameAr}
-                  {cat.nameEn && cat.nameEn.trim() !== cat.nameAr.trim()
-                    ? ` / ${cat.nameEn}`
-                    : ""}
                 </span>
                 <span className="flex gap-2">
                   <button

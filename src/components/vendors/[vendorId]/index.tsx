@@ -166,7 +166,7 @@ export default function VendorDetailsComponent() {
                 <div className="rounded-lg bg-gray-50 p-3 text-sm dark:bg-white/5">
                   <p className="text-gray-700 dark:text-gray-300">
                     {vendor.category
-                      ? `${vendor.category?.nameAr} / ${vendor.category?.nameEn}`
+                      ? vendor.category?.nameAr
                       : "غير محدد"}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export default function VendorDetailsComponent() {
                         key={sc._id}
                         className="bg-brand-500/10 text-brand-600 dark:text-brand-300 rounded-full px-3 py-1 text-xs"
                       >
-                        {sc.nameAr} / {sc.nameEn}
+                        {sc.nameAr}
                       </span>
                     ))
                   ) : (
