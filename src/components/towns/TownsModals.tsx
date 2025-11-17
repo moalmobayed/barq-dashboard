@@ -6,6 +6,7 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import Switch from "../form/switch/Switch";
 import { CreateTownPayload, Town } from "@/types/town";
 import { createTown, deleteTown, updateTown } from "@/lib/api/towns";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
@@ -26,11 +27,13 @@ export function AddTownModal({
     nameEn: string;
     commisionAmount: number;
     expectedTime: number;
+    isActive: boolean;
   }>({
     nameAr: "",
     nameEn: "",
     commisionAmount: 0,
     expectedTime: 0,
+    isActive: true,
   });
 
   // Arabic name validation function
@@ -203,6 +206,7 @@ export function AddTownModal({
         nameEn: effectiveNameEn,
         commisionAmount: formData.commisionAmount,
         expectedTime: formData.expectedTime,
+        isActive: formData.isActive,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -223,6 +227,7 @@ export function AddTownModal({
         nameEn: "",
         commisionAmount: 0,
         expectedTime: 0,
+        isActive: true,
       });
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
@@ -255,6 +260,7 @@ export function AddTownModal({
       nameEn: "",
       commisionAmount: 0,
       expectedTime: 0,
+      isActive: true,
     });
     setNameArError("");
     setNameEnError("");
@@ -337,6 +343,18 @@ export function AddTownModal({
                       handleChange("expectedTime", e.target.value)
                     }
                     required
+                  />
+                </div>
+
+                {/* Active */}
+                <div>
+                  <Label>نشط</Label>
+                  <Switch
+                    label=""
+                    defaultChecked={formData.isActive}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, isActive: !prev.isActive }))
+                    }
                   />
                 </div>
               </div>
@@ -422,11 +440,13 @@ export function EditTownModal({
     nameEn: string;
     commisionAmount: number;
     expectedTime: number;
+    isActive: boolean;
   }>({
     nameAr: town.nameAr || "",
     nameEn: town.nameEn || "",
     commisionAmount: town.commisionAmount || 0,
     expectedTime: town.expectedTime || 0,
+    isActive: town.isActive !== undefined ? town.isActive : true,
   });
 
   // Arabic name validation function
@@ -589,6 +609,7 @@ export function EditTownModal({
           : formData.nameAr.trim(),
         commisionAmount: formData.commisionAmount,
         expectedTime: formData.expectedTime,
+        isActive: formData.isActive,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -637,6 +658,7 @@ export function EditTownModal({
       nameEn: town.nameEn || "",
       commisionAmount: town.commisionAmount || 0,
       expectedTime: town.expectedTime || 0,
+      isActive: town.isActive !== undefined ? town.isActive : true,
     });
     setNameArError("");
     setNameEnError("");
@@ -708,6 +730,18 @@ export function EditTownModal({
                     defaultValue={formData.expectedTime}
                     onChange={(e) =>
                       handleChange("expectedTime", e.target.value)
+                    }
+                  />
+                </div>
+
+                {/* Active */}
+                <div>
+                  <Label>نشط</Label>
+                  <Switch
+                    label=""
+                    defaultChecked={formData.isActive}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, isActive: !prev.isActive }))
                     }
                   />
                 </div>

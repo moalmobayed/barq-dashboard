@@ -5,6 +5,7 @@ export interface Town {
   nameEn: string;
   expectedTime?: number;
   commisionAmount?: number;
+  isActive?: boolean;
 }
 
 export interface CreateTownPayload {
@@ -12,4 +13,5 @@ export interface CreateTownPayload {
   nameEn: string;
   commisionAmount: number;
   expectedTime: number;
+  isActive?: boolean;
 }

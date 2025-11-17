@@ -144,6 +144,9 @@ export default function TownsTable() {
                     الوقت المتوقع
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
+                    الحالة
+                  </TableCell>
+                  <TableCell isHeader className="text-start font-medium">
                     الإجراءات
                   </TableCell>
                 </TableRow>
@@ -178,6 +181,10 @@ export default function TownsTable() {
                         <Skeleton baseColor="#ecebeb" width={80} height={24} />
                       </TableCell>
 
+                      <TableCell className="px-4 py-6">
+                        <Skeleton baseColor="#ecebeb" width={60} height={24} />
+                      </TableCell>
+
                       <TableCell className="items-center justify-center gap-3 px-4 py-6">
                         <div className="flex gap-2">
                           <Skeleton
@@ -200,7 +207,7 @@ export default function TownsTable() {
                   {filteredTowns.length === 0 ? (
                     <TableRow>
                       <td
-                        colSpan={4}
+                        colSpan={5}
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -239,6 +246,23 @@ export default function TownsTable() {
                               ? `${town.expectedTime} دقيقة`
                               : "-"}
                           </span>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 text-start">
+                          {town.isActive !== undefined ? (
+                            town.isActive ? (
+                              <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                نشط
+                              </span>
+                            ) : (
+                              <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                غير نشط
+                              </span>
+                            )
+                          ) : (
+                            <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                              نشط
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="space-x-4">
                           <EditTownButton town={town} onSuccess={refetch} />
