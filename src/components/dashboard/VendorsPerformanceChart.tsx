@@ -88,7 +88,7 @@ export default function VendorsPerformanceChart() {
     },
     xaxis: {
       type: "category",
-      categories: vendors.map((v) => v.vendorName),
+      categories: vendors.map((v) => v.vendorName.slice(0, 16)),
       axisBorder: { show: false },
       axisTicks: { show: false },
       tooltip: { enabled: false },
