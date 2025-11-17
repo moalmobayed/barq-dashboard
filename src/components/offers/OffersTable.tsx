@@ -148,9 +148,6 @@ export default function OffersTable() {
                     العرض
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    المنتج
-                  </TableCell>
-                  <TableCell isHeader className="text-start font-medium">
                     المتجر
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
@@ -279,18 +276,8 @@ export default function OffersTable() {
                                 <span className="block truncate font-medium text-gray-800 dark:text-white/90">
                                   {offer.nameAr || offer.nameEn || "بدون اسم"}
                                 </span>
-                                <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
-                                  {offer.descriptionAr?.slice(0, 50) ||
-                                    "بدون وصف"}
-                                </span>
                               </div>
                             </Link>
-                          </TableCell>
-                          {/* Product */}
-                          <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
-                            {offer.product?.nameAr ||
-                              offer.product?.nameEn ||
-                              "بدون منتج"}
                           </TableCell>
                           {/* Vendor */}
                           <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
@@ -322,7 +309,10 @@ export default function OffersTable() {
                                   )}
                                 </div>
                                 <Badge size="sm" color="info" variant="light">
-                                  {offer.discount > 0 ? offer.discount.toFixed(2) : "0"}%
+                                  {offer.discount > 0
+                                    ? offer.discount.toFixed(2)
+                                    : "0"}
+                                  %
                                 </Badge>
                               </div>
                             ) : (
