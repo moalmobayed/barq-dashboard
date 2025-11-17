@@ -271,7 +271,7 @@ export default function OrderDetailsComponent() {
               <span className="block font-medium tracking-wide text-gray-500 dark:text-gray-400">
                 تقييم العميل
               </span>
-              
+
               {/* Rating Stars */}
               <div className="flex items-center gap-2">
                 <div className="flex gap-1">
@@ -430,7 +430,12 @@ export default function OrderDetailsComponent() {
                         className="rounded"
                       />
                       <div>
-                        <div className="text-sm font-medium dark:text-white/90">
+                        <div
+                          style={{
+                            wordBreak: "break-word",
+                          }}
+                          className="text-sm font-medium dark:text-white/90"
+                        >
                           {item.itemId?.nameAr ?? "اسم المنتج"}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-300">
