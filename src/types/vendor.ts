@@ -10,6 +10,7 @@ export interface CreateVendorPayload {
   workingHours: [string, string];
   isActive?: boolean;
   expectedTime: string;
+  commissionRate: number;
   profileImage: string;
   coverImage?: string;
   category: string;
@@ -30,6 +31,7 @@ export interface Vendor {
   rating?: number;
   workingHours?: [string, string];
   expectedTime: string;
+  commissionRate?: number;
   category?: Category;
   subcategories?: Subcategory[];
   reviewCount?: number;

@@ -38,6 +38,7 @@ export function AddVendorModal({
   const [hotlineError, setHotlineError] = useState<string>("");
   const [locationError, setLocationError] = useState<string>("");
   const [expectedTimeError, setExpectedTimeError] = useState<string>("");
+  const [commissionRateError, setCommissionRateError] = useState<string>("");
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
@@ -45,6 +46,7 @@ export function AddVendorModal({
     location: string;
     workingHours: [string, string];
     expectedTime: string;
+    commissionRate: number;
     profileImage: File;
     coverImage: File;
     category: string;
@@ -56,6 +58,7 @@ export function AddVendorModal({
     location: "",
     workingHours: ["07:00", "15:00"],
     expectedTime: "",
+    commissionRate: 0,
     profileImage: new File([], ""), // Initialize with an empty file
     coverImage: new File([], ""), // Initialize with an empty file
     category: "",
@@ -215,6 +218,8 @@ export function AddVendorModal({
       handleLocationChange(value);
     } else if (field === "expectedTime" && typeof value === "string") {
       handleExpectedTimeChange(value);
+    } else if (field === "commissionRate" && typeof value === "string") {
+      handleCommissionRateChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -335,6 +340,42 @@ export function AddVendorModal({
     // Validate and set error
     const error = validateExpectedTime(limitedValue);
     setExpectedTimeError(error);
+  };
+
+  // Commission Rate validation function
+  const validateCommissionRate = (rate: string): string => {
+    if (!rate || rate.trim() === "") {
+      return "";
+    }
+
+    const rateNum = parseFloat(rate);
+
+    if (isNaN(rateNum)) {
+      return "يجب أن تكون نسبة العمولة رقماً";
+    }
+
+    if (rateNum < 0) {
+      return "يجب أن تكون نسبة العمولة صفر أو أكثر";
+    }
+
+    if (rateNum > 100) {
+      return "يجب أن لا تزيد نسبة العمولة عن 100%";
+    }
+
+    return "";
+  };
+
+  const handleCommissionRateChange = (value: string) => {
+    // Only allow integers (no decimal points)
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    // Limit to 3 digits (max 100)
+    const limitedValue = numbersOnly.slice(0, 3);
+
+    const numValue = parseInt(limitedValue) || 0;
+    setFormData((prev) => ({ ...prev, commissionRate: numValue }));
+
+    const error = validateCommissionRate(limitedValue);
+    setCommissionRateError(error);
   };
 
   const handleSave = async () => {
@@ -458,6 +499,34 @@ export function AddVendorModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
+
+      // Validate commission rate
+      if (
+        formData.commissionRate === undefined ||
+        formData.commissionRate === null
+      ) {
+        setToast({
+          variant: "error",
+          title: "حقل مطلوب",
+          message: "نسبة العمولة مطلوبة.",
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
+      // Check for commissionRate validation errors
+      const commissionRateValidationError = validateCommissionRate(
+        formData.commissionRate.toString(),
+      );
+      if (commissionRateValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في نسبة العمولة",
+          message: commissionRateValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
       if (!formData.category) {
         setToast({
           variant: "error",
@@ -517,6 +586,7 @@ export function AddVendorModal({
         location: formData.location,
         workingHours: formData.workingHours,
         expectedTime: formData.expectedTime,
+        commissionRate: formData.commissionRate,
         profileImage: profileImageUrl,
         coverImage: coverImageUrl,
         category: formData.category,
@@ -545,6 +615,7 @@ export function AddVendorModal({
         location: "",
         workingHours: ["07:00", "15:00"],
         expectedTime: "",
+        commissionRate: 0,
         profileImage: new File([], ""), // Initialize with an empty file
         coverImage: new File([], ""), // Initialize with an empty file
         category: "",
@@ -582,6 +653,7 @@ export function AddVendorModal({
       location: "",
       workingHours: ["07:00", "15:00"],
       expectedTime: "",
+      commissionRate: 0,
       profileImage: new File([], ""), // Initialize with an empty file
       coverImage: new File([], ""), // Initialize with an empty file
       category: "",
@@ -592,6 +664,7 @@ export function AddVendorModal({
     setHotlineError("");
     setLocationError("");
     setExpectedTimeError("");
+    setCommissionRateError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -752,6 +825,27 @@ export function AddVendorModal({
                   />
                 </div>
 
+                {/* Commission Rate */}
+                <div>
+                  <Label>
+                    نسبة العمولة (%) <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 10"
+                    value={formData.commissionRate}
+                    onChange={(e) =>
+                      handleChange("commissionRate", e.target.value)
+                    }
+                    error={!!commissionRateError}
+                    hint={commissionRateError}
+                    required
+                    min="0"
+                    max="100"
+                    step={1}
+                  />
+                </div>
+
                 {/* Active */}
                 <div>
                   <Label>
@@ -890,6 +984,7 @@ export function EditVendorModal({
   const [hotlineError, setHotlineError] = useState<string>("");
   const [locationError, setLocationError] = useState<string>("");
   const [expectedTimeError, setExpectedTimeError] = useState<string>("");
+  const [commissionRateError, setCommissionRateError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -899,6 +994,7 @@ export function EditVendorModal({
     workingHours: [string, string];
     isActive: boolean;
     expectedTime: string;
+    commissionRate: number;
     profileImage: File | string;
     coverImage: File | string;
     category: string;
@@ -914,6 +1010,7 @@ export function EditVendorModal({
         : ["07:00", "15:00"],
     isActive: vendor.isActive || false,
     expectedTime: vendor.expectedTime || "",
+    commissionRate: vendor.commissionRate || 0,
     profileImage: vendor.profileImage || "",
     coverImage: vendor.coverImage || "",
     category: vendor.category?._id || "",
@@ -1171,6 +1268,42 @@ export function EditVendorModal({
     setExpectedTimeError(error);
   };
 
+  // Commission Rate validation function
+  const validateCommissionRate = (rate: string): string => {
+    if (!rate || rate.trim() === "") {
+      return "";
+    }
+
+    const rateNum = parseFloat(rate);
+
+    if (isNaN(rateNum)) {
+      return "يجب أن تكون نسبة العمولة رقماً";
+    }
+
+    if (rateNum < 0) {
+      return "يجب أن تكون نسبة العمولة صفر أو أكثر";
+    }
+
+    if (rateNum > 100) {
+      return "يجب أن لا تزيد نسبة العمولة عن 100%";
+    }
+
+    return "";
+  };
+
+  const handleCommissionRateChange = (value: string) => {
+    // Only allow integers (no decimal points)
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    // Limit to 3 digits (max 100)
+    const limitedValue = numbersOnly.slice(0, 3);
+
+    const numValue = parseInt(limitedValue) || 0;
+    setFormData((prev) => ({ ...prev, commissionRate: numValue }));
+
+    const error = validateCommissionRate(limitedValue);
+    setCommissionRateError(error);
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | boolean | undefined,
@@ -1185,6 +1318,8 @@ export function EditVendorModal({
       handleLocationChange(value);
     } else if (field === "expectedTime" && typeof value === "string") {
       handleExpectedTimeChange(value);
+    } else if (field === "commissionRate" && typeof value === "string") {
+      handleCommissionRateChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -1258,6 +1393,20 @@ export function EditVendorModal({
         return;
       }
 
+      // Check for commissionRate validation errors
+      const commissionRateValidationError = validateCommissionRate(
+        formData.commissionRate.toString(),
+      );
+      if (commissionRateValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في نسبة العمولة",
+          message: commissionRateValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
       let profileImageUrl = "";
 
       if (formData.profileImage instanceof File) {
@@ -1284,6 +1433,7 @@ export function EditVendorModal({
         workingHours: formData.workingHours,
         isActive: formData.isActive,
         expectedTime: formData.expectedTime,
+        commissionRate: formData.commissionRate,
         profileImage: profileImageUrl,
         coverImage: coverImageUrl,
         category: formData.category,
@@ -1341,6 +1491,7 @@ export function EditVendorModal({
           : ["07:00", "15:00"],
       isActive: vendor.isActive || true,
       expectedTime: vendor.expectedTime || "",
+      commissionRate: vendor.commissionRate || 0,
       profileImage: vendor.profileImage || "",
       coverImage: vendor.coverImage || "",
       category: vendor.category?._id || "",
@@ -1351,6 +1502,7 @@ export function EditVendorModal({
     setHotlineError("");
     setLocationError("");
     setExpectedTimeError("");
+    setCommissionRateError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -1495,6 +1647,22 @@ export function EditVendorModal({
                   />
                 </div>
                 <div>
+                  <Label>نسبة العمولة (%)</Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 10"
+                    value={formData.commissionRate}
+                    onChange={(e) =>
+                      handleChange("commissionRate", e.target.value)
+                    }
+                    error={!!commissionRateError}
+                    hint={commissionRateError}
+                    min="0"
+                    max="100"
+                    step={1}
+                  />
+                </div>
+                <div>
                   <Label>نشط</Label>
                   <Switch
                     label=""
@@ -1612,7 +1780,12 @@ export function EditVendorButton({
   return (
     <>
       {showAsButton ? (
-        <Button size="md" variant="primary" onClick={openModal} className="border-yellow-500 bg-yellow-500 text-white hover:bg-yellow-600 dark:hover:bg-yellow-600">
+        <Button
+          size="md"
+          variant="primary"
+          onClick={openModal}
+          className="border-yellow-500 bg-yellow-500 text-white hover:bg-yellow-600 dark:hover:bg-yellow-600"
+        >
           <FaPencilAlt className="ml-2" />
           تعديل المتجر
         </Button>
@@ -1728,7 +1901,12 @@ export function DeleteVendorButton({
   return (
     <>
       {showAsButton ? (
-        <Button size="md" variant="primary" onClick={openModal} className="border-red-500 bg-red-500 text-white hover:bg-red-600 dark:hover:bg-red-600">
+        <Button
+          size="md"
+          variant="primary"
+          onClick={openModal}
+          className="border-red-500 bg-red-500 text-white hover:bg-red-600 dark:hover:bg-red-600"
+        >
           <FaTrashAlt className="ml-2" />
           حذف المتجر
         </Button>
