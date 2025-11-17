@@ -353,7 +353,10 @@ export function AddTownModal({
                     label=""
                     defaultChecked={formData.isActive}
                     onChange={() =>
-                      setFormData((prev) => ({ ...prev, isActive: !prev.isActive }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        isActive: !prev.isActive,
+                      }))
                     }
                   />
                 </div>
@@ -741,7 +744,10 @@ export function EditTownModal({
                     label=""
                     defaultChecked={formData.isActive}
                     onChange={() =>
-                      setFormData((prev) => ({ ...prev, isActive: !prev.isActive }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        isActive: !prev.isActive,
+                      }))
                     }
                   />
                 </div>
