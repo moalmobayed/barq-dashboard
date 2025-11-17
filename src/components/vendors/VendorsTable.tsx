@@ -151,7 +151,7 @@ export default function VendorsTable() {
                     الفئة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    العنوان
+                    معدل العمولة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     الحالة
@@ -250,7 +250,10 @@ export default function VendorsTable() {
                               className="size-10 rounded-full object-cover"
                             />
                             <div>
-                              <span className="block font-medium text-gray-800 dark:text-white/90">
+                              <span
+                                style={{ wordBreak: "break-word" }}
+                                className="block overflow-x-hidden font-medium text-gray-800 dark:text-white/90"
+                              >
                                 {vendor.name}
                               </span>
                               <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -259,8 +262,10 @@ export default function VendorsTable() {
                             </div>
                           </Link>
                         </TableCell>
-                        <TableCell>{vendor.category?.nameEn}</TableCell>
-                        <TableCell>{vendor.location?.slice(0, 20)}...</TableCell>
+                        <TableCell>{vendor.category?.nameAr}</TableCell>
+                        <TableCell>
+                          {vendor.commissionRate}%
+                        </TableCell>
                         <TableCell>
                           <Badge
                             size="sm"
