@@ -194,6 +194,9 @@ export default function BannersTable() {
                     العنصر
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
+                    الترتيب
+                  </TableCell>
+                  <TableCell isHeader className="text-start font-medium">
                     الإجراءات
                   </TableCell>
                 </TableRow>
@@ -212,6 +215,9 @@ export default function BannersTable() {
                       </TableCell>
                       <TableCell className="px-4 py-6">
                         <Skeleton baseColor="#ecebeb" width={150} height={24} />
+                      </TableCell>
+                      <TableCell className="px-4 py-6">
+                        <Skeleton baseColor="#ecebeb" width={50} height={24} />
                       </TableCell>
                       <TableCell className="px-4 py-6">
                         <div className="flex gap-2">
@@ -235,7 +241,7 @@ export default function BannersTable() {
                   {filteredBanners.length === 0 ? (
                     <TableRow>
                       <td
-                        colSpan={4}
+                        colSpan={5}
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -298,6 +304,11 @@ export default function BannersTable() {
                             ) : (
                               "لا يوجد"
                             )}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 text-start">
+                          <span className="text-gray-800 dark:text-white/90">
+                            {banner.order || 1}
                           </span>
                         </TableCell>
                         <TableCell className="space-x-4">

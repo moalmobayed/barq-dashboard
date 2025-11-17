@@ -6,6 +6,7 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import Select from "../form/Select";
+import Input from "../form/input/InputField";
 import { CreateBannerPayload, Banner } from "@/types/banner";
 import { createBanner, deleteBanner, updateBanner } from "@/lib/api/banners";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
@@ -30,10 +31,12 @@ export function AddBannerModal({
     image: File | null;
     bannerType: "Product" | "User" | "Offer" | "General";
     item: string;
+    order: number;
   }>({
     image: null,
     bannerType: "General",
     item: "",
+    order: 1,
   });
 
   // Fetch data for dropdowns
@@ -122,6 +125,7 @@ export function AddBannerModal({
         image: imageUrl,
         bannerType: formData.bannerType,
         item: formData.bannerType !== "General" ? formData.item : undefined,
+        order: formData.order,
       };
 
       await createBanner(payload);
@@ -135,6 +139,7 @@ export function AddBannerModal({
         image: null,
         bannerType: "General",
         item: "",
+        order: 1,
       });
       onSuccess?.();
     } catch (err) {
@@ -165,6 +170,7 @@ export function AddBannerModal({
       image: null,
       bannerType: "General",
       item: "",
+      order: 1,
     });
     setIsLoading(false);
     closeModal?.();
@@ -256,6 +262,25 @@ export function AddBannerModal({
                     />
                   </div>
                 )}
+
+                {/* Order */}
+                <div className="lg:col-span-2">
+                  <Label>
+                    الترتيب <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    value={formData.order}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        order: parseInt(e.target.value) || 1,
+                      }))
+                    }
+                    placeholder="أدخل ترتيب الإعلان"
+                    min="1"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -335,10 +360,12 @@ export function EditBannerModal({
     image: File | string;
     bannerType: "Product" | "User" | "Offer" | "General";
     item: string;
+    order: number;
   }>({
     image: banner.image || "",
     bannerType: banner.bannerType || "General",
     item: banner.item || "",
+    order: banner.order || 1,
   });
 
   // Fetch data for dropdowns
@@ -422,6 +449,7 @@ export function EditBannerModal({
         image: imageUrl,
         bannerType: formData.bannerType,
         item: formData.bannerType !== "General" ? formData.item : undefined,
+        order: formData.order,
       };
 
       await updateBanner(banner._id, payload);
@@ -460,6 +488,7 @@ export function EditBannerModal({
       image: banner.image || "",
       bannerType: banner.bannerType || "General",
       item: banner.item || "",
+      order: banner.order || 1,
     });
     setIsLoading(false);
     closeModal?.();
@@ -558,6 +587,23 @@ export function EditBannerModal({
                     />
                   </div>
                 )}
+
+                {/* Order */}
+                <div className="lg:col-span-2">
+                  <Label>الترتيب</Label>
+                  <Input
+                    type="number"
+                    value={formData.order}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        order: parseInt(e.target.value) || 1,
+                      }))
+                    }
+                    placeholder="أدخل ترتيب الإعلان"
+                    min="1"
+                  />
+                </div>
               </div>
             </div>
           </div>
