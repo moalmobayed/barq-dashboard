@@ -228,7 +228,12 @@ export default function CategoriesTable() {
                             />
                             <div>
                               <span className="block font-medium text-gray-800 dark:text-white/90">
-                                {category.nameEn} | {category.nameAr}
+                                {category.nameAr}
+                              </span>
+                              <span className="block font-medium text-gray-800 dark:text-white/90">
+                                {category.nameEn !== category.nameAr
+                                  ? category.nameEn
+                                  : ""}
                               </span>
                             </div>
                           </div>
