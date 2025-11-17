@@ -180,9 +180,6 @@ export default function OrdersTable() {
                     الإجمالي
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    الدفع
-                  </TableCell>
-                  <TableCell isHeader className="text-start font-medium">
                     حالة الطلب
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
@@ -275,9 +272,6 @@ export default function OrdersTable() {
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           {order.sumAmount?.toLocaleString()} ج.م
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-start">
-                          {order.paymentMethod === "card" ? "بطاقة" : "نقداً"}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
                           <Badge
