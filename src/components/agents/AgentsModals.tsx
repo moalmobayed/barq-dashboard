@@ -23,6 +23,7 @@ export function AddAgentModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
+  const [commissionRateError, setCommissionRateError] = useState<string>("");
   const [formData, setFormData] = useState<{
     name: string;
     mobile: string;
@@ -119,6 +120,42 @@ export function AddAgentModal({
     setMobileError(error);
   };
 
+  // Commission Rate validation function
+  const validateCommissionRate = (rate: string): string => {
+    if (!rate || rate.trim() === "") {
+      return "";
+    }
+
+    const rateNum = parseFloat(rate);
+
+    if (isNaN(rateNum)) {
+      return "يجب أن تكون نسبة العمولة رقماً";
+    }
+
+    if (rateNum < 0) {
+      return "يجب أن تكون نسبة العمولة صفر أو أكثر";
+    }
+
+    if (rateNum > 100) {
+      return "يجب أن لا تزيد نسبة العمولة عن 100%";
+    }
+
+    return "";
+  };
+
+  const handleCommissionRateChange = (value: string) => {
+    // Only allow integers (no decimal points)
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    // Limit to 3 digits (max 100)
+    const limitedValue = numbersOnly.slice(0, 3);
+
+    const numValue = parseInt(limitedValue) || 0;
+    setFormData((prev) => ({ ...prev, commissionRate: numValue }));
+
+    const error = validateCommissionRate(limitedValue);
+    setCommissionRateError(error);
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | undefined,
@@ -127,6 +164,8 @@ export function AddAgentModal({
       handleNameChange(value);
     } else if (field === "mobile" && typeof value === "string") {
       handleMobileChange(value);
+    } else if (field === "commissionRate" && typeof value === "string") {
+      handleCommissionRateChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -176,6 +215,20 @@ export function AddAgentModal({
           variant: "error",
           title: "خطأ في رقم الهاتف",
           message: mobileValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+
+      // Check for commissionRate validation errors
+      const commissionRateValidationError = validateCommissionRate(
+        formData.commissionRate.toString(),
+      );
+      if (commissionRateValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في نسبة العمولة",
+          message: commissionRateValidationError,
         });
         setTimeout(() => setToast(null), 5000);
         return;
@@ -239,6 +292,7 @@ export function AddAgentModal({
     });
     setMobileError("");
     setNameError("");
+    setCommissionRateError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -295,11 +349,16 @@ export function AddAgentModal({
                   <Input
                     type="number"
                     placeholder="ادخل معدل العمولة"
-                    defaultValue={formData.commissionRate}
+                    value={formData.commissionRate}
                     onChange={(e) =>
                       handleChange("commissionRate", e.target.value)
                     }
+                    error={!!commissionRateError}
+                    hint={commissionRateError}
                     required
+                    min="0"
+                    max="100"
+                    step={1}
                   />
                 </div>
               </div>
@@ -379,6 +438,7 @@ export function EditAgentModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState<string>("");
   const [mobileError, setMobileError] = useState<string>("");
+  const [commissionRateError, setCommissionRateError] = useState<string>("");
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -480,6 +540,42 @@ export function EditAgentModal({
     setMobileError(error);
   };
 
+  // Commission Rate validation function
+  const validateCommissionRate = (rate: string): string => {
+    if (!rate || rate.trim() === "") {
+      return "";
+    }
+
+    const rateNum = parseFloat(rate);
+
+    if (isNaN(rateNum)) {
+      return "يجب أن تكون نسبة العمولة رقماً";
+    }
+
+    if (rateNum < 0) {
+      return "يجب أن تكون نسبة العمولة صفر أو أكثر";
+    }
+
+    if (rateNum > 100) {
+      return "يجب أن لا تزيد نسبة العمولة عن 100%";
+    }
+
+    return "";
+  };
+
+  const handleCommissionRateChange = (value: string) => {
+    // Only allow integers (no decimal points)
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    // Limit to 3 digits (max 100)
+    const limitedValue = numbersOnly.slice(0, 3);
+
+    const numValue = parseInt(limitedValue) || 0;
+    setFormData((prev) => ({ ...prev, commissionRate: numValue }));
+
+    const error = validateCommissionRate(limitedValue);
+    setCommissionRateError(error);
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | boolean | undefined,
@@ -488,6 +584,8 @@ export function EditAgentModal({
       handleNameChange(value);
     } else if (field === "mobile" && typeof value === "string") {
       handleMobileChange(value);
+    } else if (field === "commissionRate" && typeof value === "string") {
+      handleCommissionRateChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -525,6 +623,21 @@ export function EditAgentModal({
           setIsLoading(false);
           return;
         }
+      }
+
+      // Check for commissionRate validation errors
+      const commissionRateValidationError = validateCommissionRate(
+        formData.commissionRate.toString(),
+      );
+      if (commissionRateValidationError) {
+        setToast({
+          variant: "error",
+          title: "خطأ في نسبة العمولة",
+          message: commissionRateValidationError,
+        });
+        setTimeout(() => setToast(null), 5000);
+        setIsLoading(false);
+        return;
       }
 
       const payloadRaw: Partial<CreateAgentPayload> = {
@@ -583,6 +696,7 @@ export function EditAgentModal({
     });
     setMobileError("");
     setNameError("");
+    setCommissionRateError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -633,11 +747,16 @@ export function EditAgentModal({
                   <Input
                     type="number"
                     placeholder="0"
-                    defaultValue={formData.commissionRate}
+                    value={formData.commissionRate}
                     onChange={(e) =>
                       handleChange("commissionRate", e.target.value)
                     }
+                    error={!!commissionRateError}
+                    hint={commissionRateError}
                     required
+                    min="0"
+                    max="100"
+                    step={1}
                   />
                 </div>
                 {/* Active */}
