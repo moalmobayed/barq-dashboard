@@ -24,7 +24,7 @@
     "axios": "^1.11.0",
     "firebase": "^12.5.0",
     "flatpickr": "^4.6.13",
-    "next": "15.2.3",
+    "next": "15.2.6",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dnd": "^16.0.1",
