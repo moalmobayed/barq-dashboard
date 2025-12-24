@@ -78,9 +78,9 @@ export function AddOfferModal({
 
     // Check for Arabic letters, numbers, spaces, and punctuation
     const validPattern =
-      /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF0-9\s،؛؟!.\-()]+$/;
+      /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BB]+$/;
     if (!validPattern.test(name)) {
-      return "الاسم يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
+      return "الاسم يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
     }
 
     // Check for leading or trailing spaces
@@ -116,9 +116,9 @@ export function AddOfferModal({
     }
 
     // Check for English letters, numbers, spaces, and punctuation
-    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
+    const validPattern = /^[a-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(name)) {
-      return "Name accepts English letters, numbers, spaces, and punctuation only";
+      return "Name accepts English letters, numbers, spaces, and all punctuation/symbols";
     }
 
     // Check for leading or trailing spaces
@@ -140,18 +140,15 @@ export function AddOfferModal({
       return "";
     }
 
-    if (description.length < 10) {
-      return "يجب أن لا يقل الوصف عن 10 أحرف";
-    }
-
     if (description.length > 300) {
       return "الوصف طويل جداً";
     }
 
     // Check for Arabic letters, numbers, spaces, and common Arabic punctuation only
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077F0-9\s،؛؟!.\-()]+$/;
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077F0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BB]+$/;
     if (!validPattern.test(description)) {
-      return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
+      return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
     }
 
     // Check for leading or trailing spaces
@@ -178,18 +175,14 @@ export function AddOfferModal({
       return "";
     }
 
-    if (description.length < 10) {
-      return "Description must be at least 10 characters";
-    }
-
     if (description.length > 300) {
       return "Description is too long";
     }
 
     // Check for English letters, numbers, spaces, and common punctuation only
-    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
+    const validPattern = /^[a-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(description)) {
-      return "Description accepts English letters, numbers, spaces, and punctuation only";
+      return "Description accepts English letters, numbers, spaces, and all punctuation/symbols";
     }
 
     // Check for leading or trailing spaces
@@ -898,9 +891,9 @@ export function EditOfferModal({
     }
 
     // Check for English letters, numbers, spaces, and punctuation
-    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
+    const validPattern = /^[a-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(name)) {
-      return "Name accepts English letters, numbers, spaces, and punctuation only";
+      return "Name accepts English letters, numbers, spaces, and all punctuation/symbols";
     }
 
     // Check for leading or trailing spaces
@@ -922,18 +915,15 @@ export function EditOfferModal({
       return "";
     }
 
-    if (description.length < 10) {
-      return "يجب أن لا يقل الوصف عن 10 أحرف";
-    }
-
     if (description.length > 300) {
       return "الوصف طويل جداً";
     }
 
     // Check for Arabic letters, numbers, spaces, and common Arabic punctuation only
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077F0-9\s،؛؟!.\-()]+$/;
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077F0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BB]+$/;
     if (!validPattern.test(description)) {
-      return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم فقط";
+      return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
     }
 
     // Check for leading or trailing spaces
@@ -955,18 +945,14 @@ export function EditOfferModal({
       return "";
     }
 
-    if (description.length < 10) {
-      return "Description must be at least 10 characters";
-    }
-
     if (description.length > 300) {
       return "Description is too long";
     }
 
     // Check for English letters, numbers, spaces, and common punctuation only
-    const validPattern = /^[a-zA-Z0-9\s,.;?!\-()]+$/;
+    const validPattern = /^[a-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(description)) {
-      return "Description accepts English letters, numbers, spaces, and punctuation only";
+      return "Description accepts English letters, numbers, spaces, and all punctuation/symbols";
     }
 
     // Check for leading or trailing spaces

@@ -127,7 +127,8 @@ export function AddCustomerModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    const validPattern =
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والمسافات فقط";
     }
@@ -700,7 +701,8 @@ export function EditCustomerModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    const validPattern =
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والمسافات فقط";
     }

@@ -125,7 +125,8 @@ export function AddVendorModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters, numbers, and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z0-9\s]+$/;
+    const validPattern =
+      /^[\u0600-\u06FFa-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والأرقام والمسافات فقط";
     }
@@ -1079,7 +1080,8 @@ export function EditVendorModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters, numbers, and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z0-9\s]+$/;
+    const validPattern =
+      /^[\u0600-\u06FFa-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والأرقام والمسافات فقط";
     }

@@ -35,7 +35,8 @@ export default function UserInfoCard() {
     }
 
     // Check for only Arabic, English, numbers, and spaces
-    const validPattern = /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s]+$/;
+    const validPattern =
+      /^[\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(name)) {
       return "الاسم يقبل حروف وأرقام ومسافات فقط";
     }

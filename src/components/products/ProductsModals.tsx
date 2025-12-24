@@ -132,7 +132,7 @@ export function AddProductModal({
     }
 
     // Check for invalid characters (only allow Arabic letters, numbers, and spaces)
-    const validPattern = /^[\u0600-\u06FF0-9\s]+$/;
+    const validPattern = /^[\u0600-\u06FF0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف العربية والأرقام والمسافات فقط";
     }
@@ -157,7 +157,7 @@ export function AddProductModal({
     }
 
     // Check for invalid characters (only allow English letters, numbers, and spaces)
-    const validPattern = /^[a-zA-Z0-9\s]+$/;
+    const validPattern = /^[a-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف الإنجليزية والأرقام والمسافات فقط";
     }
@@ -202,12 +202,6 @@ export function AddProductModal({
     // Check if only spaces
     if (description.trim() === "") {
       return "";
-    }
-
-    // Check minimum length (10 characters excluding spaces)
-    const descWithoutSpaces = normalizedDesc.replace(/\s/g, "");
-    if (descWithoutSpaces.length < 10) {
-      return "يجب أن لا يقل الوصف عن 10 أحرف";
     }
 
     // Check for invalid characters (allow letters, numbers, spaces, and special characters but not emojis)
@@ -1047,7 +1041,7 @@ export function EditProductModal({
     }
 
     // Check for invalid characters (only allow Arabic letters, numbers, and spaces)
-    const validPattern = /^[\u0600-\u06FF0-9\s]+$/;
+    const validPattern = /^[\u0600-\u06FF0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف العربية والأرقام والمسافات فقط";
     }
@@ -1072,7 +1066,7 @@ export function EditProductModal({
     }
 
     // Check for invalid characters (only allow English letters, numbers, and spaces)
-    const validPattern = /^[a-zA-Z0-9\s]+$/;
+    const validPattern = /^[a-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف الإنجليزية والأرقام والمسافات فقط";
     }
@@ -1117,12 +1111,6 @@ export function EditProductModal({
     // Check if only spaces
     if (description.trim() === "") {
       return "";
-    }
-
-    // Check minimum length (10 characters excluding spaces)
-    const descWithoutSpaces = normalizedDesc.replace(/\s/g, "");
-    if (descWithoutSpaces.length < 10) {
-      return "يجب أن لا يقل الوصف عن 10 أحرف";
     }
 
     // Check for invalid characters (allow letters, numbers, spaces, and special characters but not emojis)

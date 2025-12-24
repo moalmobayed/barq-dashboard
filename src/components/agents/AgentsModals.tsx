@@ -51,9 +51,9 @@ export function AddAgentModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    const validPattern = /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف والمسافات فقط";
+      return "الاسم يقبل الحروف والرموز والمسافات فقط";
     }
 
     return "";
@@ -471,7 +471,7 @@ export function EditAgentModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    const validPattern = /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والمسافات فقط";
     }
