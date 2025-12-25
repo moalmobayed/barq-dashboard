@@ -64,3 +64,26 @@ export async function getVendorPerformance(vendorId: string) {
   );
   return res.data.data;
 }
+
+export async function getOrderSummary(params: {
+  page?: number;
+  limit?: number;
+  agentName?: string;
+  vendorName?: string;
+  orderStatus?: string;
+  paymentStatus?: string;
+  shopId?: string;
+  userId?: string;
+  fromDate?: string;
+  toDate?: string;
+  startDate?: string;
+  endDate?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}) {
+  const res = await axios.get(`${BASE_URL}/admin/dashboard/order-summary`, {
+    params,
+    headers: { ...authHeaders() },
+  });
+  return res.data;
+}

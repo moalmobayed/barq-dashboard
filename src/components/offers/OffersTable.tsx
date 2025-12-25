@@ -258,7 +258,7 @@ export default function OffersTable() {
                       return (
                         <TableRow key={offer._id} className="break-words">
                           {/* Offer (image + name + description) */}
-                          <TableCell className="text-start break-words">
+                          <TableCell className="break-words">
                             <Link
                               href={`/offers/${offer._id}`}
                               className="hover:bg-brand-gray/20 dark:hover:bg-brand-gray/15 flex max-w-2xs items-center gap-3 px-5 py-4 break-words sm:px-6"

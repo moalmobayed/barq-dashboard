@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 
 export default function Orders() {
   return (
-    <div>
+    <div className="max-w-full overflow-x-hidden">
       <PageBreadcrumb pageTitle="الطلبات" />
 
       <div
-        className={`space-y-6 rounded-2xl border border-t border-gray-100 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]`}
+        className={`max-w-full space-y-6 overflow-x-hidden rounded-2xl border border-t border-gray-100 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]`}
       >
         <OrdersTable />
       </div>

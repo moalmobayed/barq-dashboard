@@ -1,7 +1,7 @@
 // src/components/agents/AgentsTable.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -20,6 +20,9 @@ import {
 import Skeleton from "react-loading-skeleton";
 import { fetchAgentsByKeyword } from "@/lib/api/agents";
 import { MdDeliveryDining } from "react-icons/md";
+import { getOrderSummary } from "@/lib/api/dashboard";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import DatePicker from "../form/date-picker";
 
 const limits = [5, 10, 20, 50];
 
@@ -29,6 +32,26 @@ export default function AgentsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<typeof agents>([]);
   const [searchPages, setSearchPages] = useState(1);
+
+  interface SummaryMetadata {
+    summary: {
+      delivery: number;
+      agentEarn: number;
+      barqEarnFromDelivery: number;
+    };
+  }
+
+  const [summaryData, setSummaryData] = useState<SummaryMetadata | null>(null);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+
+  // Filter states for summary
+  const [orderStatus, setOrderStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  // const [userId, setUserId] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  // const [sortBy, setSortBy] = useState("createdAt");
+  // const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const { agents, loading, totalPages, refetch } = useAgents(page, limit);
 
@@ -72,6 +95,29 @@ export default function AgentsTable() {
     const trimmed = searchTerm.trim();
     return trimmed ? searchPages : totalPages;
   }, [searchTerm, searchPages, totalPages]);
+
+  const fetchSummary = useCallback(async () => {
+    try {
+      const res = await getOrderSummary({
+        page: 1,
+        limit: 1,
+        orderStatus: orderStatus || undefined,
+        paymentStatus: paymentStatus || undefined,
+        // userId: userId || undefined,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+        // sortBy: sortBy || undefined,
+        // sortOrder: sortOrder || undefined,
+      });
+      setSummaryData(res);
+    } catch (error) {
+      console.error("Error fetching agent summary:", error);
+    }
+  }, [orderStatus, paymentStatus, fromDate, toDate]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]);
 
   return (
     <div className="space-y-4">
@@ -260,6 +306,133 @@ export default function AgentsTable() {
             totalPages={effectiveTotalPages}
             onPageChange={setPage}
           />
+        </div>
+      )}
+
+      {/* Summary Filters */}
+      {summaryData && (
+        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <h4 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+            تصفية الملخص الحسابي
+          </h4>
+          <div className="flex max-w-full flex-wrap items-center gap-4">
+            {/* <input
+              type="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="معرف المستخدم..."
+              className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden sm:max-w-[150px] dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+            /> */}
+
+            <div className="w-full sm:max-w-[150px]">
+              <DatePicker
+                id="summaryFromDate"
+                placeholder="من تاريخ"
+                onChange={(dates) => setFromDate(dates[0]?.toISOString() || "")}
+              />
+            </div>
+
+            <div className="w-full sm:max-w-[150px]">
+              <DatePicker
+                id="summaryToDate"
+                placeholder="إلى تاريخ"
+                onChange={(dates) => setToDate(dates[0]?.toISOString() || "")}
+              />
+            </div>
+
+            <select
+              value={orderStatus}
+              onChange={(e) => setOrderStatus(e.target.value)}
+              className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+            >
+              <option value="">كل الحالات</option>
+              <option value="pending">قيد الانتظار</option>
+              <option value="processing">جارِ التنفيذ</option>
+              <option value="shipped">تم الشحن</option>
+              <option value="completed">تم التوصيل</option>
+              <option value="cancelled">ملغاة</option>
+            </select>
+
+            <select
+              value={paymentStatus}
+              onChange={(e) => setPaymentStatus(e.target.value)}
+              className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+            >
+              <option value="">حالة الدفع</option>
+              <option value="pending">قيد الانتظار</option>
+              <option value="paid">تم الدفع</option>
+              <option value="failed">فشل الدفع</option>
+            </select>
+
+            {/* <select
+              value={`${sortBy}:${sortOrder}`}
+              onChange={(e) => {
+                const [field, order] = e.target.value.split(":");
+                setSortBy(field);
+                setSortOrder(order as "asc" | "desc");
+              }}
+              className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+            >
+              <option value="createdAt:desc">الأحدث أولاً</option>
+              <option value="createdAt:asc">الأقدم أولاً</option>
+              <option value="sumAmount:desc">الأعلى قيمة</option>
+              <option value="sumAmount:asc">الأقل قيمة</option>
+            </select> */}
+          </div>
+        </div>
+      )}
+
+      {/* Summary Section */}
+      {summaryData && (
+        <div className="mt-6 rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+          <div
+            className="flex cursor-pointer items-center justify-between p-6"
+            onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+          >
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              ملخص العمليات الحسابي لعمال التوصيل
+            </h3>
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <span className="text-sm font-medium">
+                {isSummaryExpanded ? "طي الملخص" : "عرض التفاصيل الحسابية"}
+              </span>
+              {isSummaryExpanded ? (
+                <FiChevronUp className="h-5 w-5" />
+              ) : (
+                <FiChevronDown className="h-5 w-5" />
+              )}
+            </div>
+          </div>
+
+          {isSummaryExpanded && (
+            <div className="grid grid-cols-1 gap-4 p-6 pt-0 sm:grid-cols-3">
+              <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  عمولة برق (توصيل)
+                </p>
+                <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                  {summaryData.summary.barqEarnFromDelivery?.toLocaleString()}{" "}
+                  ج.م
+                </p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  التوصيل
+                </p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                  {summaryData.summary.delivery?.toLocaleString()} ج.م
+                </p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  ربح المندوب
+                </p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                  {summaryData.summary.agentEarn?.toLocaleString()} ج.م
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

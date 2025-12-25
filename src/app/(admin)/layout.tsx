@@ -6,7 +6,7 @@ import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import React from "react";
-import 'react-loading-skeleton/dist/skeleton.css'
+import "react-loading-skeleton/dist/skeleton.css";
 
 export default function AdminLayout({
   children,
@@ -24,18 +24,18 @@ export default function AdminLayout({
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen xl:flex">
+      <div className="min-h-screen overflow-x-hidden xl:flex">
         {/* Sidebar and Backdrop */}
         <AppSidebar />
         <Backdrop />
         {/* Main Content Area */}
         <div
-          className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+          className={`flex-1 overflow-x-hidden transition-all duration-300 ease-in-out ${mainContentMargin}`}
         >
           {/* Header */}
           <AppHeader />
           {/* Page Content */}
-          <div className="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+          <div className="mx-auto max-w-(--breakpoint-2xl) overflow-x-hidden p-4 md:p-6">
             {children}
           </div>
         </div>
