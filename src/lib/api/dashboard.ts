@@ -87,3 +87,17 @@ export async function getOrderSummary(params: {
   });
   return res.data;
 }
+
+export async function getAgentSummary(params: {
+  page?: number;
+  limit?: number;
+  agentName?: string;
+  fromDate?: string;
+  toDate?: string;
+}) {
+  const res = await axios.get(`${BASE_URL}/admin/dashboard/agent-summary`, {
+    params,
+    headers: { ...authHeaders() },
+  });
+  return res.data;
+}

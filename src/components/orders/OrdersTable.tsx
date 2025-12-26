@@ -28,8 +28,6 @@ export default function OrdersTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
-  const [shopId, setShopId] = useState("");
-  const [userId, setUserId] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [fromDate, setFromDate] = useState("");
@@ -87,7 +85,7 @@ export default function OrdersTable() {
   }
 
   const [summaryData, setSummaryData] = useState<SummaryMetadata | null>(null);
-  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
 
   const fetchSummary = useCallback(async () => {
@@ -99,8 +97,6 @@ export default function OrdersTable() {
         vendorName: searchTerm || undefined,
         orderStatus: orderStatus || undefined,
         paymentStatus: paymentStatus || undefined,
-        shopId: shopId || undefined,
-        userId: userId || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
         sortBy: sortBy || undefined,
@@ -118,8 +114,6 @@ export default function OrdersTable() {
     searchTerm,
     orderStatus,
     paymentStatus,
-    shopId,
-    userId,
     fromDate,
     toDate,
     sortBy,
@@ -164,38 +158,36 @@ export default function OrdersTable() {
     <div className="max-w-full space-y-4 overflow-x-hidden">
       <div className="flex max-w-full flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex max-w-full flex-wrap items-center gap-4 overflow-x-auto">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setTablePage(1);
-            }}
-            placeholder="البحث باسم المتجر..."
-            className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden sm:max-w-sm dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-          />
-
-          <input
-            type="text"
-            value={shopId}
-            onChange={(e) => {
-              setShopId(e.target.value);
-              setTablePage(1);
-            }}
-            placeholder="معرف المتجر..."
-            className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden sm:max-w-[150px] dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-          />
-
-          <input
-            type="text"
-            value={userId}
-            onChange={(e) => {
-              setUserId(e.target.value);
-              setTablePage(1);
-            }}
-            placeholder="معرف المستخدم..."
-            className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden sm:max-w-[150px] dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-          />
+          {/* Search Input */}
+          <div className="relative">
+            <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2">
+              <svg
+                className="fill-gray-500 dark:fill-gray-400"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                  fill=""
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setTablePage(1);
+              }}
+              placeholder="البحث عن متجر..."
+              className="h-11 w-full rounded-lg border border-gray-500 bg-transparent py-2.5 ps-12 pe-14 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+            />
+          </div>
 
           <div className="w-full sm:max-w-[150px]">
             <DatePicker
@@ -225,7 +217,7 @@ export default function OrdersTable() {
               setOrderStatus(e.target.value);
               setTablePage(1);
             }}
-            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
           >
             <option value="">كل الحالات</option>
             <option value="pending">قيد الانتظار</option>
@@ -241,7 +233,7 @@ export default function OrdersTable() {
               setPaymentStatus(e.target.value);
               setTablePage(1);
             }}
-            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
           >
             <option value="">حالة الدفع</option>
             <option value="pending">قيد الانتظار</option>
@@ -257,7 +249,7 @@ export default function OrdersTable() {
               setSortOrder(order as "asc" | "desc");
               setTablePage(1);
             }}
-            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
           >
             <option value="createdAt:desc">الأحدث أولاً</option>
             <option value="createdAt:asc">الأقدم أولاً</option>
@@ -277,7 +269,7 @@ export default function OrdersTable() {
             setTableLimit(Number(e.target.value));
             setTablePage(1);
           }}
-          className="rounded-md border border-gray-300 bg-transparent px-2 py-1 text-sm dark:border-gray-700"
+          className="rounded-md border border-gray-300 bg-transparent px-2 py-1 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/80"
         >
           {limits.map((l) => (
             <option key={l} value={l}>
@@ -345,7 +337,7 @@ export default function OrdersTable() {
                       </Link>
                     </TableCell>
                     <TableCell>{order.user?.mobile}</TableCell>
-                    <TableCell>
+                    <TableCell className="md:min-w-48">
                       <div className="flex items-center gap-2">
                         <Image
                           src={
@@ -365,27 +357,31 @@ export default function OrdersTable() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{order.deliveryAgent?.name || "-"}</TableCell>
-                    <TableCell>{order.total?.toLocaleString()} ج.م</TableCell>
-                    <TableCell>
+                    <TableCell className="md:min-w-32">
+                      {order.deliveryAgent?.name || "-"}
+                    </TableCell>
+                    <TableCell className="md:min-w-28">
+                      {order.total?.toLocaleString()} ج.م
+                    </TableCell>
+                    <TableCell className="md:min-w-28">
                       {order.delivery?.toLocaleString()} ج.م
                     </TableCell>
-                    <TableCell className="font-semibold text-indigo-600">
+                    <TableCell className="font-semibold text-indigo-600 md:min-w-32">
                       {order.totalWithDelivery?.toLocaleString()} ج.م
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="md:min-w-32">
                       {order.agentEarn?.toLocaleString()} ج.م
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="md:min-w-28">
                       {order.vendorEarn?.toLocaleString()} ج.م
                     </TableCell>
-                    <TableCell className="text-indigo-500">
+                    <TableCell className="text-indigo-500 md:min-w-32">
                       {order.barqEarnFromVendor?.toLocaleString()} ج.م
                     </TableCell>
-                    <TableCell className="text-indigo-500">
+                    <TableCell className="text-indigo-500 md:min-w-32">
                       {order.barqEarnFromDelivery?.toLocaleString()} ج.م
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="md:min-w-32">
                       <Badge
                         size="sm"
                         color={
@@ -409,7 +405,7 @@ export default function OrdersTable() {
                                   : order.orderStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="md:min-w-32">
                       {new Date(order.createdAt).toLocaleString("ar-EG")}
                     </TableCell>
                     <TableCell>
@@ -442,7 +438,9 @@ export default function OrdersTable() {
             className="flex cursor-pointer items-center justify-between p-6"
             onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
           >
-            <h3 className="text-lg font-semibold">ملخص الطلبات الحسابي</h3>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              ملخص الطلبات الحسابي
+            </h3>
             <div className="flex items-center gap-2 text-indigo-600">
               <span className="text-sm">
                 {isSummaryExpanded ? "طي الملخص" : "عرض التفاصيل الحسابية"}
@@ -478,9 +476,11 @@ export default function OrdersTable() {
                   key={i}
                   className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
                 >
-                  <p className="text-sm text-gray-500">{item.label}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {item.label}
+                  </p>
                   <p
-                    className={`text-xl font-bold ${item.highlight ? "text-indigo-600" : ""}`}
+                    className={`text-xl font-bold ${item.highlight ? "text-indigo-600" : "text-gray-900 dark:text-white"}`}
                   >
                     {item.val?.toLocaleString()} ج.م
                   </p>
