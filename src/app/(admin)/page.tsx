@@ -5,6 +5,7 @@ import MonthlyTarget from "@/components/dashboard/MonthlyTarget";
 import OrdersStatusChart from "@/components/dashboard/OrdersStatusChart";
 import VendorsPerformanceChart from "@/components/dashboard/VendorsPerformanceChart";
 import RecentOrders from "@/components/dashboard/RecentOrders";
+import SettingsCard from "@/components/dashboard/SettingsCard";
 
 export const metadata: Metadata = {
   title: "لوحة التحكم | برق",
@@ -35,6 +36,10 @@ export default function Overview() {
 
       <div className="col-span-12">
         <RecentOrders />
+      </div>
+
+      <div className="col-span-12">
+        <SettingsCard />
       </div>
     </div>
   );
