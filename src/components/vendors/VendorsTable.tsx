@@ -154,7 +154,7 @@ export default function VendorsTable() {
                     معدل العمولة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    الحالة
+                    الوضع
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     التقييم
@@ -269,10 +269,10 @@ export default function VendorsTable() {
                         <TableCell>
                           <Badge
                             size="sm"
-                            color={vendor.isActive ? "success" : "error"}
+                            color={vendor.status === "active" ? "success" : "error"}
                             variant="light"
                           >
-                            {vendor.isActive ? "مفعلة" : "معطلة"}
+                            {vendor.status === "active" ? "فعال" : "محظور"}
                           </Badge>
                         </TableCell>
                         <TableCell>⭐ {vendor.rating}</TableCell>
