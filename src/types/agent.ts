@@ -3,7 +3,7 @@ export interface CreateAgentPayload {
   name: string;
   mobile: string;
   role: "delivery-agent";
-  isActive?: boolean;
+  status?: string;
   rating?: number;
   reviewCount?: number;
   commissionRate?: number;
@@ -14,7 +14,7 @@ export interface Agent {
   name: string;
   mobile: string;
   role: "delivery-agent";
-  isActive?: boolean;
+  status?: string;
   rating?: number;
   reviewCount?: number;
   commissionRate: number;

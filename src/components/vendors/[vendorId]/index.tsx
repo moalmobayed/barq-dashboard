@@ -122,10 +122,10 @@ export default function VendorDetailsComponent() {
               />
               <Badge
                 size="sm"
-                color={vendor.isActive ? "success" : "error"}
+                color={vendor.status === "active" ? "success" : "error"}
                 variant="light"
               >
-                {vendor.isActive ? "نشط" : "غير نشط"}
+                {vendor.status === "active" ? "نشط" : "محظور"}
               </Badge>
             </div>
 
@@ -137,7 +137,10 @@ export default function VendorDetailsComponent() {
                 </h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <InfoCard label="الاسم" value={vendor.name || "غير محدد"} />
-                  <InfoCard label="الهاتف" value={vendor.mobile || "غير محدد"} />
+                  <InfoCard
+                    label="الهاتف"
+                    value={vendor.mobile || "غير محدد"}
+                  />
                   <InfoCard
                     label="الموقع"
                     value={vendor.location ? vendor.location : "غير محدد"}
@@ -150,7 +153,10 @@ export default function VendorDetailsComponent() {
                         : (vendor.workingHours ?? "غير محدد")
                     }
                   />
-                  <InfoCard label="التقييم" value={`${vendor.rating ?? "غير محدد"} ⭐`} />
+                  <InfoCard
+                    label="التقييم"
+                    value={`${vendor.rating ?? "غير محدد"} ⭐`}
+                  />
                   <InfoCard
                     label="عدد المراجعات"
                     value={`${vendor.reviewCount ?? 0}`}
@@ -165,9 +171,7 @@ export default function VendorDetailsComponent() {
                 </h2>
                 <div className="rounded-lg bg-gray-50 p-3 text-sm dark:bg-white/5">
                   <p className="text-gray-700 dark:text-gray-300">
-                    {vendor.category
-                      ? vendor.category?.nameAr
-                      : "غير محدد"}
+                    {vendor.category ? vendor.category?.nameAr : "غير محدد"}
                   </p>
                 </div>
               </div>
@@ -252,9 +256,9 @@ export default function VendorDetailsComponent() {
             </h3>
             <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
               <span
-                className={`h-2 w-2 rounded-full ${vendor.isActive ? "bg-green-500" : "bg-red-500"}`}
+                className={`h-2 w-2 rounded-full ${vendor.status === "active" ? "bg-green-500" : "bg-red-500"}`}
               ></span>
-              {vendor.isActive ? "الحساب فعال" : "الحساب غير فعال"}
+              {vendor.status === "active" ? "الحساب فعال" : "الحساب محظور"}
             </div>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.05]">
@@ -288,6 +292,14 @@ export default function VendorDetailsComponent() {
                       /* refresh products section if added later */
                     }}
                   />
+                  {/* View Products for this vendor */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => router.push(`/products?shop=${vendor._id}`)}
+                  >
+                    عرض المنتجات
+                  </Button>
                 </>
               )}
             </div>

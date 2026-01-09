@@ -6,7 +6,6 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import Switch from "../form/switch/Switch";
 import FileInput from "../form/input/FileInput";
 import { ChevronDownIcon } from "../../../public/icons";
 import Select from "../form/Select";
@@ -847,12 +846,26 @@ export function AddVendorModal({
                   />
                 </div>
 
-                {/* Active */}
+                {/* Status */}
                 <div>
                   <Label>
-                    نشط <span className="text-error-500">*</span>
+                    الحالة <span className="text-error-500">*</span>
                   </Label>
-                  <Switch label="" defaultChecked={true} />
+                  <div className="relative">
+                    <Select
+                      options={[
+                        { value: "active", label: "نشط" },
+                        { value: "blocked", label: "محظور" },
+                      ]}
+                      placeholder="اختر الحالة"
+                      defaultValue="active"
+                      onChange={(val) => handleChange("status", val)}
+                      required
+                    />
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -993,7 +1006,7 @@ export function EditVendorModal({
     hotline: string;
     location: string;
     workingHours: [string, string];
-    isActive: boolean;
+    status: string;
     expectedTime: string;
     commissionRate: number;
     profileImage: File | string;
@@ -1009,7 +1022,7 @@ export function EditVendorModal({
       Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
         ? vendor.workingHours
         : ["07:00", "15:00"],
-    isActive: vendor.isActive || false,
+    status: vendor.status || "active",
     expectedTime: vendor.expectedTime || "",
     commissionRate: vendor.commissionRate || 0,
     profileImage: vendor.profileImage || "",
@@ -1433,7 +1446,7 @@ export function EditVendorModal({
         hotline: formData.hotline,
         location: formData.location,
         workingHours: formData.workingHours,
-        isActive: formData.isActive,
+        status: formData.status,
         expectedTime: formData.expectedTime,
         commissionRate: formData.commissionRate,
         profileImage: profileImageUrl,
@@ -1491,7 +1504,7 @@ export function EditVendorModal({
         Array.isArray(vendor.workingHours) && vendor.workingHours.length === 2
           ? vendor.workingHours
           : ["07:00", "15:00"],
-      isActive: vendor.isActive || true,
+      status: vendor.status || "active",
       expectedTime: vendor.expectedTime || "",
       commissionRate: vendor.commissionRate || 0,
       profileImage: vendor.profileImage || "",
@@ -1665,14 +1678,22 @@ export function EditVendorModal({
                   />
                 </div>
                 <div>
-                  <Label>نشط</Label>
-                  <Switch
-                    label=""
-                    defaultChecked={formData.isActive}
-                    onChange={() =>
-                      handleChange("isActive", !formData.isActive)
-                    }
-                  />
+                  <Label>الحالة</Label>
+                  <div className="relative">
+                    <Select
+                      options={[
+                        { value: "active", label: "نشط" },
+                        { value: "blocked", label: "محظور" },
+                      ]}
+                      placeholder="اختر الحالة"
+                      defaultValue={formData.status}
+                      onChange={(val) => handleChange("status", val)}
+                      required
+                    />
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

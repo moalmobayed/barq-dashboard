@@ -38,6 +38,11 @@ export function AddOfferModal({
   const [descriptionArError, setDescriptionArError] = useState<string>("");
   const [descriptionEnError, setDescriptionEnError] = useState<string>("");
 
+  const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
+    "percentage",
+  );
+  const [productPrice, setProductPrice] = useState<number>(0);
+
   const [formData, setFormData] = useState<{
     nameAr: string;
     nameEn: string;
@@ -222,6 +227,7 @@ export function AddOfferModal({
     if (!formData.shopId) {
       setFilteredProducts([]);
       setFormData((prev) => ({ ...prev, product: "" }));
+      setProductPrice(0);
       return;
     }
     const filtered = products.filter((p) => p.shopId?._id === formData.shopId);
@@ -230,24 +236,49 @@ export function AddOfferModal({
     // Reset product selection if current product is not in filtered list
     if (formData.product && !filtered.find((p) => p._id === formData.product)) {
       setFormData((prev) => ({ ...prev, product: "" }));
+      setProductPrice(0);
     }
   }, [formData.shopId, products, formData.product]);
+
+  // Update product price when product changes
+  useEffect(() => {
+    if (formData.product) {
+      const selectedProduct = filteredProducts.find(
+        (p) => p._id === formData.product,
+      );
+      if (selectedProduct) {
+        setProductPrice(selectedProduct.price);
+      }
+    } else {
+      setProductPrice(0);
+    }
+  }, [formData.product, filteredProducts]);
 
   const handleChange = (
     field: string,
     value: string | string[] | File | Date | undefined,
   ) => {
     if (typeof value === "string") {
-      // Handle discount field specially: parse as number and round to 1 decimal
+      // Handle discount field specially: parse as number
       if (field === "discount") {
         // Allow empty string -> set to 1
         const raw = value === "" ? "1" : value;
         let num = parseFloat(raw);
         if (isNaN(num)) num = 1;
-        // clamp between 1 and 100 (percentage)
-        num = Math.min(Math.max(num, 1), 100);
-        // round to 1 decimal
-        num = Math.round(num * 10) / 10;
+
+        // Different validation based on discount type
+        if (discountType === "percentage") {
+          // clamp between 1 and 100 (percentage)
+          num = Math.min(Math.max(num, 1), 100);
+        } else {
+          // For fixed amount, clamp between 1 and product price
+          if (productPrice > 0) {
+            num = Math.min(Math.max(num, 1), productPrice - 1);
+          } else {
+            num = Math.max(num, 1);
+          }
+        }
+
         setFormData((prev) => ({ ...prev, [field]: num }));
         return;
       }
@@ -428,6 +459,13 @@ export function AddOfferModal({
         imageUrl = uploaded.data;
       }
 
+      // Calculate discount percentage for backend
+      let discountPercentage = formData.discount;
+      if (discountType === "fixed" && productPrice > 0) {
+        // Convert fixed amount to percentage
+        discountPercentage = (formData.discount / productPrice) * 100;
+      }
+
       const payloadRaw: CreateOfferPayload = {
         nameAr: formData.nameAr,
         nameEn: formData.nameEn,
@@ -435,7 +473,7 @@ export function AddOfferModal({
         image: imageUrl,
         descriptionAr: formData.descriptionAr,
         descriptionEn: formData.descriptionEn,
-        discount: formData.discount,
+        discount: discountPercentage,
         startDate: formData.startDate,
         endDate: formData.endDate,
         shopId: formData.shopId,
@@ -467,6 +505,8 @@ export function AddOfferModal({
         endDate: undefined,
         shopId: "",
       });
+      setDiscountType("percentage");
+      setProductPrice(0);
       onSuccess?.();
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -504,6 +544,8 @@ export function AddOfferModal({
       endDate: undefined,
       shopId: "",
     });
+    setDiscountType("percentage");
+    setProductPrice(0);
     setNameArError("");
     setNameEnError("");
     setDescriptionArError("");
@@ -667,24 +709,144 @@ export function AddOfferModal({
                   />
                 </div>
 
-                {/* Discount */}
-                <div>
+                {/* Discount Type Toggle */}
+                <div className="lg:col-span-2">
                   <Label>
-                    الخصم بالنسبة المئوية (%){" "}
+                    نوع الخصم <span className="text-error-500">*</span>
+                  </Label>
+                  <div className="mt-2 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType("percentage");
+                        // Keep current value if switching from fixed to percentage
+                        if (discountType === "fixed" && productPrice > 0) {
+                          // Convert fixed amount to percentage
+                          const percentage =
+                            (formData.discount / productPrice) * 100;
+                          setFormData((prev) => ({
+                            ...prev,
+                            discount: Math.round(percentage * 10) / 10,
+                          }));
+                        }
+                      }}
+                      disabled={!formData.product || productPrice === 0}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        discountType === "percentage"
+                          ? "bg-brand-500 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      } ${!formData.product || productPrice === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+                    >
+                      نسبة مئوية (%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType("fixed");
+                        // Convert percentage to fixed amount
+                        if (discountType === "percentage" && productPrice > 0) {
+                          const fixedAmount =
+                            (productPrice * formData.discount) / 100;
+                          setFormData((prev) => ({
+                            ...prev,
+                            discount: Math.round(fixedAmount * 10) / 10,
+                          }));
+                        }
+                      }}
+                      disabled={!formData.product || productPrice === 0}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        discountType === "fixed"
+                          ? "bg-brand-500 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      } ${!formData.product || productPrice === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+                    >
+                      مبلغ ثابت (ج.م)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Product Price Display */}
+                {formData.product && productPrice > 0 && (
+                  <div className="lg:col-span-2">
+                    <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <span className="font-medium">سعر المنتج الأصلي:</span>{" "}
+                        <span className="font-bold">
+                          {productPrice.toFixed(2)} ج.م
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Discount Input */}
+                <div className="lg:col-span-2">
+                  <Label>
+                    {discountType === "percentage"
+                      ? "الخصم بالنسبة المئوية (%)"
+                      : "الخصم بالمبلغ الثابت (ج.م)"}{" "}
                     <span className="text-error-500">*</span>
                   </Label>
                   <Input
                     type="number"
-                    placeholder="أدخل قيمة الخصم للعرض"
+                    placeholder={
+                      discountType === "percentage"
+                        ? "أدخل نسبة الخصم (1-100)"
+                        : "أدخل مبلغ الخصم"
+                    }
                     min="1"
-                    max="100"
-                    // step={0.1}
+                    max={
+                      discountType === "percentage"
+                        ? "100"
+                        : productPrice > 0
+                          ? (productPrice - 1).toString()
+                          : ""
+                    }
+                    step={0.1}
                     value={formData.discount}
                     onChange={(e) => handleChange("discount", e.target.value)}
                     required
                     dir="ltr"
                     className="text-end"
+                    disabled={
+                      discountType === "fixed" &&
+                      (!formData.product || productPrice === 0)
+                    }
                   />
+                  {discountType === "fixed" && !formData.product && (
+                    <p className="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                      يرجى اختيار المنتج أولاً لتفعيل المبلغ الثابت
+                    </p>
+                  )}
+                  {discountType === "fixed" &&
+                    formData.product &&
+                    productPrice > 0 &&
+                    formData.discount > 0 && (
+                      <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+                        النسبة المئوية المكافئة:{" "}
+                        {((formData.discount / productPrice) * 100).toFixed(1)}%
+                        {" | "}
+                        السعر بعد الخصم:{" "}
+                        {(productPrice - formData.discount).toFixed(2)} ج.م
+                      </p>
+                    )}
+                  {discountType === "percentage" &&
+                    formData.product &&
+                    productPrice > 0 &&
+                    formData.discount > 0 && (
+                      <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+                        المبلغ المخصوم:{" "}
+                        {((productPrice * formData.discount) / 100).toFixed(2)}{" "}
+                        ج.م
+                        {" | "}
+                        السعر بعد الخصم:{" "}
+                        {(
+                          productPrice -
+                          (productPrice * formData.discount) / 100
+                        ).toFixed(2)}{" "}
+                        ج.م
+                      </p>
+                    )}
                 </div>
 
                 {/* Start Date */}
@@ -821,6 +983,11 @@ export function EditOfferModal({
   const [descriptionEnError, setDescriptionEnError] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState(false);
+  const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
+    "percentage",
+  );
+  const [productPrice, setProductPrice] = useState<number>(0);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [formData, setFormData] = useState<{
     nameAr: string;
@@ -831,6 +998,7 @@ export function EditOfferModal({
     discount: number;
     startDate: Date;
     endDate: Date;
+    product: string;
   }>({
     nameAr: offer.nameAr || "",
     nameEn: offer.nameEn || "",
@@ -840,6 +1008,10 @@ export function EditOfferModal({
     discount: offer.discount || 0,
     startDate: offer.startDate || new Date(),
     endDate: offer.endDate || new Date(),
+    product:
+      typeof offer.product === "string"
+        ? offer.product
+        : offer.product?._id || "",
   });
 
   // Name validation function (Arabic)
@@ -968,6 +1140,34 @@ export function EditOfferModal({
     return "";
   };
 
+  // Fetch products when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchProducts = async () => {
+      try {
+        const productsResponse = await getAllProducts();
+        setProducts(productsResponse.data);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
+
+    fetchProducts();
+  }, [isOpen]);
+
+  // Update product price when product changes
+  useEffect(() => {
+    if (formData.product) {
+      const selectedProduct = products.find((p) => p._id === formData.product);
+      if (selectedProduct) {
+        setProductPrice(selectedProduct.price);
+      }
+    } else {
+      setProductPrice(0);
+    }
+  }, [formData.product, products]);
+
   const handleChange = (
     field: string,
     value: string | string[] | File | Date | undefined,
@@ -979,8 +1179,20 @@ export function EditOfferModal({
         const raw = value === "" ? "1" : value;
         let num = parseFloat(raw);
         if (isNaN(num)) num = 1;
-        // clamp between 1 and 100 (percentage)
-        num = Math.min(Math.max(num, 1), 100);
+
+        // Different validation based on discount type
+        if (discountType === "percentage") {
+          // clamp between 1 and 100 (percentage)
+          num = Math.min(Math.max(num, 1), 100);
+        } else {
+          // For fixed amount, clamp between 1 and product price
+          if (productPrice > 0) {
+            num = Math.min(Math.max(num, 1), productPrice - 1);
+          } else {
+            num = Math.max(num, 1);
+          }
+        }
+
         // round to 1 decimal
         num = Math.round(num * 10) / 10;
         setFormData((prev) => ({ ...prev, [field]: num }));
@@ -1070,13 +1282,20 @@ export function EditOfferModal({
         imageUrl = formData.image;
       }
 
+      // Calculate discount percentage for backend
+      let discountPercentage = formData.discount;
+      if (discountType === "fixed" && productPrice > 0) {
+        // Convert fixed amount to percentage
+        discountPercentage = (formData.discount / productPrice) * 100;
+      }
+
       const payloadRaw: Partial<CreateOfferPayload> = {
         nameAr: formData.nameAr,
         nameEn: formData.nameEn,
         image: imageUrl,
         descriptionAr: formData.descriptionAr,
         descriptionEn: formData.descriptionEn,
-        discount: formData.discount,
+        discount: discountPercentage,
         startDate: formData.startDate,
         endDate: formData.endDate,
       };
@@ -1129,6 +1348,10 @@ export function EditOfferModal({
       discount: offer.discount || 0,
       startDate: offer.startDate || new Date(),
       endDate: offer.endDate || new Date(),
+      product:
+        typeof offer.product === "string"
+          ? offer.product
+          : offer.product?._id || "",
     });
     setNameArError("");
     setNameEnError("");
@@ -1232,22 +1455,147 @@ export function EditOfferModal({
                   />
                 </div>
 
-                {/* Discount */}
-                <div>
-                  <Label>الخصم بالنسبة المئوية (%)</Label>
+                {/* Discount Type Toggle */}
+                <div className="lg:col-span-2">
+                  <Label>
+                    نوع الخصم <span className="text-error-500">*</span>
+                  </Label>
+                  <div className="mt-2 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType("percentage");
+                        // Keep current value if switching from fixed to percentage
+                        if (discountType === "fixed" && productPrice > 0) {
+                          // Convert fixed amount to percentage
+                          const percentage =
+                            (formData.discount / productPrice) * 100;
+                          setFormData((prev) => ({
+                            ...prev,
+                            discount: Math.round(percentage * 10) / 10,
+                          }));
+                        }
+                      }}
+                      disabled={!formData.product || productPrice === 0}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        discountType === "percentage"
+                          ? "bg-brand-500 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      } ${!formData.product || productPrice === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+                    >
+                      نسبة مئوية (%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType("fixed");
+                        // Convert percentage to fixed amount
+                        if (discountType === "percentage" && productPrice > 0) {
+                          const fixedAmount =
+                            (productPrice * formData.discount) / 100;
+                          setFormData((prev) => ({
+                            ...prev,
+                            discount: Math.round(fixedAmount * 10) / 10,
+                          }));
+                        }
+                      }}
+                      disabled={!formData.product || productPrice === 0}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        discountType === "fixed"
+                          ? "bg-brand-500 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      } ${!formData.product || productPrice === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+                    >
+                      مبلغ ثابت (ج.م)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Product Price Display */}
+                {formData.product && productPrice > 0 && (
+                  <div className="lg:col-span-2">
+                    <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <span className="font-medium">سعر المنتج الأصلي:</span>{" "}
+                        <span className="font-bold">
+                          {productPrice.toFixed(2)} ج.م
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Discount Input */}
+                <div className="lg:col-span-2">
+                  <Label>
+                    {discountType === "percentage"
+                      ? "الخصم بالنسبة المئوية (%)"
+                      : "الخصم بالمبلغ الثابت (ج.م)"}{" "}
+                    <span className="text-error-500">*</span>
+                  </Label>
                   <Input
                     type="number"
-                    placeholder="أدخل قيمة الخصم للعرض"
+                    placeholder={
+                      discountType === "percentage"
+                        ? "أدخل نسبة الخصم (1-100)"
+                        : "أدخل مبلغ الخصم"
+                    }
                     min="1"
-                    max="100"
-                    // step={0.1}
+                    max={
+                      discountType === "percentage"
+                        ? "100"
+                        : productPrice > 0
+                          ? (productPrice - 1).toString()
+                          : ""
+                    }
+                    step={0.1}
                     value={
                       typeof formData.discount === "number"
                         ? formData.discount
                         : Number(formData.discount)
                     }
                     onChange={(e) => handleChange("discount", e.target.value)}
+                    dir="ltr"
+                    className="text-end"
+                    disabled={
+                      discountType === "fixed" &&
+                      (!formData.product || productPrice === 0)
+                    }
                   />
+                  {discountType === "fixed" && !formData.product && (
+                    <p className="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                      يرجى اختيار المنتج أولاً لتفعيل المبلغ الثابت
+                    </p>
+                  )}
+                  {discountType === "fixed" &&
+                    formData.product &&
+                    productPrice > 0 &&
+                    formData.discount > 0 && (
+                      <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+                        النسبة المئوية المكافئة:{" "}
+                        {((formData.discount / productPrice) * 100).toFixed(1)}%
+                        {" | "}
+                        السعر بعد الخصم:{" "}
+                        {(productPrice - formData.discount).toFixed(2)} ج.م
+                      </p>
+                    )}
+                  {discountType === "percentage" &&
+                    formData.product &&
+                    productPrice > 0 &&
+                    formData.discount > 0 && (
+                      <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+                        المبلغ المخصوم:{" "}
+                        {((productPrice * formData.discount) / 100).toFixed(2)}{" "}
+                        ج.م
+                        {" | "}
+                        السعر بعد الخصم:{" "}
+                        {(
+                          productPrice -
+                          (productPrice * formData.discount) / 100
+                        ).toFixed(2)}{" "}
+                        ج.م
+                      </p>
+                    )}
                 </div>
 
                 {/* Start Date */}

@@ -6,13 +6,14 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { ChevronDownIcon } from "../../../public/icons";
+import Select from "../form/Select";
 import { useModal } from "@/hooks/useModal";
 import { createAgent, deleteAgent, updateAgent } from "@/lib/api/agents";
 import { CreateAgentPayload, Agent } from "@/types/agent";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
 import { AxiosError } from "axios";
-import Switch from "../form/switch/Switch";
 
 export function AddAgentModal({
   isOpen = false,
@@ -51,7 +52,8 @@ export function AddAgentModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+    const validPattern =
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والرموز والمسافات فقط";
     }
@@ -444,13 +446,13 @@ export function EditAgentModal({
     name: string;
     mobile: string;
     role: "delivery-agent";
-    isActive: boolean;
+    status: string;
     commissionRate: number;
   }>({
     name: agent.name || "",
     mobile: agent.mobile || "",
     role: "delivery-agent",
-    isActive: agent.isActive || true,
+    status: agent.status || "active",
     commissionRate: agent.commissionRate || 0,
   });
 
@@ -471,7 +473,8 @@ export function EditAgentModal({
     }
 
     // Check for invalid characters (only allow Arabic, English letters and spaces)
-    const validPattern = /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+    const validPattern =
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
       return "الاسم يقبل الحروف والمسافات فقط";
     }
@@ -643,7 +646,7 @@ export function EditAgentModal({
       const payloadRaw: Partial<CreateAgentPayload> = {
         name: formData.name,
         mobile: formData.mobile,
-        isActive: formData.isActive,
+        status: formData.status,
         commissionRate: formData.commissionRate,
         role: "delivery-agent",
       };
@@ -691,7 +694,7 @@ export function EditAgentModal({
       name: agent.name || "",
       mobile: agent.mobile || "",
       role: "delivery-agent",
-      isActive: agent.isActive || true,
+      status: agent.status || "active",
       commissionRate: agent.commissionRate || 0,
     });
     setMobileError("");
@@ -759,16 +762,26 @@ export function EditAgentModal({
                     step={1}
                   />
                 </div>
-                {/* Active */}
+                {/* Status */}
                 <div>
                   <Label>
-                    نشط <span className="text-error-500">*</span>
+                    الحالة <span className="text-error-500">*</span>
                   </Label>
-                  <Switch
-                    label=""
-                    defaultChecked={agent.isActive}
-                    onChange={() => handleChange("isActive", !agent.isActive)}
-                  />
+                  <div className="relative">
+                    <Select
+                      options={[
+                        { value: "active", label: "نشط" },
+                        { value: "blocked", label: "محظور" },
+                      ]}
+                      placeholder="اختر الحالة"
+                      defaultValue={formData.status}
+                      onChange={(val) => handleChange("status", val)}
+                      required
+                    />
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

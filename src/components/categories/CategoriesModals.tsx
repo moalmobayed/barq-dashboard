@@ -28,14 +28,17 @@ export function AddCategoryModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
+  const [orderError, setOrderError] = useState<string>("");
   const [formData, setFormData] = useState<{
     nameAr: string;
     nameEn: string;
     image: File;
+    order: number;
   }>({
     nameAr: "",
     nameEn: "",
     image: new File([], ""),
+    order: 0,
   });
 
   // Arabic name validation function
@@ -145,6 +148,36 @@ export function AddCategoryModal({
     setNameEnError(error);
   };
 
+  // Order validation function
+  const validateOrder = (order: string): string => {
+    if (!order || order.trim() === "") {
+      return "";
+    }
+
+    const orderNum = parseInt(order);
+
+    if (isNaN(orderNum)) {
+      return "يجب أن يكون الترتيب رقماً";
+    }
+
+    if (orderNum < 0) {
+      return "يجب أن يكون الترتيب صفر أو أكثر";
+    }
+
+    return "";
+  };
+
+  const handleOrderChange = (value: string) => {
+    // Only allow integers
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    const numValue = parseInt(numbersOnly) || 0;
+
+    setFormData((prev) => ({ ...prev, order: numValue }));
+
+    const error = validateOrder(numbersOnly);
+    setOrderError(error);
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | undefined,
@@ -153,6 +186,8 @@ export function AddCategoryModal({
       handleNameArChange(value);
     } else if (field === "nameEn" && typeof value === "string") {
       handleNameEnChange(value);
+    } else if (field === "order" && typeof value === "string") {
+      handleOrderChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -225,6 +260,7 @@ export function AddCategoryModal({
         nameAr: formData.nameAr,
         nameEn: effectiveNameEn,
         image: imageUrl,
+        order: formData.order,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -244,6 +280,7 @@ export function AddCategoryModal({
         nameAr: "",
         nameEn: "",
         image: new File([], ""),
+        order: 0,
       });
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
@@ -275,9 +312,11 @@ export function AddCategoryModal({
       nameAr: "",
       nameEn: "",
       image: new File([], ""),
+      order: 0,
     });
     setNameArError("");
     setNameEnError("");
+    setOrderError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -335,6 +374,20 @@ export function AddCategoryModal({
                     error={!!nameEnError}
                     hint={nameEnError || `${formData.nameEn.length}/30`}
                     dir="ltr"
+                  />
+                </div>
+
+                {/* Order */}
+                <div>
+                  <Label>الترتيب</Label>
+                  <Input
+                    type="number"
+                    placeholder="ادخل ترتيب الفئة"
+                    value={formData.order === 0 ? "" : formData.order}
+                    onChange={(e) => handleChange("order", e.target.value)}
+                    error={!!orderError}
+                    hint={orderError}
+                    min="0"
                   />
                 </div>
               </div>
@@ -415,14 +468,17 @@ export function EditCategoryModal({
   const [isLoading, setIsLoading] = useState(false);
   const [nameArError, setNameArError] = useState<string>("");
   const [nameEnError, setNameEnError] = useState<string>("");
+  const [orderError, setOrderError] = useState<string>("");
   const [formData, setFormData] = useState<{
     nameAr: string;
     nameEn: string;
     image: File | string;
+    order: number;
   }>({
     nameAr: category.nameAr || "",
     nameEn: category.nameEn || "",
     image: category.image || "",
+    order: category.order || 0,
   });
 
   // Arabic name validation function
@@ -532,6 +588,36 @@ export function EditCategoryModal({
     setNameEnError(error);
   };
 
+  // Order validation function
+  const validateOrder = (order: string): string => {
+    if (!order || order.trim() === "") {
+      return "";
+    }
+
+    const orderNum = parseInt(order);
+
+    if (isNaN(orderNum)) {
+      return "يجب أن يكون الترتيب رقماً";
+    }
+
+    if (orderNum < 0) {
+      return "يجب أن يكون الترتيب صفر أو أكثر";
+    }
+
+    return "";
+  };
+
+  const handleOrderChange = (value: string) => {
+    // Only allow integers
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    const numValue = parseInt(numbersOnly) || 0;
+
+    setFormData((prev) => ({ ...prev, order: numValue }));
+
+    const error = validateOrder(numbersOnly);
+    setOrderError(error);
+  };
+
   const handleChange = (
     field: string,
     value: string | string[] | File | undefined,
@@ -540,6 +626,8 @@ export function EditCategoryModal({
       handleNameArChange(value);
     } else if (field === "nameEn" && typeof value === "string") {
       handleNameEnChange(value);
+    } else if (field === "order" && typeof value === "string") {
+      handleOrderChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -594,6 +682,7 @@ export function EditCategoryModal({
           ? formData.nameEn.trim()
           : formData.nameAr.trim(),
         image: imageUrl,
+        order: formData.order,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -641,9 +730,11 @@ export function EditCategoryModal({
       nameAr: category.nameAr || "",
       nameEn: category.nameEn || "",
       image: category.image || "",
+      order: category.order || 0,
     });
     setNameArError("");
     setNameEnError("");
+    setOrderError("");
     setIsLoading(false);
     closeModal?.();
   };
@@ -705,6 +796,20 @@ export function EditCategoryModal({
                     error={!!nameEnError}
                     hint={nameEnError || `${formData.nameEn.length}/30`}
                     dir="ltr"
+                  />
+                </div>
+
+                {/* Order */}
+                <div>
+                  <Label>الترتيب</Label>
+                  <Input
+                    type="number"
+                    placeholder="ادخل ترتيب الفئة"
+                    value={formData.order === 0 ? "" : formData.order}
+                    onChange={(e) => handleChange("order", e.target.value)}
+                    error={!!orderError}
+                    hint={orderError}
+                    min="0"
                   />
                 </div>
               </div>

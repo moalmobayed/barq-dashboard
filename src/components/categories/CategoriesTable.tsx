@@ -150,6 +150,9 @@ export default function CategoriesTable() {
                     الفئة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
+                    الترتيب
+                  </TableCell>
+                  <TableCell isHeader className="text-start font-medium">
                     الإجراءات
                   </TableCell>
                 </TableRow>
@@ -176,6 +179,10 @@ export default function CategoriesTable() {
                         </div>
                       </TableCell>
 
+                      <TableCell className="px-4 py-6">
+                        <Skeleton baseColor="#ecebeb" width={30} height={20} />
+                      </TableCell>
+
                       <TableCell className="items-center justify-center gap-3 px-4 py-6">
                         <div className="flex gap-2">
                           <Skeleton
@@ -198,7 +205,7 @@ export default function CategoriesTable() {
                   {filteredCategories.length === 0 ? (
                     <TableRow>
                       <td
-                        colSpan={2}
+                        colSpan={3}
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -237,6 +244,11 @@ export default function CategoriesTable() {
                               </span>
                             </div>
                           </div>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 text-start sm:px-6">
+                          <span className="text-sm text-gray-800 dark:text-white/90">
+                            {category.order || 0}
+                          </span>
                         </TableCell>
                         <TableCell className="space-x-4">
                           <EditCategoryButton

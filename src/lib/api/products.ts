@@ -44,9 +44,19 @@ export async function getSingleProduct(productId: string): Promise<Product> {
 export const fetchProducts = async (
   page: number,
   limit: number,
+  shop?: string,
 ): Promise<{ data: Product[]; pages: number }> => {
+  const params: { page: number; limit: number; shop?: string } = {
+    page,
+    limit,
+  };
+
+  if (shop) {
+    params.shop = shop;
+  }
+
   const response = await axios.get(`${BASE_URL}/product`, {
-    params: { page, limit },
+    params,
   });
 
   return {

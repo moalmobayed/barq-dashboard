@@ -8,7 +8,7 @@ export interface CreateVendorPayload {
   hotline?: string;
   location: string;
   workingHours: [string, string];
-  isActive?: boolean;
+  status?: string;
   expectedTime: string;
   commissionRate: number;
   profileImage: string;
@@ -26,7 +26,7 @@ export interface Vendor {
   profileImage?: string;
   coverImage?: string;
   role: string;
-  isActive?: boolean;
+  status?: string;
   location?: string;
   rating?: number;
   workingHours?: [string, string];
