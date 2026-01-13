@@ -499,19 +499,7 @@ export function AddProductModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
-      if (
-        !formData.image ||
-        !(formData.image instanceof File) ||
-        formData.image.size === 0
-      ) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "صورة المنتج مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
+
       const effectiveNameEn = formData.nameEn?.trim()
         ? formData.nameEn.trim()
         : formData.nameAr.trim();
@@ -1303,7 +1291,7 @@ export function EditProductModal({
 
       let imageUrl = "";
 
-      if (formData.image instanceof File) {
+      if (formData.image instanceof File && formData.image.size > 0) {
         const uploaded = await uploadImage(formData.image);
         imageUrl = uploaded.data || uploaded.url;
       } else if (typeof formData.image === "string") {
