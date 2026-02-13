@@ -1,3 +1,15 @@
+export interface ExtensionOption {
+  nameAr: string;
+  nameEn: string;
+  price: number;
+}
+
+export interface Extension {
+  titleAr: string;
+  titleEn: string;
+  options: ExtensionOption[];
+}
+
 export interface CreateProductPayload {
   nameAr: string;
   nameEn: string;
@@ -9,6 +21,7 @@ export interface CreateProductPayload {
   category: string;
   image?: string;
   images?: string[];
+  extensions?: Extension[];
 }
 
 export interface Product {
@@ -34,6 +47,7 @@ export interface Product {
   rating: number;
   image: string;
   images: string[];
+  extensions?: Extension[];
   soldTimes: number;
   reviewCount: number;
   cartQuantity?: number;

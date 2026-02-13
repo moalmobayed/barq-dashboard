@@ -11,13 +11,20 @@ import { ChevronDownIcon } from "../../../public/icons";
 import Select from "../form/Select";
 import { Category } from "@/types/category";
 import { uploadImage } from "@/lib/api/uploadImage";
-import { CreateProductPayload, Product } from "@/types/product";
+import { CreateProductPayload, Product, Extension } from "@/types/product";
 import {
   createProduct,
   deleteProduct,
   updateProduct,
 } from "@/lib/api/products";
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import {
+  FaPencilAlt,
+  FaTrashAlt,
+  FaChevronDown,
+  FaChevronUp,
+  FaPlus,
+  FaTrash,
+} from "react-icons/fa";
 import Image from "next/image";
 import { fetchCategories } from "@/lib/api/categories";
 import Alert, { AlertProps } from "@/components/ui/alert/Alert";
@@ -56,6 +63,7 @@ export function AddProductModal({
     category: string;
     categories: string[];
     image: File;
+    extensions: Extension[];
   }>({
     nameAr: "",
     nameEn: "",
@@ -66,7 +74,9 @@ export function AddProductModal({
     category: "",
     categories: [],
     image: new File([], ""),
+    extensions: [],
   });
+  const [collapsedExtensions, setCollapsedExtensions] = useState<boolean[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -523,6 +533,8 @@ export function AddProductModal({
         descriptionEn: effectiveDescriptionEn,
         category: formData.category,
         image: imageUrl,
+        extensions:
+          formData.extensions.length > 0 ? formData.extensions : undefined,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -551,7 +563,9 @@ export function AddProductModal({
         category: "",
         categories: [],
         image: new File([], ""),
+        extensions: [],
       });
+      setCollapsedExtensions([]);
     } catch (err) {
       if (err instanceof AxiosError) {
         setToast({
@@ -586,7 +600,9 @@ export function AddProductModal({
       category: "",
       categories: [],
       image: new File([], ""),
+      extensions: [],
     });
+    setCollapsedExtensions([]);
     setIsLoading(false);
     closeModal?.();
   };
@@ -599,11 +615,15 @@ export function AddProductModal({
     >
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
         <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
-          <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+          <div className="custom-scrollbar max-h-[70vh] overflow-y-auto px-2 pb-3">
             <div>
               <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-                إضافة منتج
+                إضافة منتج جديد
               </h5>
+
+              <h6 className="mb-4 text-base font-medium text-gray-800 dark:text-white/90">
+                البيانات الاساسية
+              </h6>
 
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Product Image */}
@@ -784,6 +804,246 @@ export function AddProductModal({
                 /> */}
               </div>
             </div>
+
+            {/* Extensions Section */}
+            <div className="mt-8">
+              <div className="mb-4 flex items-center justify-between">
+                <h6 className="text-base font-medium text-gray-800 dark:text-white/90">
+                  الاضافات
+                </h6>
+                <button
+                  type="button"
+                  className="text-brand-500 hover:text-brand-600 flex items-center gap-1 text-sm font-medium"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      extensions: [
+                        ...prev.extensions,
+                        {
+                          titleAr: "",
+                          titleEn: "",
+                          options: [{ nameAr: "", nameEn: "", price: 0 }],
+                        },
+                      ],
+                    }));
+                    setCollapsedExtensions((prev) => [...prev, false]);
+                  }}
+                >
+                  <FaPlus className="h-3 w-3" />
+                  إضافة إختيارات للمنتج
+                </button>
+              </div>
+
+              {formData.extensions.map((ext, extIdx) => (
+                <div
+                  key={extIdx}
+                  className="mb-4 rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                  {/* Extension Header */}
+                  <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+                    <div className="flex flex-1 items-center gap-3">
+                      <button
+                        type="button"
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                        onClick={() => {
+                          setCollapsedExtensions((prev) => {
+                            const next = [...prev];
+                            next[extIdx] = !next[extIdx];
+                            return next;
+                          });
+                        }}
+                      >
+                        {collapsedExtensions[extIdx] ? (
+                          <FaChevronDown className="h-3.5 w-3.5" />
+                        ) : (
+                          <FaChevronUp className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                      <Input
+                        type="text"
+                        placeholder="اسم الإضافة بالعربية"
+                        value={ext.titleAr}
+                        onChange={(e) => {
+                          const newExts = [...formData.extensions];
+                          newExts[extIdx] = {
+                            ...newExts[extIdx],
+                            titleAr: e.target.value,
+                          };
+                          setFormData((prev) => ({
+                            ...prev,
+                            extensions: newExts,
+                          }));
+                        }}
+                      />
+                      <Input
+                        type="text"
+                        placeholder="Extension title in English"
+                        value={ext.titleEn}
+                        onChange={(e) => {
+                          const newExts = [...formData.extensions];
+                          newExts[extIdx] = {
+                            ...newExts[extIdx],
+                            titleEn: e.target.value,
+                          };
+                          setFormData((prev) => ({
+                            ...prev,
+                            extensions: newExts,
+                          }));
+                        }}
+                        dir="ltr"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          extensions: prev.extensions.filter(
+                            (_, i) => i !== extIdx,
+                          ),
+                        }));
+                        setCollapsedExtensions((prev) =>
+                          prev.filter((_, i) => i !== extIdx),
+                        );
+                      }}
+                    >
+                      <FaTrash className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Extension Options (collapsible) */}
+                  {!collapsedExtensions[extIdx] && (
+                    <div className="px-4 py-3">
+                      {/* Options Header */}
+                      <div className="mb-2 grid grid-cols-[1fr_1fr_100px_40px] gap-3 text-xs font-medium text-gray-500 dark:text-gray-400">
+                        <span>اسم الاضافة (عربي)</span>
+                        <span>اسم الاضافة (English)</span>
+                        <span>سعر الاضافة</span>
+                        <span></span>
+                      </div>
+
+                      {/* Option Rows */}
+                      {ext.options.map((opt, optIdx) => (
+                        <div
+                          key={optIdx}
+                          className="mb-2 grid grid-cols-[1fr_1fr_100px_40px] items-center gap-3"
+                        >
+                          <Input
+                            type="text"
+                            placeholder="ادخل اسم"
+                            value={opt.nameAr}
+                            onChange={(e) => {
+                              const newExts = [...formData.extensions];
+                              const newOpts = [...newExts[extIdx].options];
+                              newOpts[optIdx] = {
+                                ...newOpts[optIdx],
+                                nameAr: e.target.value,
+                              };
+                              newExts[extIdx] = {
+                                ...newExts[extIdx],
+                                options: newOpts,
+                              };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: newExts,
+                              }));
+                            }}
+                          />
+                          <Input
+                            type="text"
+                            placeholder="Enter name"
+                            value={opt.nameEn}
+                            onChange={(e) => {
+                              const newExts = [...formData.extensions];
+                              const newOpts = [...newExts[extIdx].options];
+                              newOpts[optIdx] = {
+                                ...newOpts[optIdx],
+                                nameEn: e.target.value,
+                              };
+                              newExts[extIdx] = {
+                                ...newExts[extIdx],
+                                options: newOpts,
+                              };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: newExts,
+                              }));
+                            }}
+                            dir="ltr"
+                          />
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            value={opt.price === 0 ? "" : opt.price}
+                            onChange={(e) => {
+                              const newExts = [...formData.extensions];
+                              const newOpts = [...newExts[extIdx].options];
+                              newOpts[optIdx] = {
+                                ...newOpts[optIdx],
+                                price: parseFloat(e.target.value) || 0,
+                              };
+                              newExts[extIdx] = {
+                                ...newExts[extIdx],
+                                options: newOpts,
+                              };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: newExts,
+                              }));
+                            }}
+                            min="0"
+                          />
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center text-red-500 hover:text-red-700"
+                            onClick={() => {
+                              if (ext.options.length <= 1) return;
+                              const newExts = [...formData.extensions];
+                              newExts[extIdx] = {
+                                ...newExts[extIdx],
+                                options: newExts[extIdx].options.filter(
+                                  (_, i) => i !== optIdx,
+                                ),
+                              };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: newExts,
+                              }));
+                            }}
+                          >
+                            <FaTrash className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Add Option Button */}
+                      <button
+                        type="button"
+                        className="bg-brand-500 hover:bg-brand-600 mt-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                        onClick={() => {
+                          const newExts = [...formData.extensions];
+                          newExts[extIdx] = {
+                            ...newExts[extIdx],
+                            options: [
+                              ...newExts[extIdx].options,
+                              { nameAr: "", nameEn: "", price: 0 },
+                            ],
+                          };
+                          setFormData((prev) => ({
+                            ...prev,
+                            extensions: newExts,
+                          }));
+                        }}
+                      >
+                        <FaPlus className="h-2.5 w-2.5" />
+                        اضف الخيار
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
@@ -871,6 +1131,7 @@ export function EditProductModal({
   const [priceError, setPriceError] = useState<string>("");
   const [descriptionArError, setDescriptionArError] = useState<string>("");
   const [descriptionEnError, setDescriptionEnError] = useState<string>("");
+  const [collapsedExtensions, setCollapsedExtensions] = useState<boolean[]>([]);
 
   const [formData, setFormData] = useState<{
     nameAr: string;
@@ -881,6 +1142,7 @@ export function EditProductModal({
     descriptionEn: string;
     category: string;
     image: string | File;
+    extensions: Extension[];
   }>({
     nameAr: product.nameAr || "",
     nameEn: product.nameEn || "",
@@ -890,6 +1152,7 @@ export function EditProductModal({
     descriptionEn: product.descriptionEn || "",
     category: product.category._id || "",
     image: product.image || new File([], ""),
+    extensions: product.extensions || [],
   });
 
   useEffect(() => {
@@ -919,7 +1182,11 @@ export function EditProductModal({
       descriptionEn: product.descriptionEn || "",
       category: product.category._id || "",
       image: product.image || "",
+      extensions: product.extensions || [],
     });
+    setCollapsedExtensions(
+      new Array(product.extensions?.length || 0).fill(false),
+    );
   }, [isOpen, product]);
 
   // Fetch vendor-specific categories (categoryshops) when shop changes (like AddProductModal)
@@ -1311,6 +1578,8 @@ export function EditProductModal({
           : formData.descriptionAr.trim(),
         category: formData.category,
         image: imageUrl,
+        extensions:
+          formData.extensions.length > 0 ? formData.extensions : undefined,
       };
       // Remove empty-string fields
       const payload = Object.fromEntries(
@@ -1361,7 +1630,11 @@ export function EditProductModal({
       descriptionEn: product.descriptionEn || "",
       category: product.category._id || "",
       image: product.image || new File([], ""),
+      extensions: product.extensions || [],
     });
+    setCollapsedExtensions(
+      new Array(product.extensions?.length || 0).fill(false),
+    );
     setIsLoading(false);
     closeModal?.();
   };
@@ -1374,11 +1647,20 @@ export function EditProductModal({
     >
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
         <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
-          <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-            <div>
-              <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">
-                معلومات المنتج
+          <div className="custom-scrollbar max-h-[70vh] overflow-y-auto px-2 pb-3">
+            <div className="mb-6 text-center">
+              <h5 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                تعديل المنتج
               </h5>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                عدل تفاصيل المنتج وخيارات الإضافات
+              </p>
+            </div>
+
+            <div>
+              <h6 className="mb-4 text-base font-medium text-gray-800 dark:text-white/90">
+                البيانات الاساسية
+              </h6>
 
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Product Image */}
@@ -1537,6 +1819,214 @@ export function EditProductModal({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Extensions Section */}
+            <div className="mt-8">
+              <div className="mb-4 flex items-center justify-between">
+                <h6 className="text-base font-medium text-gray-800 dark:text-white/90">
+                  الاضافات
+                </h6>
+                <button
+                  type="button"
+                  className="text-brand-500 hover:text-brand-600 flex items-center gap-1 text-sm font-medium"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      extensions: [
+                        ...prev.extensions,
+                        {
+                          titleAr: "",
+                          titleEn: "",
+                          options: [{ nameAr: "", nameEn: "", price: 0 }],
+                        },
+                      ],
+                    }));
+                    setCollapsedExtensions((prev) => [...prev, false]);
+                  }}
+                >
+                  <FaPlus className="h-3 w-3" />
+                  إضافة إختيارات للمنتج
+                </button>
+              </div>
+
+              {formData.extensions.map((ext, extIdx) => (
+                <div
+                  key={extIdx}
+                  className="mb-4 rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+                    <div className="flex flex-1 items-center gap-3">
+                      <button
+                        type="button"
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                        onClick={() => {
+                          setCollapsedExtensions((prev) => {
+                            const next = [...prev];
+                            next[extIdx] = !next[extIdx];
+                            return next;
+                          });
+                        }}
+                      >
+                        {collapsedExtensions[extIdx] ? (
+                          <FaChevronDown className="h-3.5 w-3.5" />
+                        ) : (
+                          <FaChevronUp className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                      <Input
+                        type="text"
+                        placeholder="اسم الإضافة بالعربية"
+                        value={ext.titleAr}
+                        onChange={(e) => {
+                          const n = [...formData.extensions];
+                          n[extIdx] = { ...n[extIdx], titleAr: e.target.value };
+                          setFormData((prev) => ({ ...prev, extensions: n }));
+                        }}
+                      />
+                      <Input
+                        type="text"
+                        placeholder="Extension title in English"
+                        value={ext.titleEn}
+                        onChange={(e) => {
+                          const n = [...formData.extensions];
+                          n[extIdx] = { ...n[extIdx], titleEn: e.target.value };
+                          setFormData((prev) => ({ ...prev, extensions: n }));
+                        }}
+                        dir="ltr"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          extensions: prev.extensions.filter(
+                            (_, i) => i !== extIdx,
+                          ),
+                        }));
+                        setCollapsedExtensions((prev) =>
+                          prev.filter((_, i) => i !== extIdx),
+                        );
+                      }}
+                    >
+                      <FaTrash className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  {!collapsedExtensions[extIdx] && (
+                    <div className="px-4 py-3">
+                      <div className="mb-2 grid grid-cols-[1fr_1fr_100px_40px] gap-3 text-xs font-medium text-gray-500 dark:text-gray-400">
+                        <span>اسم الاضافة (عربي)</span>
+                        <span>اسم الاضافة (English)</span>
+                        <span>سعر الاضافة</span>
+                        <span></span>
+                      </div>
+                      {ext.options.map((opt, optIdx) => (
+                        <div
+                          key={optIdx}
+                          className="mb-2 grid grid-cols-[1fr_1fr_100px_40px] items-center gap-3"
+                        >
+                          <Input
+                            type="text"
+                            placeholder="ادخل اسم"
+                            value={opt.nameAr}
+                            onChange={(e) => {
+                              const n = [...formData.extensions];
+                              const o = [...n[extIdx].options];
+                              o[optIdx] = {
+                                ...o[optIdx],
+                                nameAr: e.target.value,
+                              };
+                              n[extIdx] = { ...n[extIdx], options: o };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: n,
+                              }));
+                            }}
+                          />
+                          <Input
+                            type="text"
+                            placeholder="Enter name"
+                            value={opt.nameEn}
+                            onChange={(e) => {
+                              const n = [...formData.extensions];
+                              const o = [...n[extIdx].options];
+                              o[optIdx] = {
+                                ...o[optIdx],
+                                nameEn: e.target.value,
+                              };
+                              n[extIdx] = { ...n[extIdx], options: o };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: n,
+                              }));
+                            }}
+                            dir="ltr"
+                          />
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            value={opt.price === 0 ? "" : opt.price}
+                            onChange={(e) => {
+                              const n = [...formData.extensions];
+                              const o = [...n[extIdx].options];
+                              o[optIdx] = {
+                                ...o[optIdx],
+                                price: parseFloat(e.target.value) || 0,
+                              };
+                              n[extIdx] = { ...n[extIdx], options: o };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: n,
+                              }));
+                            }}
+                            min="0"
+                          />
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center text-red-500 hover:text-red-700"
+                            onClick={() => {
+                              if (ext.options.length <= 1) return;
+                              const n = [...formData.extensions];
+                              n[extIdx] = {
+                                ...n[extIdx],
+                                options: n[extIdx].options.filter(
+                                  (_, i) => i !== optIdx,
+                                ),
+                              };
+                              setFormData((prev) => ({
+                                ...prev,
+                                extensions: n,
+                              }));
+                            }}
+                          >
+                            <FaTrash className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="bg-brand-500 hover:bg-brand-600 mt-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                        onClick={() => {
+                          const n = [...formData.extensions];
+                          n[extIdx] = {
+                            ...n[extIdx],
+                            options: [
+                              ...n[extIdx].options,
+                              { nameAr: "", nameEn: "", price: 0 },
+                            ],
+                          };
+                          setFormData((prev) => ({ ...prev, extensions: n }));
+                        }}
+                      >
+                        <FaPlus className="h-2.5 w-2.5" />
+                        اضف الخيار
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
