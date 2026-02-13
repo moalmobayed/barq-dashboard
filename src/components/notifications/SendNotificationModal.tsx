@@ -46,7 +46,7 @@ export default function SendNotificationModal({
 
   const validateTitleEn = (value: string): string => {
     if (!value || value.trim() === "") {
-      return "العنوان بالإنجليزية مطلوب";
+      return "";
     }
     if (value.length < 3) {
       return "العنوان يجب أن يكون 3 أحرف على الأقل";
@@ -72,7 +72,7 @@ export default function SendNotificationModal({
 
   const validateContentEn = (value: string): string => {
     if (!value || value.trim() === "") {
-      return "المحتوى بالإنجليزية مطلوب";
+      return "";
     }
     if (value.length < 10) {
       return "المحتوى يجب أن يكون 10 أحرف على الأقل";
@@ -127,9 +127,17 @@ export default function SendNotificationModal({
       return;
     }
 
+    // Fallback English values to Arabic if empty
+    const finalPayload: SendNotificationPayload = {
+      titleAr: formData.titleAr,
+      titleEn: formData.titleEn.trim() || formData.titleAr,
+      contentAr: formData.contentAr,
+      contentEn: formData.contentEn.trim() || formData.contentAr,
+    };
+
     setIsLoading(true);
     try {
-      await onSend(formData);
+      await onSend(finalPayload);
       handleClose();
     } catch (error) {
       console.error("Error sending notification:", error);
@@ -182,10 +190,7 @@ export default function SendNotificationModal({
                 </div>
 
                 <div>
-                  <Label>
-                    العنوان بالإنجليزية{" "}
-                    <span className="text-error-500">*</span>
-                  </Label>
+                  <Label>العنوان بالإنجليزية</Label>
                   <Input
                     type="text"
                     placeholder="Enter notification title in English"
@@ -193,7 +198,6 @@ export default function SendNotificationModal({
                     onChange={(e) => handleTitleEnChange(e.target.value)}
                     error={!!titleEnError}
                     hint={titleEnError || `${formData.titleEn.length}/100`}
-                    required
                   />
                 </div>
 
@@ -223,10 +227,7 @@ export default function SendNotificationModal({
                 </div>
 
                 <div className="lg:col-span-2">
-                  <Label>
-                    المحتوى بالإنجليزية{" "}
-                    <span className="text-error-500">*</span>
-                  </Label>
+                  <Label>المحتوى بالإنجليزية</Label>
                   <textarea
                     className={`w-full rounded-lg border ${
                       contentEnError
@@ -237,7 +238,6 @@ export default function SendNotificationModal({
                     value={formData.contentEn}
                     onChange={(e) => handleContentEnChange(e.target.value)}
                     rows={4}
-                    required
                   />
                   <p
                     className={`mt-1 text-xs ${
