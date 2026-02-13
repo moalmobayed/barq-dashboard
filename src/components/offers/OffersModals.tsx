@@ -1081,7 +1081,7 @@ export function EditOfferModal({
   ) => {
     if (typeof value === "string") {
       if (field === "discount") {
-        let num = parseFloat(value) || 0;
+        const num = parseFloat(value) || 0;
         setFormData((prev) => ({ ...prev, [field]: num }));
         return;
       }
@@ -1167,7 +1167,7 @@ export function EditOfferModal({
       });
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
-    } catch (err) {
+    } catch {
       setToast({
         variant: "error",
         title: "خطأ في التحديث",
@@ -1478,7 +1478,7 @@ export function DeleteOfferModal({
       setTimeout(() => setToast(null), 5000);
       onSuccess?.();
       closeModal();
-    } catch (err) {
+    } catch {
       setToast({
         variant: "error",
         title: "خطأ في الحذف",
