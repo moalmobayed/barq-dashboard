@@ -1150,7 +1150,7 @@ export function EditProductModal({
     shopId: product.shopId._id || "",
     descriptionAr: product.descriptionAr || "",
     descriptionEn: product.descriptionEn || "",
-    category: product.category._id || "",
+    category: product.category?._id || "",
     image: product.image || new File([], ""),
     extensions: product.extensions || [],
   });
