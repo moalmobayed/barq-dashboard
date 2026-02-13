@@ -23,14 +23,45 @@ import Skeleton from "react-loading-skeleton";
 import Link from "next/link";
 import { fetchOffersByKeyword } from "@/lib/api/offers";
 import { MdLocalOffer, MdOutlineKeyboardArrowLeft } from "react-icons/md";
+import { Offer } from "@/types/offer";
 
 const limits = [5, 10, 20, 50];
+
+/** Safely extract vendor name from shopId (can be string or object) */
+const getVendorName = (offer: Offer): string => {
+  if (!offer.shopId) return "بدون متجر";
+  if (typeof offer.shopId === "string") return offer.shopId;
+  return offer.shopId.name || "بدون متجر";
+};
+
+/** Get display name for the offer */
+const getOfferDisplayName = (offer: Offer): string => {
+  if (offer.nameAr) return offer.nameAr;
+  if (offer.nameEn) return offer.nameEn;
+  if (offer.offerType === "delivery") return "عرض توصيل";
+  return "بدون اسم";
+};
+
+/** Get offer type label and color */
+const getOfferTypeBadge = (
+  offer: Offer,
+): { label: string; color: "info" | "warning" | "success" } => {
+  switch (offer.offerType) {
+    case "package":
+      return { label: "حزمة مركبة", color: "warning" };
+    case "delivery":
+      return { label: "عرض توصيل", color: "success" };
+    case "single":
+    default:
+      return { label: "منتج واحد", color: "info" };
+  }
+};
 
 export default function OffersTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<typeof offers>([]);
+  const [searchResults, setSearchResults] = useState<Offer[]>([]);
   const [searchPages, setSearchPages] = useState(1);
 
   const { offers, loading, totalPages, refetch } = useOffers(page, limit);
@@ -56,7 +87,6 @@ export default function OffersTable() {
         }
       } catch {
         if (!cancelled) setSearchResults([]);
-      } finally {
       }
     }, 350);
     return () => {
@@ -146,6 +176,9 @@ export default function OffersTable() {
                 <TableRow>
                   <TableCell isHeader className="text-start font-medium">
                     العرض
+                  </TableCell>
+                  <TableCell isHeader className="text-start font-medium">
+                    نوع العرض
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     المتجر
@@ -255,51 +288,91 @@ export default function OffersTable() {
                         if (!t) return "-";
                         return new Date(t).toISOString().slice(0, 10);
                       };
+
+                      const typeBadge = getOfferTypeBadge(offer);
+
                       return (
                         <TableRow key={offer._id} className="break-words">
-                          {/* Offer (image + name + description) */}
+                          {/* Offer (image + name) */}
                           <TableCell className="break-words">
-                            <Link
-                              href={`/offers/${offer._id}`}
-                              className="hover:bg-brand-gray/20 dark:hover:bg-brand-gray/15 flex max-w-2xs items-center gap-3 px-5 py-4 break-words sm:px-6"
-                            >
-                              <Image
-                                width={40}
-                                height={40}
-                                src={
-                                  offer.image || "/images/logo/barq-logo.png"
-                                }
-                                alt={offer.nameAr}
-                                className="size-10 rounded-full object-cover"
-                              />
+                            <div className="flex max-w-2xs items-center gap-3 px-5 py-4 break-words sm:px-6">
+                              {offer.image ? (
+                                <Image
+                                  width={40}
+                                  height={40}
+                                  src={offer.image}
+                                  alt={getOfferDisplayName(offer)}
+                                  className="size-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex size-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                                  <MdLocalOffer className="h-5 w-5 text-gray-400" />
+                                </div>
+                              )}
                               <div className="min-w-0">
                                 <span className="block truncate font-medium text-gray-800 dark:text-white/90">
-                                  {offer.nameAr || offer.nameEn || "بدون اسم"}
+                                  {getOfferDisplayName(offer)}
                                 </span>
+                                {offer.descriptionAr && (
+                                  <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+                                    {offer.descriptionAr.length > 40
+                                      ? offer.descriptionAr.slice(0, 40) + "..."
+                                      : offer.descriptionAr}
+                                  </span>
+                                )}
                               </div>
-                            </Link>
+                            </div>
                           </TableCell>
+
+                          {/* Offer Type */}
+                          <TableCell className="px-4 py-3 text-start">
+                            <Badge
+                              size="sm"
+                              color={typeBadge.color}
+                              variant="light"
+                            >
+                              {typeBadge.label}
+                            </Badge>
+                          </TableCell>
+
                           {/* Vendor */}
                           <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
-                            {offer.shopId?.name || "بدون متجر"}
+                            {getVendorName(offer)}
                           </TableCell>
+
                           {/* Price & Discount */}
                           <TableCell className="px-4 py-3 text-start text-gray-700 dark:text-gray-300">
-                            {offer.product?.price != null ? (
+                            {offer.offerType === "package" ? (
+                              // Package: show package price + product count
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                  {offer.price?.toFixed(2)} ج.م
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {offer.products?.length || 0} منتجات
+                                </span>
+                              </div>
+                            ) : offer.offerType === "delivery" ? (
+                              // Delivery: show discount percentage
+                              <Badge size="sm" color="info" variant="light">
+                                {offer.discount ?? 0}% خصم توصيل
+                              </Badge>
+                            ) : offer.product?.price != null ? (
+                              // Single: show original price, discounted price, discount %
                               <div className="flex flex-col gap-1">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <span
-                                    className={`${offer.discount > 0 ? "text-[11px] text-gray-400 line-through dark:text-gray-500" : "text-sm text-gray-800 dark:text-gray-200"}`}
+                                    className={`${(offer.discount ?? 0) > 0 ? "text-[11px] text-gray-400 line-through dark:text-gray-500" : "text-sm text-gray-800 dark:text-gray-200"}`}
                                   >
                                     {offer.product.price.toFixed(2)} ج.م
                                   </span>
-                                  {offer.discount > 0 && (
+                                  {(offer.discount ?? 0) > 0 && (
                                     <span className="text-brand-600 dark:text-brand-300 text-sm font-semibold">
                                       {Math.max(
                                         0,
                                         offer.product.price -
                                           (offer.product.price *
-                                            offer.discount) /
+                                            (offer.discount ?? 0)) /
                                             100,
                                       )
                                         .toFixed(2)
@@ -309,22 +382,29 @@ export default function OffersTable() {
                                   )}
                                 </div>
                                 <Badge size="sm" color="info" variant="light">
-                                  {offer.discount > 0
-                                    ? offer.discount.toFixed(2)
+                                  {(offer.discount ?? 0) > 0
+                                    ? (offer.discount ?? 0).toFixed(2)
                                     : "0"}
                                   %
                                 </Badge>
                               </div>
                             ) : (
-                              <span className="text-xs text-gray-400">—</span>
+                              // Fallback: just show discount if available
+                              <span className="text-xs text-gray-400">
+                                {(offer.discount ?? 0) > 0
+                                  ? `${offer.discount}%`
+                                  : "—"}
+                              </span>
                             )}
                           </TableCell>
+
                           {/* Duration */}
                           <TableCell className="px-4 py-3 text-start text-xs text-gray-600 dark:text-gray-400">
                             {formatDate(offer.startDate) || "-"}
                             <MdOutlineKeyboardArrowLeft className="inline-block" />
                             {formatDate(offer.endDate) || "-"}
                           </TableCell>
+
                           {/* Status */}
                           <TableCell className="px-4 py-3 text-start text-gray-600 dark:text-gray-400">
                             <Badge
@@ -335,10 +415,11 @@ export default function OffersTable() {
                               {activeDerived ? "نشط" : "منتهي"}
                             </Badge>
                           </TableCell>
+
                           {/* Actions */}
                           <TableCell className="space-x-2">
                             <Link
-                              href={`/offers/${offer._id}`}
+                              href={`/offers/${offer._id}?type=${offer.offerType || "single"}`}
                               className="inline-block text-sm text-indigo-600 dark:text-indigo-400"
                               title="عرض العرض"
                             >

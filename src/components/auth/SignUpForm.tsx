@@ -165,7 +165,7 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition">
+                  <button className="bg-brand-blue shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition">
                     Sign Up
                   </button>
                 </div>
@@ -177,7 +177,7 @@ export default function SignUpForm() {
                 Already have an account?
                 <Link
                   href="/signin"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  className="text-brand-blue hover:text-brand-600 dark:text-brand-400"
                 >
                   Sign In
                 </Link>

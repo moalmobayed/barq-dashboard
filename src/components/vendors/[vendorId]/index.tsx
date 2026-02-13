@@ -186,7 +186,7 @@ export default function VendorDetailsComponent() {
                     vendor.subcategories.map((sc) => (
                       <span
                         key={sc._id}
-                        className="bg-brand-500/10 text-brand-600 dark:text-brand-300 rounded-full px-3 py-1 text-xs"
+                        className="bg-brand-blue/10 text-brand-600 dark:text-brand-300 rounded-full px-3 py-1 text-xs"
                       >
                         {sc.nameAr}
                       </span>

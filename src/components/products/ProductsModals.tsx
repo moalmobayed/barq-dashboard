@@ -813,7 +813,7 @@ export function AddProductModal({
                 </h6>
                 <button
                   type="button"
-                  className="text-brand-500 hover:text-brand-600 flex items-center gap-1 text-sm font-medium"
+                  className="text-brand-blue hover:text-brand-600 flex items-center gap-1 text-sm font-medium"
                   onClick={() => {
                     setFormData((prev) => ({
                       ...prev,
@@ -1020,7 +1020,7 @@ export function AddProductModal({
                       {/* Add Option Button */}
                       <button
                         type="button"
-                        className="bg-brand-500 hover:bg-brand-600 mt-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                        className="bg-brand-blue hover:bg-brand-600 mt-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white"
                         onClick={() => {
                           const newExts = [...formData.extensions];
                           newExts[extIdx] = {
@@ -1829,7 +1829,7 @@ export function EditProductModal({
                 </h6>
                 <button
                   type="button"
-                  className="text-brand-500 hover:text-brand-600 flex items-center gap-1 text-sm font-medium"
+                  className="text-brand-blue hover:text-brand-600 flex items-center gap-1 text-sm font-medium"
                   onClick={() => {
                     setFormData((prev) => ({
                       ...prev,
@@ -2007,7 +2007,7 @@ export function EditProductModal({
                       ))}
                       <button
                         type="button"
-                        className="bg-brand-500 hover:bg-brand-600 mt-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white"
+                        className="bg-brand-blue hover:bg-brand-600 mt-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white"
                         onClick={() => {
                           const n = [...formData.extensions];
                           n[extIdx] = {

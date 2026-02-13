@@ -214,9 +214,9 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
             {categoryshops.map((cat) => (
               <li
                 key={cat._id}
-                className="hover:border-brand-500 hover:bg-brand-500/5 hover:dark:border-brand-400 flex h-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 transition-all dark:border-white/10 dark:bg-white/[0.05]"
+                className="hover:border-brand-500 hover:bg-brand-blue/5 hover:dark:border-brand-400 flex h-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 transition-all dark:border-white/10 dark:bg-white/[0.05]"
               >
-                <span className="font-medium overflow-x-hidden text-gray-700 md:max-w-52 dark:text-white/80">
+                <span className="overflow-x-hidden font-medium text-gray-700 md:max-w-52 dark:text-white/80">
                   {cat.nameAr}
                 </span>
                 <span className="flex gap-2">

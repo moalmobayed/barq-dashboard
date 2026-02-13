@@ -203,7 +203,7 @@
 }
 
 @utility menu-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-brand-50 text-brand-blue dark:bg-brand-blue/[0.12] dark:text-brand-400;
 }
 
 @utility menu-item-inactive {
@@ -215,7 +215,7 @@
 }
 
 @utility menu-item-icon-active {
-  @apply text-brand-500 dark:text-brand-400;
+  @apply text-brand-blue dark:text-brand-400;
 }
 
 @utility menu-item-icon-inactive {
@@ -227,7 +227,7 @@
 }
 
 @utility menu-item-arrow-active {
-  @apply text-brand-500 dark:text-brand-400 rotate-180;
+  @apply text-brand-blue dark:text-brand-400 rotate-180;
 }
 
 @utility menu-item-arrow-inactive {
@@ -239,7 +239,7 @@
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-brand-50 text-brand-blue dark:bg-brand-blue/[0.12] dark:text-brand-400;
 }
 
 @utility menu-dropdown-item-inactive {
@@ -247,15 +247,15 @@
 }
 
 @utility menu-dropdown-badge {
-  @apply text-brand-500 dark:text-brand-400 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
+  @apply text-brand-blue dark:text-brand-400 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
 }
 
 @utility menu-dropdown-badge-active {
-  @apply bg-brand-100 dark:bg-brand-500/20;
+  @apply bg-brand-100 dark:bg-brand-blue/20;
 }
 
 @utility menu-dropdown-badge-inactive {
-  @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
+  @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-blue/15 dark:group-hover:bg-brand-blue/20;
 }
 
 @utility no-scrollbar {
@@ -465,7 +465,7 @@ span.flatpickr-weekday,
 .flatpickr-day.startRange.nextMonthDay,
 .flatpickr-day.endRange.nextMonthDay {
   background: #465fff;
-  @apply border-brand-500 bg-brand-500 hover:border-brand-50 hover:bg-brand-500;
+  @apply border-brand-500 bg-brand-blue hover:border-brand-50 hover:bg-brand-blue;
 }
 .flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n + 1)),
 .flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n + 1)),
@@ -537,7 +537,7 @@ span.flatpickr-weekday,
   @apply hidden;
 }
 .fc-addEventButton-button {
-  @apply !bg-brand-500 hover:!bg-brand-600 !rounded-lg !border-0 !px-4 !py-2.5 !text-sm !font-medium focus:!shadow-none;
+  @apply !bg-brand-blue hover:!bg-brand-600 !rounded-lg !border-0 !px-4 !py-2.5 !text-sm !font-medium focus:!shadow-none;
 }
 .fc-toolbar-title {
   @apply !text-lg !font-medium text-gray-800 dark:text-white/90;
@@ -618,7 +618,7 @@ span.flatpickr-weekday,
   @apply bg-error-500;
 }
 .event-fc-color.fc-bg-primary .fc-daygrid-event-dot {
-  @apply bg-brand-500;
+  @apply bg-brand-blue;
 }
 .event-fc-color.fc-bg-warning .fc-daygrid-event-dot {
   @apply bg-orange-500;
@@ -723,7 +723,7 @@ span.flatpickr-weekday,
   @apply !stroke-gray-200 dark:!stroke-gray-800;
 }
 .jvectormap-tip {
-  @apply !bg-brand-500 !border-none !px-2 !py-1;
+  @apply !bg-brand-blue !border-none !px-2 !py-1;
 }
 .jvectormap-zoomin,
 .jvectormap-zoomout {
@@ -731,17 +731,17 @@ span.flatpickr-weekday,
 }
 
 .form-check-input:checked ~ span {
-  @apply border-brand-500 bg-brand-500 dark:border-brand-500 border-[6px];
+  @apply border-brand-500 bg-brand-blue dark:border-brand-500 border-[6px];
 }
 
 .taskCheckbox:checked ~ .box span {
-  @apply bg-brand-500 opacity-100;
+  @apply bg-brand-blue opacity-100;
 }
 .taskCheckbox:checked ~ p {
   @apply text-gray-400 line-through;
 }
 .taskCheckbox:checked ~ .box {
-  @apply border-brand-500 bg-brand-500 dark:border-brand-500;
+  @apply border-brand-500 bg-brand-blue dark:border-brand-500;
 }
 
 .task {
@@ -756,5 +756,3 @@ span.flatpickr-weekday,
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
-
-

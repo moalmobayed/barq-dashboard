@@ -1,11 +1,32 @@
 // lib/api/offers.ts
 import axios from "axios";
-import { Offer, CreateOfferPayload } from "@/types/offer";
+import {
+  Offer,
+  CreateOfferPayload,
+  CreatePackageOfferPayload,
+  CreateDeliveryOfferPayload,
+} from "@/types/offer";
 import { BASE_URL } from "../config";
 import { authHeaders } from "./auth";
 
 export async function createOffer(payload: CreateOfferPayload) {
   return axios.post(`${BASE_URL}/offers`, payload, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+}
+
+export async function createPackageOffer(payload: CreatePackageOfferPayload) {
+  return axios.post(`${BASE_URL}/product/package`, payload, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+}
+
+export async function createDeliveryOffer(payload: CreateDeliveryOfferPayload) {
+  return axios.post(`${BASE_URL}/delivery-offer`, payload, {
     headers: {
       ...authHeaders(),
     },
@@ -41,6 +62,24 @@ export async function getSingleOffer(offerId: string): Promise<Offer> {
   return response.data.data;
 }
 
+export async function getSinglePackageOffer(offerId: string): Promise<Offer> {
+  const response = await axios.get(`${BASE_URL}/product/${offerId}`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return response.data.data;
+}
+
+export async function getSingleDeliveryOffer(offerId: string): Promise<Offer> {
+  const response = await axios.get(`${BASE_URL}/delivery-offer/${offerId}`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return response.data.data;
+}
+
 export const fetchOffers = async (
   page?: number,
   limit?: number,
@@ -52,9 +91,47 @@ export const fetchOffers = async (
     },
   });
 
+  // API may return a single object or an array
+  const raw = response.data.data;
+  const data: Offer[] = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
   return {
-    data: response.data.data,
-    pages: response.data.metadata.pages,
+    data,
+    pages: response.data.metadata?.pages ?? 1,
+  };
+};
+
+export const fetchDeliveryOffers = async (
+  page?: number,
+  limit?: number,
+): Promise<{ data: Offer[]; pages: number }> => {
+  const response = await axios.get(`${BASE_URL}/delivery-offer`, {
+    params: { page, limit },
+    headers: {
+      ...authHeaders(),
+    },
+  });
+
+  return {
+    data: response.data.data ?? [],
+    pages: response.data.metadata?.pages ?? 1,
+  };
+};
+
+export const fetchPackageOffers = async (
+  page?: number,
+  limit?: number,
+): Promise<{ data: Offer[]; pages: number }> => {
+  const response = await axios.get(`${BASE_URL}/product`, {
+    params: { productType: "package", page, limit },
+    headers: {
+      ...authHeaders(),
+    },
+  });
+
+  return {
+    data: response.data.data ?? [],
+    pages: response.data.metadata?.pages ?? 1,
   };
 };
 

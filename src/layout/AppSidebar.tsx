@@ -186,7 +186,7 @@ const AppSidebar: React.FC = () => {
                   className={`ms-auto h-5 w-5 transition-transform duration-200 ${
                     openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
-                      ? "text-brand-500 rotate-180"
+                      ? "text-brand-blue rotate-180"
                       : ""
                   }`}
                 />
