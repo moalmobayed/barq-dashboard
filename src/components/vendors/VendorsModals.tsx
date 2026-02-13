@@ -9,6 +9,7 @@ import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { ChevronDownIcon } from "../../../public/icons";
 import Select from "../form/Select";
+import Switch from "../form/switch/Switch";
 import MultiSelect from "../form/MultiSelect";
 import { Category } from "@/types/category";
 import { Subcategory } from "@/types/subcategory";
@@ -46,6 +47,8 @@ export function AddVendorModal({
     workingHours: [string, string];
     expectedTime: string;
     commissionRate: number;
+    deliveryValue: number;
+    isActive: boolean;
     profileImage: File;
     coverImage: File;
     category: string;
@@ -58,6 +61,8 @@ export function AddVendorModal({
     workingHours: ["07:00", "15:00"],
     expectedTime: "",
     commissionRate: 0,
+    deliveryValue: 0,
+    isActive: true,
     profileImage: new File([], ""), // Initialize with an empty file
     coverImage: new File([], ""), // Initialize with an empty file
     category: "",
@@ -587,6 +592,8 @@ export function AddVendorModal({
         workingHours: formData.workingHours,
         expectedTime: formData.expectedTime,
         commissionRate: formData.commissionRate,
+        deliveryValue: formData.deliveryValue,
+        isActive: formData.isActive,
         profileImage: profileImageUrl,
         coverImage: coverImageUrl,
         category: formData.category,
@@ -616,6 +623,8 @@ export function AddVendorModal({
         workingHours: ["07:00", "15:00"],
         expectedTime: "",
         commissionRate: 0,
+        deliveryValue: 0,
+        isActive: true,
         profileImage: new File([], ""), // Initialize with an empty file
         coverImage: new File([], ""), // Initialize with an empty file
         category: "",
@@ -654,6 +663,8 @@ export function AddVendorModal({
       workingHours: ["07:00", "15:00"],
       expectedTime: "",
       commissionRate: 0,
+      deliveryValue: 0,
+      isActive: true,
       profileImage: new File([], ""), // Initialize with an empty file
       coverImage: new File([], ""), // Initialize with an empty file
       category: "",
@@ -846,6 +857,26 @@ export function AddVendorModal({
                   />
                 </div>
 
+                {/* Delivery Value */}
+                <div>
+                  <Label>تكلفة التوصيل</Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 15"
+                    value={formData.deliveryValue}
+                    onChange={(e) => {
+                      const numbersOnly = e.target.value.replace(/[^0-9]/g, "");
+                      const limitedValue = numbersOnly.slice(0, 5);
+                      const numValue = parseInt(limitedValue) || 0;
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryValue: numValue,
+                      }));
+                    }}
+                    min="0"
+                  />
+                </div>
+
                 {/* Status */}
                 <div>
                   <Label>
@@ -854,7 +885,7 @@ export function AddVendorModal({
                   <div className="relative">
                     <Select
                       options={[
-                        { value: "active", label: "نشط" },
+                        { value: "active", label: "فعال" },
                         { value: "blocked", label: "محظور" },
                       ]}
                       placeholder="اختر الحالة"
@@ -866,6 +897,21 @@ export function AddVendorModal({
                       <ChevronDownIcon />
                     </span>
                   </div>
+                </div>
+
+                {/* isActive */}
+                <div>
+                  <Label>نشط / غير نشط</Label>
+                  <Switch
+                    label=""
+                    defaultChecked={formData.isActive}
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        isActive: !prev.isActive,
+                      }))
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -1007,8 +1053,10 @@ export function EditVendorModal({
     location: string;
     workingHours: [string, string];
     status: string;
+    isActive: boolean;
     expectedTime: string;
     commissionRate: number;
+    deliveryValue: number;
     profileImage: File | string;
     coverImage: File | string;
     category: string;
@@ -1023,8 +1071,10 @@ export function EditVendorModal({
         ? vendor.workingHours
         : ["07:00", "15:00"],
     status: vendor.status || "active",
+    isActive: vendor.isActive !== undefined ? vendor.isActive : true,
     expectedTime: vendor.expectedTime || "",
     commissionRate: vendor.commissionRate || 0,
+    deliveryValue: vendor.deliveryValue || 0,
     profileImage: vendor.profileImage || "",
     coverImage: vendor.coverImage || "",
     category: vendor.category?._id || "",
@@ -1447,8 +1497,10 @@ export function EditVendorModal({
         location: formData.location,
         workingHours: formData.workingHours,
         status: formData.status,
+        isActive: formData.isActive,
         expectedTime: formData.expectedTime,
         commissionRate: formData.commissionRate,
+        deliveryValue: formData.deliveryValue,
         profileImage: profileImageUrl,
         coverImage: coverImageUrl,
         category: formData.category,
@@ -1505,8 +1557,10 @@ export function EditVendorModal({
           ? vendor.workingHours
           : ["07:00", "15:00"],
       status: vendor.status || "active",
+      isActive: vendor.isActive !== undefined ? vendor.isActive : true,
       expectedTime: vendor.expectedTime || "",
       commissionRate: vendor.commissionRate || 0,
+      deliveryValue: vendor.deliveryValue || 0,
       profileImage: vendor.profileImage || "",
       coverImage: vendor.coverImage || "",
       category: vendor.category?._id || "",
@@ -1677,12 +1731,31 @@ export function EditVendorModal({
                     step={1}
                   />
                 </div>
+                {/* Delivery Value */}
+                <div>
+                  <Label>تكلفة التوصيل</Label>
+                  <Input
+                    type="number"
+                    placeholder="مثال: 15"
+                    value={formData.deliveryValue}
+                    onChange={(e) => {
+                      const numbersOnly = e.target.value.replace(/[^0-9]/g, "");
+                      const limitedValue = numbersOnly.slice(0, 5);
+                      const numValue = parseInt(limitedValue) || 0;
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryValue: numValue,
+                      }));
+                    }}
+                    min="0"
+                  />
+                </div>
                 <div>
                   <Label>الحالة</Label>
                   <div className="relative">
                     <Select
                       options={[
-                        { value: "active", label: "نشط" },
+                        { value: "active", label: "فعال" },
                         { value: "blocked", label: "محظور" },
                       ]}
                       placeholder="اختر الحالة"
@@ -1694,6 +1767,20 @@ export function EditVendorModal({
                       <ChevronDownIcon />
                     </span>
                   </div>
+                </div>
+                {/* isActive */}
+                <div>
+                  <Label>نشط / غير نشط</Label>
+                  <Switch
+                    label=""
+                    defaultChecked={formData.isActive}
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        isActive: !prev.isActive,
+                      }))
+                    }
+                  />
                 </div>
               </div>
             </div>

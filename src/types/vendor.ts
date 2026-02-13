@@ -9,8 +9,10 @@ export interface CreateVendorPayload {
   location: string;
   workingHours: [string, string];
   status?: string;
+  isActive?: boolean;
   expectedTime: string;
   commissionRate: number;
+  deliveryValue?: number;
   profileImage: string;
   coverImage?: string;
   category: string;
@@ -27,11 +29,13 @@ export interface Vendor {
   coverImage?: string;
   role: string;
   status?: string;
+  isActive?: boolean;
   location?: string;
   rating?: number;
   workingHours?: [string, string];
   expectedTime: string;
   commissionRate?: number;
+  deliveryValue?: number;
   category?: Category;
   subcategories?: Subcategory[];
   reviewCount?: number;
