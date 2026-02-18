@@ -343,14 +343,47 @@ export default function OffersTable() {
                           {/* Price & Discount */}
                           <TableCell className="px-4 py-3 text-start text-gray-700 dark:text-gray-300">
                             {offer.offerType === "package" ? (
-                              // Package: show package price + product count
+                              // Package: show original price, discounted price, discount %
                               <div className="flex flex-col gap-1">
-                                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                  {offer.price?.toFixed(2)} ج.م
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {offer.products?.length || 0} منتجات
-                                </span>
+                                {offer.product?.price != null ? (
+                                  <>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span
+                                        className={`${(offer.discount ?? 0) > 0 ? "text-[11px] text-gray-400 line-through dark:text-gray-500" : "text-sm text-gray-800 dark:text-gray-200"}`}
+                                      >
+                                        {offer.product.price.toFixed(2)} ج.م
+                                      </span>
+                                      {(offer.discount ?? 0) > 0 && (
+                                        <span className="text-brand-600 dark:text-brand-300 text-sm font-semibold">
+                                          {Math.max(
+                                            0,
+                                            offer.product.price -
+                                              (offer.product.price *
+                                                (offer.discount ?? 0)) /
+                                                100,
+                                          )
+                                            .toFixed(2)
+                                            .replace(/\.?0+$/, "")}{" "}
+                                          ج.م
+                                        </span>
+                                      )}
+                                    </div>
+                                    <Badge
+                                      size="sm"
+                                      color="info"
+                                      variant="light"
+                                    >
+                                      {(offer.discount ?? 0) > 0
+                                        ? (offer.discount ?? 0).toFixed(2)
+                                        : "0"}
+                                      %
+                                    </Badge>
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-gray-400">
+                                    —
+                                  </span>
+                                )}
                               </div>
                             ) : offer.offerType === "delivery" ? (
                               // Delivery: show discount percentage

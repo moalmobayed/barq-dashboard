@@ -80,10 +80,21 @@ export async function getSingleDeliveryOffer(offerId: string): Promise<Offer> {
   return response.data.data;
 }
 
-export const fetchOffers = async (
+export const fetchAllOffers = async (
   page?: number,
   limit?: number,
-): Promise<{ data: Offer[]; pages: number }> => {
+): Promise<{
+  offers: Offer[];
+  deliveryOffers: Offer[];
+  metadata: {
+    page: number;
+    limit: number;
+    offerTotal: number;
+    deliveryTotal: number;
+    total: number;
+    pages: number;
+  };
+}> => {
   const response = await axios.get(`${BASE_URL}/offers/admin`, {
     params: { page, limit },
     headers: {
@@ -91,13 +102,18 @@ export const fetchOffers = async (
     },
   });
 
-  // API may return a single object or an array
-  const raw = response.data.data;
-  const data: Offer[] = Array.isArray(raw) ? raw : raw ? [raw] : [];
-
+  const data = response.data.data;
   return {
-    data,
-    pages: response.data.metadata?.pages ?? 1,
+    offers: data?.offers ?? [],
+    deliveryOffers: data?.deliveryOffers ?? [],
+    metadata: response.data.metadata ?? {
+      page: 1,
+      limit: 20,
+      offerTotal: 0,
+      deliveryTotal: 0,
+      total: 0,
+      pages: 1,
+    },
   };
 };
 
