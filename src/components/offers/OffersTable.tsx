@@ -464,6 +464,7 @@ export default function OffersTable() {
                             />
                             <DeleteOfferButton
                               offerId={offer._id}
+                              offerType={offer.offerType}
                               onSuccess={refetch}
                             />
                           </TableCell>

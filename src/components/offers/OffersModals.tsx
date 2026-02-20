@@ -15,6 +15,7 @@ import {
   createPackageOffer,
   createDeliveryOffer,
   deleteOffer,
+  deleteDeliveryOffer,
   updateOffer,
 } from "@/lib/api/offers";
 import { uploadImage } from "@/lib/api/uploadImage";
@@ -1464,12 +1465,17 @@ export function DeleteOfferModal({
   isOpen = false,
   closeModal = () => {},
   offerId = "",
+  offerType = "",
   onSuccess = () => {},
 }) {
   const [toast, setToast] = useState<AlertProps | null>(null);
   const handleDelete = async () => {
     try {
-      await deleteOffer(offerId);
+      if (offerType === "delivery") {
+        await deleteDeliveryOffer(offerId);
+      } else {
+        await deleteOffer(offerId);
+      }
       setToast({
         variant: "success",
         title: "نجح الحذف",
@@ -1523,9 +1529,11 @@ export function DeleteOfferModal({
 
 export function DeleteOfferButton({
   offerId,
+  offerType,
   onSuccess,
 }: {
   offerId: string;
+  offerType?: string;
   onSuccess?: () => void;
 }) {
   const { isOpen, openModal, closeModal } = useModal();
@@ -1542,6 +1550,7 @@ export function DeleteOfferButton({
         isOpen={isOpen}
         closeModal={closeModal}
         offerId={offerId}
+        offerType={offerType}
         onSuccess={handleAfterDelete}
       />
     </>

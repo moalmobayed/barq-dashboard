@@ -53,6 +53,14 @@ export async function deleteOffer(offerId: string) {
   });
 }
 
+export async function deleteDeliveryOffer(offerId: string) {
+  return axios.delete(`${BASE_URL}/delivery-offer/${offerId}`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+}
+
 export async function getSingleOffer(offerId: string): Promise<Offer> {
   const response = await axios.get(`${BASE_URL}/offers/${offerId}`, {
     headers: {

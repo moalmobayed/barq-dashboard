@@ -483,6 +483,7 @@ export default function OfferDetailsComponent() {
                 />
                 <DeleteOfferButton
                   offerId={offer._id}
+                  offerType={offer.offerType}
                   onSuccess={() => router.push("/offers")}
                 />
               </div>
