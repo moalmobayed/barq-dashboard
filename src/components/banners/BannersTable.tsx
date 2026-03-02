@@ -85,7 +85,7 @@ export default function BannersTable() {
       try {
         const { data, pages } = await fetchBannersByKeyword(
           trimmed,
-          page,
+          1,
           limit,
         );
         if (!cancelled) {

@@ -37,7 +37,7 @@ export default function TownsTable() {
     let cancelled = false;
     const t = setTimeout(async () => {
       try {
-        const { data, pages } = await fetchTownsByKeyword(trimmed, page, limit);
+        const { data, pages } = await fetchTownsByKeyword(trimmed, 1, limit);
         if (!cancelled) {
           setSearchResults(data);
           setSearchPages(pages);

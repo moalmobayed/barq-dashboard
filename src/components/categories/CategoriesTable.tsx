@@ -47,7 +47,7 @@ export default function CategoriesTable() {
       try {
         const { data, pages } = await fetchCategoriesByKeyword(
           trimmed,
-          page,
+          1,
           limit,
         );
         if (!cancelled) {

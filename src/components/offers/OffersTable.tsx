@@ -78,7 +78,7 @@ export default function OffersTable() {
       try {
         const { data, pages } = await fetchOffersByKeyword(
           trimmed,
-          page,
+          1,
           limit,
         );
         if (!cancelled) {

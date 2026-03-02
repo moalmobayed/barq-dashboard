@@ -43,7 +43,7 @@ export default function CustomersTable() {
       try {
         const { data, pages } = await fetchCustomersByKeyword(
           trimmed,
-          page,
+          1,
           limit,
         );
         if (!cancelled) {

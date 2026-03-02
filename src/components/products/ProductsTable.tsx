@@ -81,7 +81,7 @@ export default function ProductsTable() {
       try {
         const { data, pages } = await fetchProductsByKeyword(
           trimmed,
-          page,
+          1,
           limit,
         );
         if (!cancelled) {

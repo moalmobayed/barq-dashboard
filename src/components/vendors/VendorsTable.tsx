@@ -47,7 +47,7 @@ export default function VendorsTable() {
       try {
         const { data, pages } = await fetchVendorsByKeyword(
           trimmed,
-          page,
+          1,
           limit,
         );
         if (!cancelled) {
