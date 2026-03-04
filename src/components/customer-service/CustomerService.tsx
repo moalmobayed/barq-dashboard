@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/tickets";
 import { Chat, Message } from "@/types/customerservice";
 import { getAuthToken } from "@/lib/api/auth";
+import { SOCKET_URL } from "@/lib/config";
 
 export default function CustomerServiceComponent() {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -120,16 +121,7 @@ export default function CustomerServiceComponent() {
   useEffect(() => {
     const token = getAuthToken();
 
-    // Define multiple socket URL options for production
-    let socketUrl: string;
-
-    if (process.env.NODE_ENV === "production") {
-      // Primary: Same domain without port (most common for production)
-      socketUrl = "https://api.barqshipping.com";
-    } else {
-      // Local development - use HTTP
-      socketUrl = "http://api.barqshipping.com:4000";
-    }
+    const socketUrl = SOCKET_URL;
 
     const newSocket = io(socketUrl, {
       path: "/socket.io/", // Explicitly set the socket.io path

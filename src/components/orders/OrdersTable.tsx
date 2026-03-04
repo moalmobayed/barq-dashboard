@@ -18,6 +18,7 @@ import Link from "next/link";
 import { getOrderSummary } from "@/lib/api/dashboard";
 import io from "socket.io-client";
 import { getAuthToken } from "@/lib/api/auth";
+import { SOCKET_URL } from "@/lib/config";
 import { MdShoppingCart } from "react-icons/md";
 import DatePicker from "../form/date-picker";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
@@ -129,10 +130,7 @@ export default function OrdersTable() {
 
   useEffect(() => {
     const token = getAuthToken();
-    const socketUrl =
-      process.env.NODE_ENV === "production"
-        ? "https://api.barqshipping.com"
-        : "http://api.barqshipping.com:4000";
+    const socketUrl = SOCKET_URL;
 
     const socket = io(socketUrl, {
       path: "/socket.io/",
