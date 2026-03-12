@@ -101,3 +101,17 @@ export async function getAgentSummary(params: {
   });
   return res.data;
 }
+
+export async function getAgentHistory(
+  agentId: string,
+  params: { page?: number; limit?: number },
+) {
+  const res = await axios.get(
+    `${BASE_URL}/admin/dashboard/agent/history/${agentId}`,
+    {
+      params,
+      headers: { ...authHeaders() },
+    },
+  );
+  return res.data;
+}

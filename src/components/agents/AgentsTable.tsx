@@ -21,6 +21,8 @@ import { getAgentSummary } from "@/lib/api/dashboard";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import DatePicker from "../form/date-picker";
 import Image from "next/image";
+import { FaReceipt } from "react-icons/fa";
+import AgentTransactionsModal from "./AgentTransactionsModal";
 
 const limits = [5, 10, 20, 50];
 
@@ -69,6 +71,10 @@ export default function AgentsTable() {
   const [summaryData, setSummaryData] = useState<SummaryMetadata | null>(null);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
+
+  // Transactions modal state
+  const [txModalOpen, setTxModalOpen] = useState(false);
+  const [txAgent, setTxAgent] = useState<{ id: string; name: string } | null>(null);
 
   const fetchSummary = useCallback(async () => {
     setTableLoading(true);
@@ -288,6 +294,19 @@ export default function AgentsTable() {
                           {agentData.barqEarnFromDelivery?.toLocaleString()} ج.م
                         </TableCell>
                         <TableCell className="space-x-2">
+                          <button
+                            onClick={() => {
+                              setTxAgent({
+                                id: agentData.deliveryAgent._id,
+                                name: agentData.deliveryAgent.name,
+                              });
+                              setTxModalOpen(true);
+                            }}
+                            className="inline-block text-sm text-indigo-600 transition-colors hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            title="سجل المعاملات"
+                          >
+                            <FaReceipt />
+                          </button>
                           <EditAgentButton
                             agent={agentData.deliveryAgent}
                             onSuccess={fetchSummary}
@@ -378,6 +397,19 @@ export default function AgentsTable() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Agent Transactions Modal */}
+      {txAgent && (
+        <AgentTransactionsModal
+          isOpen={txModalOpen}
+          onClose={() => {
+            setTxModalOpen(false);
+            setTxAgent(null);
+          }}
+          agentId={txAgent.id}
+          agentName={txAgent.name}
+        />
       )}
     </div>
   );
