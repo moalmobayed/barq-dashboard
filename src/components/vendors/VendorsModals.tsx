@@ -885,7 +885,7 @@ export function AddVendorModal({
                   <div className="relative">
                     <Select
                       options={[
-                        { value: "active", label: "فعال" },
+                        { value: "active", label: "مفعل" },
                         { value: "blocked", label: "محظور" },
                       ]}
                       placeholder="اختر الحالة"
@@ -901,7 +901,7 @@ export function AddVendorModal({
 
                 {/* isActive */}
                 <div>
-                  <Label>نشط / غير نشط</Label>
+                  <Label>حالة النشاط</Label>
                   <Switch
                     label=""
                     defaultChecked={formData.isActive}
@@ -1755,7 +1755,7 @@ export function EditVendorModal({
                   <div className="relative">
                     <Select
                       options={[
-                        { value: "active", label: "فعال" },
+                        { value: "active", label: "مفعل" },
                         { value: "blocked", label: "محظور" },
                       ]}
                       placeholder="اختر الحالة"
@@ -1770,7 +1770,7 @@ export function EditVendorModal({
                 </div>
                 {/* isActive */}
                 <div>
-                  <Label>نشط / غير نشط</Label>
+                  <Label>حالة النشاط</Label>
                   <Switch
                     label=""
                     defaultChecked={formData.isActive}

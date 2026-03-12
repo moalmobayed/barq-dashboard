@@ -85,3 +85,19 @@ export const getAllVendors = async (): Promise<{
     data: response.data.data,
   };
 };
+
+export const updateVendorsActive = async (
+  vendors: string[],
+  isActive: boolean,
+) => {
+  const response = await axios.patch(
+    `${BASE_URL}/admin/vendors/active`,
+    { vendors, isActive },
+    {
+      headers: {
+        ...authHeaders(),
+      },
+    },
+  );
+  return response.data;
+};

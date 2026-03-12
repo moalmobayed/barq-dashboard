@@ -21,8 +21,12 @@ import {
 import { FaEye } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import Link from "next/link";
-import { fetchVendorsByKeyword } from "@/lib/api/vendors";
+import { fetchVendorsByKeyword, updateVendorsActive } from "@/lib/api/vendors";
 import { MdStore } from "react-icons/md";
+import { Category } from "@/types/category";
+import { Subcategory } from "@/types/subcategory";
+import { fetchCategories } from "@/lib/api/categories";
+import { fetchSubcategoriesByCategory } from "@/lib/api/subcategories";
 
 const limits = [5, 10, 20, 50];
 
@@ -33,7 +37,37 @@ export default function VendorsTable() {
   const [searchResults, setSearchResults] = useState<typeof vendors>([]);
   const [searchPages, setSearchPages] = useState(1);
 
+  // Category & Subcategory filter state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+
+  // Multi-select state
+  const [selectedVendors, setSelectedVendors] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+
   const { vendors, loading, totalPages, refetch } = useVendors(page, limit);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories()
+      .then(({ data }) => setCategories(data))
+      .catch(() => setCategories([]));
+  }, []);
+
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (!selectedCategory) {
+      setSubcategories([]);
+      setSelectedSubcategory("");
+      return;
+    }
+    fetchSubcategoriesByCategory(selectedCategory)
+      .then(({ data }) => setSubcategories(data))
+      .catch(() => setSubcategories([]));
+    setSelectedSubcategory("");
+  }, [selectedCategory]);
 
   useEffect(() => {
     const trimmed = searchTerm.trim();
@@ -68,9 +102,60 @@ export default function VendorsTable() {
 
   const filteredVendors = useMemo(() => {
     const trimmed = searchTerm.trim();
-    if (!trimmed) return vendors;
-    return searchResults;
-  }, [vendors, searchResults, searchTerm]);
+    let list = trimmed ? searchResults : vendors;
+
+    // Filter by category
+    if (selectedCategory) {
+      list = list.filter((v) => v.category?._id === selectedCategory);
+    }
+
+    // Filter by subcategory
+    if (selectedSubcategory) {
+      list = list.filter((v) =>
+        v.subcategories?.some((sc) => sc._id === selectedSubcategory),
+      );
+    }
+
+    return list;
+  }, [vendors, searchResults, searchTerm, selectedCategory, selectedSubcategory]);
+
+  // Selection helpers
+  const isAllSelected =
+    filteredVendors.length > 0 &&
+    filteredVendors.every((v) => selectedVendors.has(v._id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedVendors(new Set());
+    } else {
+      setSelectedVendors(new Set(filteredVendors.map((v) => v._id)));
+    }
+  };
+
+  const toggleSelectVendor = (id: string) => {
+    setSelectedVendors((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkAction = async (isActive: boolean) => {
+    setBulkLoading(true);
+    try {
+      await updateVendorsActive(Array.from(selectedVendors), isActive);
+      setSelectedVendors(new Set());
+      refetch();
+    } catch (error) {
+      console.error("Error updating vendors:", error);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
 
   const effectiveTotalPages = useMemo(() => {
     const trimmed = searchTerm.trim();
@@ -82,37 +167,106 @@ export default function VendorsTable() {
     <div className="space-y-4">
       {/* Card Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        {/* Search Input */}
-        <div className="relative w-full sm:max-w-sm">
-          <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2">
-            <svg
-              className="fill-gray-500 dark:fill-gray-400"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                fill=""
-              />
-            </svg>
-          </span>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="البحث عن متاجر..."
-            className="h-11 w-full rounded-lg border border-gray-500 bg-transparent py-2.5 ps-12 pe-14 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-          />
+        <div className="flex max-w-full flex-wrap items-center gap-4">
+          {/* Search Input */}
+          <div className="relative w-full sm:max-w-sm">
+            <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2">
+              <svg
+                className="fill-gray-500 dark:fill-gray-400"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                  fill=""
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="البحث عن متاجر..."
+              className="h-11 w-full rounded-lg border border-gray-500 bg-transparent py-2.5 ps-12 pe-14 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-1 focus:outline-hidden dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setPage(1);
+            }}
+            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
+          >
+            <option value="">كل الفئات</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.nameAr}
+              </option>
+            ))}
+          </select>
+
+          {/* Subcategory Filter */}
+          <select
+            value={selectedSubcategory}
+            onChange={(e) => {
+              setSelectedSubcategory(e.target.value);
+              setPage(1);
+            }}
+            disabled={!selectedCategory}
+            className="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90"
+          >
+            <option value="">كل الفئات الفرعية</option>
+            {subcategories.map((sub) => (
+              <option key={sub._id} value={sub._id}>
+                {sub.nameAr}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Add Vendor Button */}
         <AddVendorButton onSuccess={refetch} />
       </div>
+      {/* Bulk Actions Bar */}
+      {selectedVendors.size > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-950/40">
+          <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+            تم تحديد {selectedVendors.size} متجر
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleBulkAction(true)}
+              disabled={bulkLoading}
+              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+            >
+              {bulkLoading ? "جارٍ التحديث..." : "تنشيط"}
+            </button>
+            <button
+              onClick={() => handleBulkAction(false)}
+              disabled={bulkLoading}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+            >
+              {bulkLoading ? "جارٍ التحديث..." : "إلغاء النشاط"}
+            </button>
+            <button
+              onClick={() => setSelectedVendors(new Set())}
+              disabled={bulkLoading}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              إلغاء التحديد
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Limit Selector */}
       <div className="flex items-center justify-end gap-2">
         <label
@@ -144,6 +298,14 @@ export default function VendorsTable() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableCell isHeader className="w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={toggleSelectAll}
+                      className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                  </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     المتجر
                   </TableCell>
@@ -154,7 +316,7 @@ export default function VendorsTable() {
                     معدل العمولة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    الوضع
+                    الحالة
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     التقييم
@@ -217,7 +379,7 @@ export default function VendorsTable() {
                   {filteredVendors.length === 0 ? (
                     <TableRow>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -234,6 +396,14 @@ export default function VendorsTable() {
                   ) : (
                     filteredVendors.map((vendor) => (
                       <TableRow key={vendor._id}>
+                        <TableCell className="w-12 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedVendors.has(vendor._id)}
+                            onChange={() => toggleSelectVendor(vendor._id)}
+                            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          />
+                        </TableCell>
                         <TableCell className="text-start">
                           <Link
                             href={`/vendors/${vendor._id}`}
@@ -272,7 +442,7 @@ export default function VendorsTable() {
                             color={vendor.status === "active" ? "success" : "error"}
                             variant="light"
                           >
-                            {vendor.status === "active" ? "فعال" : "محظور"}
+                            {vendor.status === "active" ? "مفعل" : "محظور"}
                           </Badge>
                         </TableCell>
                         <TableCell>⭐ {vendor.rating}</TableCell>
