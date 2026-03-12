@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Modal } from "@/components/ui/modal";
-import { getAgentHistory } from "@/lib/api/dashboard";
+import { getAgentHistory, resetAgentHistory } from "@/lib/api/dashboard";
 import Badge from "@/components/ui/badge/Badge";
 import Image from "next/image";
 import Skeleton from "react-loading-skeleton";
@@ -67,6 +67,9 @@ export default function AgentTransactionsModal({
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [showResetPicker, setShowResetPicker] = useState(false);
+  const [resetDate, setResetDate] = useState("");
+  const [resetting, setResetting] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const fetchTransactions = useCallback(
@@ -108,6 +111,24 @@ export default function AgentTransactionsModal({
     }
   }, [isOpen, agentId, fetchTransactions]);
 
+  const handleReset = async () => {
+    if (!resetDate) return;
+    setResetting(true);
+    try {
+      await resetAgentHistory(agentId, new Date(resetDate).toISOString());
+      setShowResetPicker(false);
+      setResetDate("");
+      setPage(1);
+      setTransactions([]);
+      setSummary(null);
+      fetchTransactions(1, false);
+    } catch (error) {
+      console.error("Error resetting agent history:", error);
+    } finally {
+      setResetting(false);
+    }
+  };
+
   // Infinite scroll handler
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -141,6 +162,45 @@ export default function AgentTransactionsModal({
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             سجل المعاملات - {agentName}
           </h3>
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowResetPicker((v) => !v)}
+              className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
+            >
+              إعادة تعيين البيانات
+            </button>
+          </div>
+
+          {/* Reset Date Picker */}
+          {showResetPicker && (
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="datetime-local"
+                value={resetDate}
+                onChange={(e) => setResetDate(e.target.value)}
+                className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+              />
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={!resetDate || resetting}
+                className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {resetting ? "جاري..." : "تأكيد"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowResetPicker(false);
+                  setResetDate("");
+                }}
+                className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
+                إلغاء
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Summary Cards */}
@@ -159,7 +219,7 @@ export default function AgentTransactionsModal({
                 الإجمالي
               </p>
               <p className="text-sm font-bold text-gray-900 dark:text-white">
-                {summary.total?.toLocaleString()} ج.م
+                {summary.totalWithDelivery?.toLocaleString()} ج.م
               </p>
             </div>
             <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
@@ -296,7 +356,7 @@ export default function AgentTransactionsModal({
                         الإجمالي:{" "}
                       </span>
                       <span className="font-medium text-gray-700 dark:text-gray-300">
-                        {tx.total?.toLocaleString()} ج.م
+                        {tx.totalWithDelivery?.toLocaleString()} ج.م
                       </span>
                     </div>
                     <div>

@@ -115,3 +115,17 @@ export async function getAgentHistory(
   );
   return res.data;
 }
+
+export async function resetAgentHistory(
+  agentId: string,
+  resetDate: string,
+) {
+  const res = await axios.patch(
+    `${BASE_URL}/admin/users/${agentId}`,
+    { resetDate },
+    {
+      headers: { ...authHeaders() },
+    },
+  );
+  return res.data;
+}
