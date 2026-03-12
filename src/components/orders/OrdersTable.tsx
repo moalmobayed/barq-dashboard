@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Table,
@@ -26,6 +27,7 @@ import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 const limits = [5, 10, 20, 50];
 
 export default function OrdersTable() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [agentSearchTerm, setAgentSearchTerm] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
@@ -358,7 +360,7 @@ export default function OrdersTable() {
                 </TableRow>
               ) : (
                 orders.map((order) => (
-                  <TableRow key={order._id} className="overflow-x-scroll">
+                  <TableRow key={order._id} className="overflow-x-scroll cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02]" onClick={() => router.push(`/orders/${order._id}`)}>
                     <TableCell>
                       <Link
                         href={`/orders/${order._id}`}
