@@ -141,9 +141,9 @@ export function AddProductModal({
 
     // Check for invalid characters (only allow Arabic letters, numbers, and spaces)
     const validPattern =
-      /^[\u0600-\u06FF0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+      /^[\u0600-\u06FFa-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف العربية والأرقام والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والانجليزية والأرقام والمسافات فقط";
     }
 
     return "";
@@ -1225,9 +1225,9 @@ export function EditProductModal({
 
     // Check for invalid characters (only allow Arabic letters, numbers, and spaces)
     const validPattern =
-      /^[\u0600-\u06FF0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+      /^[\u0600-\u06FFa-zA-Z0-9\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف العربية والأرقام والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والانجليزية والأرقام والمسافات فقط";
     }
 
     return "";

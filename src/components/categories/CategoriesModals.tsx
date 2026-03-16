@@ -57,11 +57,10 @@ export function AddCategoryModal({
       return "يجب أن لا يقل الاسم عن حرفين";
     }
 
-    // Check for invalid characters (only allow Arabic letters and spaces)
     const validPattern =
-      /^[\u0600-\u06FF\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف العربية والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والانجليزية والمسافات فقط";
     }
 
     return "";
@@ -499,9 +498,9 @@ export function EditCategoryModal({
 
     // Check for invalid characters (only allow Arabic letters and spaces)
     const validPattern =
-      /^[\u0600-\u06FF\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف العربية والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والانجليزية والمسافات فقط";
     }
 
     return "";

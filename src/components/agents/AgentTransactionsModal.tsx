@@ -53,7 +53,7 @@ interface AgentTransactionsModalProps {
   agentName: string;
 }
 
-const LIMIT = 10;
+const LIMIT = 3;
 
 export default function AgentTransactionsModal({
   isOpen,

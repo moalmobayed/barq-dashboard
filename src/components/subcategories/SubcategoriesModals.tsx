@@ -78,9 +78,9 @@ export function AddSubcategoryModal({
 
     // Check for invalid characters (only allow Arabic letters and spaces)
     const validPattern =
-      /^[\u0600-\u06FF\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف العربية والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والانجليزية والمسافات فقط";
     }
 
     return "";
@@ -518,9 +518,9 @@ export function EditSubcategoryModal({
 
     // Check for invalid characters (only allow Arabic letters and spaces)
     const validPattern =
-      /^[\u0600-\u06FF\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
+      /^[\u0600-\u06FFa-zA-Z\s!@#$%^&*()_+={}\[\]|\\:;"'<>,.?/~`\-]+$/;
     if (!validPattern.test(normalizedName)) {
-      return "الاسم يقبل الحروف العربية والمسافات فقط";
+      return "الاسم يقبل الحروف العربية والانجليزية والمسافات فقط";
     }
 
     return "";
