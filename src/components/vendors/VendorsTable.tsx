@@ -17,6 +17,7 @@ import {
   AddVendorButton,
   DeleteVendorButton,
   EditVendorButton,
+  CloseAllVendorsButton,
 } from "./VendorsModals";
 import { FaEye } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
@@ -233,7 +234,10 @@ export default function VendorsTable() {
         </div>
 
         {/* Add Vendor Button */}
-        <AddVendorButton onSuccess={refetch} />
+        <div className="flex items-center gap-2">
+          <CloseAllVendorsButton onSuccess={refetch} />
+          <AddVendorButton onSuccess={refetch} />
+        </div>
       </div>
       {/* Bulk Actions Bar */}
       {selectedVendors.size > 0 && (
