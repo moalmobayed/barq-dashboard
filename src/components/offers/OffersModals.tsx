@@ -20,6 +20,8 @@ import {
   getSingleOffer,
   getSinglePackageOffer,
   updatePackageOffer,
+  getSingleDeliveryOffer,
+  updateDeliveryOffer,
 } from "@/lib/api/offers";
 import { uploadImage } from "@/lib/api/uploadImage";
 import {
@@ -1061,18 +1063,28 @@ export function EditOfferModal({
         let fetchedData: any;
         if (type === "package") {
           const packageOfferId = o.product?._id || o.product?.id || o._id;
-          fetchedData = await getSinglePackageOffer(packageOfferId);
+          const packageData = await getSinglePackageOffer(packageOfferId);
+          const offerData = await getSingleOffer(o._id);
+          
+          const packagePrice = packageData.price || 0;
+          const offerDiscount = offerData.discount || 0;
+          const finalPrice = Math.round(packagePrice - (packagePrice * offerDiscount / 100));
+
+          fetchedData = {
+            ...packageData,
+            startDate: offerData.startDate,
+            endDate: offerData.endDate,
+            discount: offerDiscount,
+            calculatedPrice: finalPrice > 0 ? finalPrice : 0
+          };
+        } else if (type === "delivery") {
+          fetchedData = await getSingleDeliveryOffer(o._id);
         } else {
           const fetchedOffer = await getSingleOffer(o._id);
           fetchedData = fetchedOffer || o;
         }
 
-        let calculatedDiscount = fetchedData.discount || 0;
-        if (type === "package" && fetchedData.products) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const totalProductsPrice = fetchedData.products.reduce((acc: any, p: any) => acc + (p.price || 0), 0);
-          calculatedDiscount = totalProductsPrice > 0 ? totalProductsPrice - (fetchedData.price || 0) : 0;
-        }
+        const calculatedDiscount = fetchedData.discount || 0;
 
         setOfferType(type);
         setFormData({
@@ -1092,7 +1104,7 @@ export function EditOfferModal({
             typeof fetchedData.shopId === "string"
               ? fetchedData.shopId
               : fetchedData.shopId?._id || "",
-          price: fetchedData.price || 0,
+          price: fetchedData.calculatedPrice !== undefined ? fetchedData.calculatedPrice : (fetchedData.price || 0),
         });
 
         if (fetchedData.products && type === "package") {
@@ -1211,21 +1223,49 @@ export function EditOfferModal({
 
       // If it's a package, add package fields (assuming updateOffer handles them or backend ignores)
       if (offerType === "package") {
+        payload.offerId = offer._id;
         payload.nameAr = formData.nameAr;
         payload.nameEn = formData.nameEn;
-        payload.price = formData.price;
         payload.descriptionAr = formData.descriptionAr;
         payload.descriptionEn = formData.descriptionEn;
-        payload.products = selectedProducts.map((p) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        payload.products = selectedProducts.map((p: any) => ({
           product: p.product._id,
           quantity: p.quantity,
         }));
-        await updatePackageOffer(offer._id, payload);
+        // we use package product ID for the route path, passed via offerId in payload
+        const packageOfferId =
+          typeof offer.product === "string"
+            ? offer.product
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            : offer.product?._id || (offer.product as any)?.id || offer._id;
+            
+        // calculate new discount
+        const totalProductsPrice = selectedProducts.reduce(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (acc, p: any) => acc + (p.product.price * p.quantity),
+          0
+        );
+        const newDiscount = totalProductsPrice > 0 
+          ? ((totalProductsPrice - formData.price) / totalProductsPrice) * 100 
+          : 0;
+          
+        await updatePackageOffer(packageOfferId, payload);
+        await updateOffer(offer._id, {
+          discount: newDiscount,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+        });
       } else if (offerType === "delivery") {
-        payload.descriptionAr = formData.descriptionAr;
-        payload.descriptionEn = formData.descriptionEn;
-        payload.discount = formData.discount;
-        await updateOffer(offer._id, payload);
+        const deliveryPayload: Partial<CreateDeliveryOfferPayload> = {
+          descriptionAr: formData.descriptionAr,
+          descriptionEn: formData.descriptionEn || formData.descriptionAr,
+          discount: formData.discount,
+          shopId: formData.shopId,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+        };
+        await updateDeliveryOffer(offer._id, deliveryPayload);
       } else {
         await updateOffer(offer._id, payload);
       }

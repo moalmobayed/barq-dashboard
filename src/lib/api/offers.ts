@@ -45,12 +45,24 @@ export async function updateOffer(
   return response.data;
 }
 
-export async function updatePackageOffer(
+export async function updateDeliveryOffer(
   offerId: string,
+  data: Partial<CreateDeliveryOfferPayload>,
+) {
+  const response = await axios.patch(`${BASE_URL}/delivery-offer/${offerId}`, data, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return response.data;
+}
+
+export async function updatePackageOffer(
+  productId: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any,
 ) {
-  const response = await axios.patch(`${BASE_URL}/product/${offerId}`, data, {
+  const response = await axios.put(`${BASE_URL}/product/package/${productId}`, data, {
     headers: {
       ...authHeaders(),
     },
