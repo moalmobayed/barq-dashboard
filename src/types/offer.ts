@@ -25,7 +25,7 @@ export interface CreatePackageOfferPayload {
   descriptionAr: string;
   descriptionEn: string;
   image: string;
-  products: string[];
+  products: { product: string; quantity: number }[];
   startDate: Date;
   endDate: Date;
 }

@@ -45,6 +45,19 @@ export async function updateOffer(
   return response.data;
 }
 
+export async function updatePackageOffer(
+  offerId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any,
+) {
+  const response = await axios.patch(`${BASE_URL}/product/${offerId}`, data, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  return response.data;
+}
+
 export async function deleteOffer(offerId: string) {
   return axios.delete(`${BASE_URL}/offers/${offerId}`, {
     headers: {

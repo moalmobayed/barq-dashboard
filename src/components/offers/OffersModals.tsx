@@ -17,6 +17,9 @@ import {
   deleteOffer,
   deleteDeliveryOffer,
   updateOffer,
+  getSingleOffer,
+  getSinglePackageOffer,
+  updatePackageOffer,
 } from "@/lib/api/offers";
 import { uploadImage } from "@/lib/api/uploadImage";
 import {
@@ -42,9 +45,9 @@ const validateNameAr = (name: string): string => {
   if (name.length < 2) return "يجب أن لا يقل الاسم عن حرفين";
   if (name.length > 60) return "الاسم طويل جداً";
   const validPattern =
-    /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF0-9\s!@#$%^&*()_+={}[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BB]+$/;
+    /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF0-9\s!@#$%^&*()_+={}[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BBa-zA-Z]+$/;
   if (!validPattern.test(name))
-    return "الاسم يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
+    return "الاسم يقبل الحروف العربية والانجليزية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
   if (name.startsWith(" ") || name.endsWith(" "))
     return "لا يمكن أن يبدأ أو ينتهي الاسم بمسافة";
   if (/\s{2,}/.test(name)) return "مسافة واحدة فقط بين الكلمات";
@@ -68,9 +71,9 @@ const validateDescriptionAr = (description: string): string => {
   if (!description.trim()) return "";
   if (description.length > 300) return "الوصف طويل جداً";
   const validPattern =
-    /^[\u0600-\u06FF\u0750-\u077F0-9\s!@#$%^&*()_+={}[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BB]+$/;
+    /^[\u0600-\u06FF\u0750-\u077F0-9\s!@#$%^&*()_+={}[\]|\\:;"'<>,.?/~`\-\u060C\u061B\u061F\u00AB\u00BBa-zA-Z]+$/;
   if (!validPattern.test(description))
-    return "الوصف يقبل الحروف العربية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
+    return "الوصف يقبل الحروف العربية والانجليزية والأرقام والمسافات وعلامات الترقيم والرموز فقط";
   if (description.startsWith(" ") || description.endsWith(" "))
     return "لا يمكن أن يبدأ أو ينتهي الوصف بمسافة";
   if (/\s{2,}/.test(description)) return "مسافة واحدة فقط بين الكلمات";
@@ -108,7 +111,7 @@ export function AddOfferModal({
     "percentage",
   );
   const [productPrice, setProductPrice] = useState<number>(0);
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<{ product: Product; quantity: number }[]>([]);
 
   const [formData, setFormData] = useState<{
     nameAr: string;
@@ -233,13 +236,31 @@ export function AddOfferModal({
   };
 
   const addProductToPackage = (productId: string) => {
-    if (selectedProducts.find((p) => p._id === productId)) return;
+    const existing = selectedProducts.find((p) => p.product._id === productId);
+    if (existing) {
+      // If already added, increase quantity
+      setSelectedProducts((prev) =>
+        prev.map((p) =>
+          p.product._id === productId ? { ...p, quantity: p.quantity + 1 } : p
+        )
+      );
+      return;
+    }
     const prod = filteredProducts.find((p) => p._id === productId);
-    if (prod) setSelectedProducts((prev) => [...prev, prod]);
+    if (prod) setSelectedProducts((prev) => [...prev, { product: prod, quantity: 1 }]);
+  };
+
+  const updateProductQuantity = (productId: string, quantity: number) => {
+    if (quantity < 1) return;
+    setSelectedProducts((prev) =>
+      prev.map((p) =>
+        p.product._id === productId ? { ...p, quantity } : p
+      )
+    );
   };
 
   const removeProductFromPackage = (productId: string) => {
-    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+    setSelectedProducts((prev) => prev.filter((p) => p.product._id !== productId));
   };
 
   const handleSave = async () => {
@@ -384,7 +405,10 @@ export function AddOfferModal({
           descriptionAr: formData.descriptionAr,
           descriptionEn: effectiveDescEn,
           image: imageUrl,
-          products: selectedProducts.map((p) => p._id),
+          products: selectedProducts.map((p) => ({
+            product: p.product._id,
+            quantity: p.quantity,
+          })),
           startDate: formData.startDate,
           endDate: formData.endDate,
         };
@@ -689,7 +713,7 @@ export function AddOfferModal({
                         options={filteredProducts
                           .filter(
                             (p) =>
-                              !selectedProducts.find((sp) => sp._id === p._id),
+                              !selectedProducts.find((sp) => sp.product._id === p._id),
                           )
                           .map((p) => ({ value: p._id, label: p.nameAr }))}
                         placeholder={
@@ -698,6 +722,7 @@ export function AddOfferModal({
                             : "اختر منتج اضافي"
                         }
                         onChange={(val) => addProductToPackage(val)}
+                        value=""
                         disabled={
                           !formData.shopId || filteredProducts.length === 0
                         }
@@ -713,27 +738,34 @@ export function AddOfferModal({
                     <div className="mt-3 flex flex-wrap gap-2">
                       {selectedProducts.map((prod) => (
                         <div
-                          key={prod._id}
+                          key={prod.product._id}
                           className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
                         >
-                          {prod.image && (
+                          {prod.product.image && (
                             <Image
-                              src={prod.image}
-                              alt={prod.nameAr}
+                              src={prod.product.image}
+                              alt={prod.product.nameAr}
                               width={32}
                               height={32}
                               className="rounded-md object-cover"
                             />
                           )}
                           <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {prod.nameAr}
+                            {prod.product.nameAr}
                           </span>
                           <span className="text-brand-blue text-xs">
-                            {prod.price} ج.م
+                            {prod.product.price} ج.م
                           </span>
+                          <input
+                            type="number"
+                            min="1"
+                            value={prod.quantity}
+                            onChange={(e) => updateProductQuantity(prod.product._id, parseInt(e.target.value) || 1)}
+                            className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm dark:border-gray-600 dark:bg-gray-700"
+                          />
                           <button
                             type="button"
-                            onClick={() => removeProductFromPackage(prod._id)}
+                            onClick={() => removeProductFromPackage(prod.product._id)}
                             className="text-gray-400 hover:text-red-500"
                           >
                             <FaTimes className="h-3 w-3" />
@@ -1010,43 +1042,74 @@ export function EditOfferModal({
   });
 
   useEffect(() => {
-    if (!offer?._id) return;
+    if (!isOpen || !offer?._id) return;
 
-    // Infer offer type if not provided
-    let type: OfferType = "single";
-    if (offer.offerType) {
-      type = offer.offerType;
-    } else if (offer.products && offer.products.length > 0) {
-      type = "package";
-    } else if (!offer.product && !offer.image) {
-      type = "delivery";
-    }
+    const fetchFullOffer = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const o: any = offer;
+        let type: OfferType = "single";
+        if (o.offerType) {
+          type = o.offerType;
+        } else if (o.productType === "package" || (o.products && o.products.length > 0)) {
+          type = "package";
+        } else if (!o.product && !o.image) {
+          type = "delivery";
+        }
 
-    setOfferType(type);
-    setFormData({
-      nameAr: offer.nameAr || "",
-      nameEn: offer.nameEn || "",
-      product:
-        typeof offer.product === "string"
-          ? offer.product
-          : offer.product?._id || "",
-      image: offer.image || "",
-      descriptionAr: offer.descriptionAr || "",
-      descriptionEn: offer.descriptionEn || "",
-      discount: offer.discount || 0,
-      startDate: offer.startDate ? new Date(offer.startDate) : undefined,
-      endDate: offer.endDate ? new Date(offer.endDate) : undefined,
-      shopId:
-        typeof offer.shopId === "string"
-          ? offer.shopId
-          : offer.shopId?._id || "",
-      price: offer.price || 0,
-    });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let fetchedData: any;
+        if (type === "package") {
+          const packageOfferId = o.product?._id || o.product?.id || o._id;
+          fetchedData = await getSinglePackageOffer(packageOfferId);
+        } else {
+          const fetchedOffer = await getSingleOffer(o._id);
+          fetchedData = fetchedOffer || o;
+        }
 
-    if (offer.products) {
-      setSelectedProducts(offer.products);
-    }
-  }, [offer]);
+        let calculatedDiscount = fetchedData.discount || 0;
+        if (type === "package" && fetchedData.products) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const totalProductsPrice = fetchedData.products.reduce((acc: any, p: any) => acc + (p.price || 0), 0);
+          calculatedDiscount = totalProductsPrice > 0 ? totalProductsPrice - (fetchedData.price || 0) : 0;
+        }
+
+        setOfferType(type);
+        setFormData({
+          nameAr: fetchedData.nameAr || "",
+          nameEn: fetchedData.nameEn || "",
+          product:
+            typeof fetchedData.product === "string"
+              ? fetchedData.product
+              : fetchedData.product?._id || "",
+          image: fetchedData.image || "",
+          descriptionAr: fetchedData.descriptionAr || "",
+          descriptionEn: fetchedData.descriptionEn || "",
+          discount: calculatedDiscount,
+          startDate: fetchedData.startDate ? new Date(fetchedData.startDate) : undefined,
+          endDate: fetchedData.endDate ? new Date(fetchedData.endDate) : undefined,
+          shopId:
+            typeof fetchedData.shopId === "string"
+              ? fetchedData.shopId
+              : fetchedData.shopId?._id || "",
+          price: fetchedData.price || 0,
+        });
+
+        if (fetchedData.products && type === "package") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mappedProducts = fetchedData.products.map((p: any) => ({
+            product: p.product || p, // fallback if backend returns Product instead of {product: Product, quantity}
+            quantity: p.quantity || 1,
+          }));
+          setSelectedProducts(mappedProducts);
+        }
+      } catch (err) {
+        console.error("Failed to fetch full offer:", err);
+      }
+    };
+
+    fetchFullOffer();
+  }, [isOpen, offer]);
 
   useEffect(() => {
     if (!isOpen || !formData.shopId) {
@@ -1153,14 +1216,19 @@ export function EditOfferModal({
         payload.price = formData.price;
         payload.descriptionAr = formData.descriptionAr;
         payload.descriptionEn = formData.descriptionEn;
-        payload.products = selectedProducts.map((p) => p._id);
+        payload.products = selectedProducts.map((p) => ({
+          product: p.product._id,
+          quantity: p.quantity,
+        }));
+        await updatePackageOffer(offer._id, payload);
       } else if (offerType === "delivery") {
         payload.descriptionAr = formData.descriptionAr;
         payload.descriptionEn = formData.descriptionEn;
         payload.discount = formData.discount;
+        await updateOffer(offer._id, payload);
+      } else {
+        await updateOffer(offer._id, payload);
       }
-
-      await updateOffer(offer._id, payload);
       setToast({
         variant: "success",
         title: "نجح تحديث العرض",
@@ -1290,23 +1358,38 @@ export function EditOfferModal({
                   <Select
                     options={filteredProducts
                       .filter(
-                        (p) => !selectedProducts.find((sp) => sp._id === p._id),
+                        (p) => !selectedProducts.find((sp) => sp.product._id === p._id),
                       )
                       .map((p) => ({ value: p._id, label: p.nameAr }))}
                     onChange={(val) => addProductToPackage(val)}
+                    value=""
                     placeholder="أضف منتج..."
                   />
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-col gap-2">
                     {selectedProducts.map((p) => (
                       <div
-                        key={p._id}
-                        className="flex items-center gap-2 rounded bg-gray-100 p-2 dark:bg-gray-800"
+                        key={p.product._id}
+                        className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
                       >
-                        <span className="text-sm">{p.nameAr}</span>
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {p.product.nameAr}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label className="mb-0 text-xs">الكمية:</Label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={p.quantity}
+                            onChange={(e) => updateProductQuantity(p.product._id, parseInt(e.target.value) || 1)}
+                            className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm dark:border-gray-600 dark:bg-gray-700"
+                          />
+                        </div>
                         <button
                           type="button"
-                          onClick={() => removeProductFromPackage(p._id)}
-                          className="text-red-500"
+                          onClick={() => removeProductFromPackage(p.product._id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
                         >
                           <FaTimes />
                         </button>

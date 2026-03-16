@@ -37,9 +37,11 @@ const Select: React.FC<SelectProps> = ({
   }, [value, defaultValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedValue(value);
-    onChange(value); // Trigger parent handler
+    const val = e.target.value;
+    if (value === undefined) {
+      setSelectedValue(val);
+    }
+    onChange(val); // Trigger parent handler
   };
 
   return (
