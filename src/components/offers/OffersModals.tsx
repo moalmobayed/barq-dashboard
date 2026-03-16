@@ -1015,7 +1015,10 @@ export function EditOfferModal({
     "percentage",
   );
   const [productPrice, setProductPrice] = useState<number>(0);
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<{
+    product: Product;
+    quantity: number;
+  }[]>([]);
 
   const [formData, setFormData] = useState<{
     nameAr: string;
@@ -1186,13 +1189,30 @@ export function EditOfferModal({
   };
 
   const addProductToPackage = (productId: string) => {
-    if (selectedProducts.find((p) => p._id === productId)) return;
+    const existing = selectedProducts.find((p) => p.product._id === productId);
+    if (existing) {
+      setSelectedProducts((prev) =>
+        prev.map((p) =>
+          p.product._id === productId ? { ...p, quantity: p.quantity + 1 } : p
+        )
+      );
+      return;
+    }
     const prod = filteredProducts.find((p) => p._id === productId);
-    if (prod) setSelectedProducts((prev) => [...prev, prod]);
+    if (prod) setSelectedProducts((prev) => [...prev, { product: prod, quantity: 1 }]);
   };
 
   const removeProductFromPackage = (productId: string) => {
-    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+    setSelectedProducts((prev) => prev.filter((p) => p.product._id !== productId));
+  };
+
+  const updateProductQuantity = (productId: string, quantity: number) => {
+    if (quantity < 1) return;
+    setSelectedProducts((prev) =>
+      prev.map((p) =>
+        p.product._id === productId ? { ...p, quantity } : p
+      )
+    );
   };
 
   const handleSave = async () => {
