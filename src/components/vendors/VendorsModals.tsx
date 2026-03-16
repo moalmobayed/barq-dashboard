@@ -15,7 +15,7 @@ import { Category } from "@/types/category";
 import { Subcategory } from "@/types/subcategory";
 import { useModal } from "@/hooks/useModal";
 import { fetchSubcategoriesByCategory } from "@/lib/api/subcategories";
-import { createVendor, deleteVendor, updateVendor } from "@/lib/api/vendors";
+import { createVendor, deleteVendor, updateVendor, updateVendorsActive } from "@/lib/api/vendors";
 import { uploadImage } from "@/lib/api/uploadImage";
 import { CreateVendorPayload, Vendor } from "@/types/vendor";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
@@ -2031,6 +2031,75 @@ export function DeleteVendorButton({
         vendorId={vendorId}
         onSuccess={handleAfterDelete}
       />
+    </>
+  );
+}
+
+export function CloseAllVendorsButton({ onSuccess }: { onSuccess?: () => void }) {
+  const { isOpen, openModal, closeModal } = useModal();
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<AlertProps | null>(null);
+  const [actionType, setActionType] = useState<"close" | "open" | null>(null);
+
+  const handleConfirm = async () => {
+    if (!actionType) return;
+    setIsLoading(true);
+    try {
+      const isActive = actionType === "open";
+      await updateVendorsActive([], isActive);
+      setToast({ variant: "success", title: "نجاح", message: `تم ${isActive ? 'فتح' : 'إغلاق'} جميع المتاجر بنجاح` });
+      setTimeout(() => setToast(null), 5000);
+      onSuccess?.();
+      closeModal();
+    } catch {
+      setToast({ variant: "error", title: "خطأ", message: "فشل في تحديث حالة جميع المتاجر" });
+      setTimeout(() => setToast(null), 5000);
+    } finally {
+      setIsLoading(false);
+      setActionType(null);
+    }
+  };
+
+  const handleOpenModal = (type: "close" | "open") => {
+    setActionType(type);
+    openModal();
+  };
+
+  return (
+    <>
+      <div className="flex gap-2">
+        <Button
+          size="md"
+          variant="outline"
+          className="border-green-500 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
+          onClick={() => handleOpenModal("open")}
+        >
+          تفعيل الجميع
+        </Button>
+        <Button
+          size="md"
+          variant="outline"
+          className="border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+          onClick={() => handleOpenModal("close")}
+        >
+          إغلاق الجميع
+        </Button>
+      </div>
+      <Modal isOpen={isOpen} onClose={() => { closeModal(); setActionType(null); }} className="z-50 m-4 max-w-[500px] bg-black">
+        <div className="rounded-3xl bg-white p-8 dark:bg-gray-900">
+          <h4 className={`mb-4 text-lg font-semibold ${actionType === "open" ? "text-green-600" : "text-red-600"}`}>تأكيد التحديث</h4>
+          <p className="text-gray-600 dark:text-gray-400">
+            هل أنت متأكد من رغبتك في {actionType === "open" ? "تنشيط" : "إغلاق"} جميع المتاجر (تغيير الحالة إلى {actionType === "open" ? "نشط" : "غير نشط"})؟
+          </p>
+          <div className="mt-8 flex justify-end gap-3">
+            <Button size="sm" variant="outline" onClick={() => { closeModal(); setActionType(null); }}>إلغاء</Button>
+            <Button size="sm" onClick={handleConfirm} disabled={isLoading} className={`${actionType === "open" ? "bg-green-500 hover:bg-green-600 focus:ring-green-500" : "bg-red-500 hover:bg-red-600 focus:ring-red-500"} border-transparent text-white focus:ring-offset-2`}>
+              {isLoading ? "جارٍ التحديث..." : "نعم، متأكد"}
+            </Button>
+          </div>
+        </div>
+        {toast && <div className="fixed end-4 top-4 z-[9999] max-w-sm"><Alert {...toast} /></div>}
+      </Modal>
     </>
   );
 }
