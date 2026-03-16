@@ -17,11 +17,11 @@ import {
 } from "./AgentsModals";
 import Skeleton from "react-loading-skeleton";
 import { MdDeliveryDining } from "react-icons/md";
-import { getAgentSummary } from "@/lib/api/dashboard";
+import { getAgentSummary, resetAgentHistory } from "@/lib/api/dashboard";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import DatePicker from "../form/date-picker";
 import Image from "next/image";
-import { FaReceipt } from "react-icons/fa";
+import { FaReceipt, FaUndo } from "react-icons/fa";
 import AgentTransactionsModal from "./AgentTransactionsModal";
 
 const limits = [5, 10, 20, 50];
@@ -97,6 +97,19 @@ export default function AgentsTable() {
   useEffect(() => {
     fetchSummary();
   }, [fetchSummary]);
+
+  const handleResetHistory = async (agentId: string) => {
+    if (!window.confirm("هل أنت متأكد من إعادة تعيين حسابات عامل التوصيل الآن؟ هذا الإجراء لا يمكن التراجع عنه.")) return;
+    try {
+      const now = new Date().toISOString();
+      await resetAgentHistory(agentId, now);
+      // Optional: Add a success toast message here if a toast system is introduced
+      fetchSummary();
+    } catch (error) {
+      console.error("Error resetting agent history:", error);
+      alert("فشل في إعادة تعيين الحسابات.");
+    }
+  };
 
   const agents = summaryData?.data || [];
   const effectiveTotalPages = summaryData?.pagination?.totalPages || 0;
@@ -306,6 +319,13 @@ export default function AgentsTable() {
                             title="سجل المعاملات"
                           >
                             <FaReceipt />
+                          </button>
+                          <button
+                            onClick={() => handleResetHistory(agentData.deliveryAgent._id)}
+                            className="inline-block text-sm text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                            title="إعادة تعيين الحسابات"
+                          >
+                            <FaUndo />
                           </button>
                           <EditAgentButton
                             agent={agentData.deliveryAgent}
