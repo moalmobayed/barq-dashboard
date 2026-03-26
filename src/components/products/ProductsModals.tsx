@@ -1492,20 +1492,7 @@ export function EditProductModal({
         }
       }
 
-      // Check for English name validation errors if provided
-      if (formData.nameEn.trim()) {
-        const nameEnValidationError = validateNameEn(formData.nameEn);
-        if (nameEnValidationError) {
-          setToast({
-            variant: "error",
-            title: "خطأ في الاسم بالإنجليزية",
-            message: nameEnValidationError,
-          });
-          setTimeout(() => setToast(null), 5000);
-          setIsLoading(false);
-          return;
-        }
-      }
+
 
       // Check for price validation errors if provided
       if (formData.price > 0) {

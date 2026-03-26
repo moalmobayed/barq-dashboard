@@ -651,20 +651,7 @@ export function EditCategoryModal({
         }
       }
 
-      // Check for English name validation errors if provided
-      if (formData.nameEn.trim()) {
-        const nameEnValidationError = validateNameEn(formData.nameEn);
-        if (nameEnValidationError) {
-          setToast({
-            variant: "error",
-            title: "خطأ في الاسم بالإنجليزية",
-            message: nameEnValidationError,
-          });
-          setTimeout(() => setToast(null), 5000);
-          setIsLoading(false);
-          return;
-        }
-      }
+
 
       let imageUrl = "";
 
