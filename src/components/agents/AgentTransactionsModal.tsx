@@ -36,6 +36,7 @@ interface TransactionOrder {
   totalWithDelivery: number;
   agentEarn: number;
   barqEarnFromDelivery: number;
+  barqEarnFromVendor: number;
 }
 
 interface TransactionSummary {
@@ -44,6 +45,7 @@ interface TransactionSummary {
   totalWithDelivery: number;
   agentEarn: number;
   barqEarnFromDelivery: number;
+  barqEarnFromVendor: number;
   totalOrders: number;
 }
 
@@ -195,10 +197,10 @@ export default function AgentTransactionsModal({
             </div>
             <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                عمولة برق
+                إجمالي ايراد برق
               </p>
               <p className="text-sm font-bold text-indigo-600">
-                {summary.barqEarnFromDelivery?.toLocaleString()} ج.م
+                {( (summary.barqEarnFromDelivery || 0) + (summary.barqEarnFromVendor || 0)).toLocaleString()} ج.م
               </p>
             </div>
           </div>
@@ -333,10 +335,10 @@ export default function AgentTransactionsModal({
                     </div>
                     <div>
                       <span className="text-gray-500 dark:text-gray-400">
-                        عمولة برق:{" "}
+                        ايراد برق:{" "}
                       </span>
                       <span className="font-medium text-indigo-600">
-                        {tx.barqEarnFromDelivery?.toLocaleString()} ج.م
+                        {( (tx.barqEarnFromDelivery || 0) + (tx.barqEarnFromVendor || 0)).toLocaleString()} ج.م
                       </span>
                     </div>
                   </div>

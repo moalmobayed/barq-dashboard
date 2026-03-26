@@ -50,6 +50,7 @@ export default function AgentsTable() {
     delivery: number;
     agentEarn: number;
     barqEarnFromDelivery: number;
+    barqEarnFromVendor: number;
   }
 
   interface SummaryMetadata {
@@ -58,6 +59,7 @@ export default function AgentsTable() {
       totalDelivery: number;
       totalAgentEarn: number;
       totalBarqEarnFromDelivery: number;
+      totalBarqEarnFromVendor: number;
     };
     data: AgentData[];
     pagination: {
@@ -74,7 +76,9 @@ export default function AgentsTable() {
 
   // Transactions modal state
   const [txModalOpen, setTxModalOpen] = useState(false);
-  const [txAgent, setTxAgent] = useState<{ id: string; name: string } | null>(null);
+  const [txAgent, setTxAgent] = useState<{ id: string; name: string } | null>(
+    null,
+  );
 
   const fetchSummary = useCallback(async () => {
     setTableLoading(true);
@@ -99,7 +103,12 @@ export default function AgentsTable() {
   }, [fetchSummary]);
 
   const handleResetHistory = async (agentId: string) => {
-    if (!window.confirm("هل أنت متأكد من إعادة تعيين حسابات عامل التوصيل الآن؟ هذا الإجراء لا يمكن التراجع عنه.")) return;
+    if (
+      !window.confirm(
+        "هل أنت متأكد من إعادة تعيين حسابات عامل التوصيل الآن؟ هذا الإجراء لا يمكن التراجع عنه.",
+      )
+    )
+      return;
     try {
       const now = new Date().toISOString();
       await resetAgentHistory(agentId, now);
@@ -226,7 +235,7 @@ export default function AgentsTable() {
                     ربح المندوب
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
-                    عمولة برق (توصيل)
+                    ايراد برق
                   </TableCell>
                   <TableCell isHeader className="text-start font-medium">
                     الإجراءات
@@ -304,7 +313,11 @@ export default function AgentsTable() {
                           {agentData.agentEarn?.toLocaleString()} ج.م
                         </TableCell>
                         <TableCell className="text-indigo-500">
-                          {agentData.barqEarnFromDelivery?.toLocaleString()} ج.م
+                          {(
+                            (agentData.barqEarnFromDelivery || 0) +
+                            (agentData.barqEarnFromVendor || 0)
+                          ).toLocaleString()}{" "}
+                          ج.م
                         </TableCell>
                         <TableCell className="space-x-2">
                           <button
@@ -321,7 +334,9 @@ export default function AgentsTable() {
                             <FaReceipt />
                           </button>
                           <button
-                            onClick={() => handleResetHistory(agentData.deliveryAgent._id)}
+                            onClick={() =>
+                              handleResetHistory(agentData.deliveryAgent._id)
+                            }
                             className="inline-block text-sm text-red-600 transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                             title="إعادة تعيين الحسابات"
                           >
@@ -407,7 +422,7 @@ export default function AgentsTable() {
               </div>
               <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  إجمالي عمولة برق (توصيل)
+                  إجمالي ايراد برق
                 </p>
                 <p className="0 text-xl font-bold text-indigo-600">
                   {summaryData.summary.totalBarqEarnFromDelivery?.toLocaleString()}{" "}
