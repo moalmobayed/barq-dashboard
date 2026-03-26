@@ -48,9 +48,15 @@ export async function getSingleVendor(vendorId: string): Promise<Vendor> {
 export const fetchVendors = async (
   page?: number,
   limit?: number,
+  category?: string,
+  subcategory?: string,
 ): Promise<{ data: Vendor[]; pages: number }> => {
+  const params: Record<string, string | number | undefined> = { page, limit };
+  if (category) params.category = category;
+  if (subcategory) params.subcategory = subcategory;
+
   const response = await axios.get(`${BASE_URL}/admin/vendors`, {
-    params: { page, limit },
+    params,
     headers: {
       ...authHeaders(),
     },
@@ -66,9 +72,15 @@ export const fetchVendorsByKeyword = async (
   keyword: string,
   page: number,
   limit: number,
+  category?: string,
+  subcategory?: string,
 ): Promise<{ data: Vendor[]; pages: number }> => {
+  const params: Record<string, string | number | undefined> = { keyword, page, limit };
+  if (category) params.category = category;
+  if (subcategory) params.subcategory = subcategory;
+
   const response = await axios.get(`${BASE_URL}/admin/vendors`, {
-    params: { keyword, page, limit },
+    params,
   });
   return {
     data: response.data.data ?? [],

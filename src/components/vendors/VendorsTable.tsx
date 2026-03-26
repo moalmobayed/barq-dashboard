@@ -48,7 +48,7 @@ export default function VendorsTable() {
   const [selectedVendors, setSelectedVendors] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
 
-  const { vendors, loading, totalPages, refetch } = useVendors(page, limit);
+  const { vendors, loading, totalPages, refetch } = useVendors(page, limit, selectedCategory, selectedSubcategory);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -84,6 +84,8 @@ export default function VendorsTable() {
           trimmed,
           1,
           limit,
+          selectedCategory,
+          selectedSubcategory
         );
         if (!cancelled) {
           setSearchResults(data);
@@ -99,26 +101,12 @@ export default function VendorsTable() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [searchTerm, page, limit]);
+  }, [searchTerm, page, limit, selectedCategory, selectedSubcategory]);
 
   const filteredVendors = useMemo(() => {
     const trimmed = searchTerm.trim();
-    let list = trimmed ? searchResults : vendors;
-
-    // Filter by category
-    if (selectedCategory) {
-      list = list.filter((v) => v.category?._id === selectedCategory);
-    }
-
-    // Filter by subcategory
-    if (selectedSubcategory) {
-      list = list.filter((v) =>
-        v.subcategories?.some((sc) => sc._id === selectedSubcategory),
-      );
-    }
-
-    return list;
-  }, [vendors, searchResults, searchTerm, selectedCategory, selectedSubcategory]);
+    return trimmed ? searchResults : vendors;
+  }, [vendors, searchResults, searchTerm]);
 
   // Selection helpers
   const isAllSelected =

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Vendor } from "@/types/vendor";
 import { fetchVendors } from "@/lib/api/vendors";
 
-export function useVendors(page: number, limit: number) {
+export function useVendors(page: number, limit: number, category?: string, subcategory?: string) {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -11,7 +11,7 @@ export function useVendors(page: number, limit: number) {
   const loadVendors = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, pages } = await fetchVendors(page, limit);
+      const { data, pages } = await fetchVendors(page, limit, category, subcategory);
       setVendors(data);
       setTotalPages(pages);
     } catch (error) {
@@ -19,7 +19,7 @@ export function useVendors(page: number, limit: number) {
     } finally {
       setLoading(false);
     }
-  }, [page, limit]);
+  }, [page, limit, category, subcategory]);
 
   useEffect(() => {
     loadVendors();
