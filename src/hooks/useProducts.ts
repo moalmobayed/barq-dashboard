@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
 import { fetchProducts } from "@/lib/api/products";
 
-export function useProducts(page: number, limit: number, shop?: string) {
+export function useProducts(page: number, limit: number, shop?: string, keyword?: string) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -12,7 +12,7 @@ export function useProducts(page: number, limit: number, shop?: string) {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const { data, pages } = await fetchProducts(page, limit, shop);
+        const { data, pages } = await fetchProducts(page, limit, shop, keyword);
         setProducts(data);
         setTotalPages(pages);
       } catch (error) {
@@ -23,12 +23,12 @@ export function useProducts(page: number, limit: number, shop?: string) {
     };
 
     loadProducts();
-  }, [page, limit, shop]);
+  }, [page, limit, shop, keyword]);
 
   const refetch = () => {
     // Trigger re-fetch by updating a dependency or calling loadProducts directly
     setLoading(true);
-    fetchProducts(page, limit, shop)
+    fetchProducts(page, limit, shop, keyword)
       .then(({ data, pages }) => {
         setProducts(data);
         setTotalPages(pages);
@@ -43,3 +43,4 @@ export function useProducts(page: number, limit: number, shop?: string) {
 
   return { products, loading, totalPages, refetch };
 }
+

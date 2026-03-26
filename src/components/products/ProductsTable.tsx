@@ -1,7 +1,7 @@
 // src/components/products/ProductsTable.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -12,7 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useProducts } from "@/hooks/useProducts";
-import { fetchProductsByKeyword } from "@/lib/api/products";
 import { getAllVendors } from "@/lib/api/vendors";
 import { Vendor } from "@/types/vendor";
 import Pagination from "../tables/Pagination";
@@ -36,14 +35,22 @@ export default function ProductsTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<typeof products>([]);
-  const [searchPages, setSearchPages] = useState(1);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [vendors, setVendors] = useState<Vendor[]>([]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const { products, loading, totalPages, refetch } = useProducts(
     page,
     limit,
     shopFilter,
+    debouncedSearchTerm
   );
 
   // Fetch vendors for filter
@@ -69,47 +76,7 @@ export default function ProductsTable() {
     }
   };
 
-  useEffect(() => {
-    const trimmed = searchTerm.trim();
-    if (!trimmed) {
-      setSearchResults([]);
-      setSearchPages(1);
-      return;
-    }
-    let cancelled = false;
-    const t = setTimeout(async () => {
-      try {
-        const { data, pages } = await fetchProductsByKeyword(
-          trimmed,
-          1,
-          limit,
-        );
-        if (!cancelled) {
-          setSearchResults(data);
-          setSearchPages(pages);
-        }
-      } catch {
-        if (!cancelled) setSearchResults([]);
-      } finally {
-        // no-op
-      }
-    }, 350);
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-    };
-  }, [searchTerm, page, limit]);
 
-  const filteredProducts = useMemo(() => {
-    const trimmed = searchTerm.trim();
-    if (!trimmed) return products;
-    return searchResults;
-  }, [products, searchResults, searchTerm]);
-
-  const effectiveTotalPages = useMemo(() => {
-    const trimmed = searchTerm.trim();
-    return trimmed ? searchPages : totalPages;
-  }, [searchTerm, searchPages, totalPages]);
 
   return (
     <div className="space-y-4">
@@ -274,7 +241,7 @@ export default function ProductsTable() {
                 </TableBody>
               ) : (
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {filteredProducts.length === 0 ? (
+                  {products.length === 0 ? (
                     <TableRow>
                       <td
                         colSpan={8}
@@ -292,7 +259,7 @@ export default function ProductsTable() {
                       </td>
                     </TableRow>
                   ) : (
-                    filteredProducts.map((product) => (
+                    products.map((product) => (
                       <TableRow key={product._id}>
                         <TableCell className="px-5 py-4 text-start sm:px-6">
                           <div className="flex items-center gap-3">
@@ -341,11 +308,11 @@ export default function ProductsTable() {
       </div>
 
       {/* Pagination */}
-      {effectiveTotalPages !== 0 && (
+      {totalPages !== 0 && (
         <div className="flex justify-end pt-2">
           <Pagination
             currentPage={page}
-            totalPages={effectiveTotalPages}
+            totalPages={totalPages}
             onPageChange={setPage}
           />
         </div>

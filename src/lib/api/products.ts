@@ -45,23 +45,23 @@ export const fetchProducts = async (
   page: number,
   limit: number,
   shop?: string,
+  keyword?: string,
 ): Promise<{ data: Product[]; pages: number }> => {
-  const params: { page: number; limit: number; shop?: string } = {
+  const params: { page: number; limit: number; shop?: string; keyword?: string } = {
     page,
     limit,
   };
 
-  if (shop) {
-    params.shop = shop;
-  }
+  if (shop) params.shop = shop;
+  if (keyword) params.keyword = keyword;
 
   const response = await axios.get(`${BASE_URL}/product`, {
     params,
   });
 
   return {
-    data: response.data.data,
-    pages: response.data.metadata.pages,
+    data: response.data.data ?? [],
+    pages: response.data?.metadata?.pages ?? 1,
   };
 };
 
@@ -74,16 +74,4 @@ export const getAllProducts = async () => {
   return res.data;
 };
 
-export const fetchProductsByKeyword = async (
-  keyword: string,
-  page: number,
-  limit: number,
-): Promise<{ data: Product[]; pages: number }> => {
-  const response = await axios.get(`${BASE_URL}/product`, {
-    params: { keyword, page, limit },
-  });
-  return {
-    data: response.data.data ?? [],
-    pages: response.data?.metadata?.pages ?? 1,
-  };
-};
+
