@@ -368,8 +368,8 @@ export function AddSubcategoryModal({
                   <div className="relative">
                     <Select
                       options={categories.map((cat) => ({
-                        value: cat._id,
-                        label: cat.nameAr,
+                        value: cat._id || "0",
+                        label: cat.nameAr || "غير معرف",
                       }))}
                       placeholder="اختر فئة"
                       onChange={(val) => handleChange("category", val)}
