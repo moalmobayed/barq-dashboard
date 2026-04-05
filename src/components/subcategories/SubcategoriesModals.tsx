@@ -470,7 +470,7 @@ export function EditSubcategoryModal({
   }>({
     nameAr: subcategory.nameAr || "",
     nameEn: subcategory.nameEn || "",
-    category: subcategory.category._id || "",
+    category: subcategory.category?._id || "",
     image: subcategory.image || "",
   });
 
@@ -688,7 +688,7 @@ export function EditSubcategoryModal({
     setFormData({
       nameAr: subcategory.nameAr || "",
       nameEn: subcategory.nameEn || "",
-      category: subcategory.category._id || "",
+      category: subcategory.category?._id || "",
       image: subcategory.image || "",
     });
     setNameEnError("");
