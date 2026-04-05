@@ -97,15 +97,7 @@ export function AddBannerModal({
 
     try {
       // Validation for required fields
-      if (!formData.image) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "صورة الإعلان مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
+
 
       if (formData.bannerType !== "General" && !formData.item) {
         setToast({
@@ -118,8 +110,11 @@ export function AddBannerModal({
       }
 
       // Upload image
-      const uploaded = await uploadImage(formData.image);
-      const imageUrl = uploaded.data;
+      let imageUrl = "";
+      if (formData.image) {
+        const uploaded = await uploadImage(formData.image);
+        imageUrl = uploaded.data;
+      }
 
       const payload: CreateBannerPayload = {
         image: imageUrl,

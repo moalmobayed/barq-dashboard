@@ -207,16 +207,7 @@ export function AddCategoryModal({
         return;
       }
 
-      // Check if image is required
-      if (!formData.image || formData.image.size === 0) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "صورة الفئة مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
+
 
       // Check for Arabic name validation errors
       const nameArValidationError = validateNameAr(formData.nameAr);

@@ -272,16 +272,7 @@ export function AddCustomerModal({
         return;
       }
 
-      // Check if image is required
-      if (!formData.profileImage || formData.profileImage.size === 0) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "صورة الملف الشخصي مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
+
 
       if (!formData.fullAddress) {
         setToast({
@@ -336,9 +327,15 @@ export function AddCustomerModal({
         return;
       }
 
-      // Upload profile image (required)
-      const uploaded = await uploadImage(formData.profileImage);
-      const profileImageUrl = uploaded.data;
+      // Upload profile image safely if present
+      let profileImageUrl = "";
+      if (
+        formData.profileImage instanceof File &&
+        formData.profileImage.size > 0
+      ) {
+        const uploaded = await uploadImage(formData.profileImage);
+        profileImageUrl = uploaded.data;
+      }
 
       const payload: CreateCustomerPayload = {
         name: formData.name,

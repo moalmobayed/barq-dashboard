@@ -541,33 +541,7 @@ export function AddVendorModal({
         setTimeout(() => setToast(null), 5000);
         return;
       }
-      if (
-        !formData.profileImage ||
-        !(formData.profileImage instanceof File) ||
-        formData.profileImage.size === 0
-      ) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "صورة الملف الشخصي مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
 
-      if (
-        !formData.coverImage ||
-        !(formData.coverImage instanceof File) ||
-        formData.coverImage.size === 0
-      ) {
-        setToast({
-          variant: "error",
-          title: "حقل مطلوب",
-          message: "صورة الغلاف مطلوبة.",
-        });
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
 
       let profileImageUrl = "";
       if (
