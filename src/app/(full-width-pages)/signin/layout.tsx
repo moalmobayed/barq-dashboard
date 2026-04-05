@@ -27,6 +27,8 @@ export default function AuthLayout({
                     height={48}
                     src="/images/logo/barq-logo.png"
                     alt="Logo"
+                    priority
+                    style={{ width: "auto", height: "auto" }}
                   />
                 </Link>
               </div>

@@ -132,6 +132,7 @@ export default function SignInForm() {
                 value={formData.email}
                 onChange={handleInputChange}
                 className={errors.email ? "border-red-500" : ""}
+                autoComplete="email"
               />
 
               {errors.email && (
@@ -152,6 +153,7 @@ export default function SignInForm() {
                   value={formData.password}
                   onChange={handleInputChange}
                   className={errors.password ? "border-red-500" : ""}
+                  autoComplete="current-password"
                 />
                 <span
                   onClick={() => setShowPassword(!showPassword)}
