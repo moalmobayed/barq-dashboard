@@ -279,7 +279,6 @@ export default function CategoryShopCRUD({ vendorId }: { vendorId: string }) {
                   value={form.nameEn}
                   onChange={(e) => handleChange("nameEn", e.target.value)}
                   hint={`${form.nameEn.length}/50`}
-                  required
                   dir="ltr"
                 />
               </div>
