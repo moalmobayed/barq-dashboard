@@ -62,7 +62,7 @@ export function AddProductModal({
     descriptionEn: string;
     category: string;
     categories: string[];
-    image: File;
+    image: File | string;
     extensions: Extension[];
   }>({
     nameAr: "",
@@ -77,6 +77,7 @@ export function AddProductModal({
     extensions: [],
   });
   const [collapsedExtensions, setCollapsedExtensions] = useState<boolean[]>([]);
+  const [imageMode, setImageMode] = useState<"file" | "link">("link");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -522,6 +523,8 @@ export function AddProductModal({
       if (formData.image instanceof File && formData.image.size > 0) {
         const uploaded = await uploadImage(formData.image);
         imageUrl = uploaded.data;
+      } else if (typeof formData.image === "string" && formData.image.trim() !== "") {
+        imageUrl = formData.image;
       }
 
       const payloadRaw: CreateProductPayload = {
@@ -566,6 +569,7 @@ export function AddProductModal({
         extensions: [],
       });
       setCollapsedExtensions([]);
+      setImageMode("link");
     } catch (err) {
       if (err instanceof AxiosError) {
         setToast({
@@ -603,6 +607,7 @@ export function AddProductModal({
       extensions: [],
     });
     setCollapsedExtensions([]);
+    setImageMode("link");
     setIsLoading(false);
     closeModal?.();
   };
@@ -627,12 +632,43 @@ export function AddProductModal({
 
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Product Image */}
-                <div className="lg:col-span-2">
-                  <Label>صورة المنتج</Label>
-                  <FileInput
-                    accept="image/*"
-                    onChange={(e) => handleChange("image", e.target.files?.[0])}
-                  />
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>نوع إضافة الصورة</Label>
+                    <div className="relative">
+                      <Select
+                        options={[
+                          { value: "link", label: "رابط صورة" },
+                          { value: "file", label: "رفع ملف" },
+                        ]}
+                        value={imageMode}
+                        onChange={(val) => {
+                          setImageMode(val as "file" | "link");
+                          handleChange("image", val === "file" ? new File([], "") : "");
+                        }}
+                      />
+                      <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                        <ChevronDownIcon />
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>صورة المنتج</Label>
+                    {imageMode === "file" ? (
+                      <FileInput
+                        accept="image/*"
+                        onChange={(e) => handleChange("image", e.target.files?.[0])}
+                      />
+                    ) : (
+                      <Input
+                        type="url"
+                        placeholder="ادخل رابط الصورة"
+                        value={typeof formData.image === "string" ? formData.image : ""}
+                        onChange={(e) => handleChange("image", e.target.value)}
+                        dir="ltr"
+                      />
+                    )}
+                  </div>
                 </div>
 
                 {/* Name (in Arabic) */}
@@ -1132,6 +1168,7 @@ export function EditProductModal({
   const [descriptionArError, setDescriptionArError] = useState<string>("");
   const [descriptionEnError, setDescriptionEnError] = useState<string>("");
   const [collapsedExtensions, setCollapsedExtensions] = useState<boolean[]>([]);
+  const [imageMode, setImageMode] = useState<"file" | "link">("link");
 
   const [formData, setFormData] = useState<{
     nameAr: string;
@@ -1187,6 +1224,7 @@ export function EditProductModal({
     setCollapsedExtensions(
       new Array(product.extensions?.length || 0).fill(false),
     );
+    setImageMode(typeof product.image === "string" && product.image ? "link" : "file");
   }, [isOpen, product]);
 
   // Fetch vendor-specific categories (categoryshops) when shop changes (like AddProductModal)
@@ -1651,21 +1689,58 @@ export function EditProductModal({
 
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 {/* Product Image */}
-                <div className="lg:col-span-2">
-                  <Label>صورة المنتج</Label>
-                  {typeof formData.image === "string" && formData.image && (
-                    <Image
-                      src={formData.image}
-                      width={160}
-                      height={160}
-                      alt="Current Profile"
-                      className="mb-4 justify-self-center"
-                    />
-                  )}
-                  <FileInput
-                    accept="image/*"
-                    onChange={(e) => handleChange("image", e.target.files?.[0])}
-                  />
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>نوع إضافة الصورة</Label>
+                    <div className="relative">
+                      <Select
+                        options={[
+                          { value: "link", label: "رابط صورة" },
+                          { value: "file", label: "رفع ملف" },
+                        ]}
+                        value={imageMode}
+                        onChange={(val) => {
+                          setImageMode(val as "file" | "link");
+                          if (val === "file") {
+                            handleChange("image", new File([], ""));
+                          } else {
+                            handleChange("image", typeof product.image === "string" ? product.image : "");
+                          }
+                        }}
+                      />
+                      <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                        <ChevronDownIcon />
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>صورة المنتج</Label>
+                    <div className="flex flex-col gap-2">
+                      {typeof formData.image === "string" && formData.image && (
+                        <Image
+                          src={formData.image}
+                          width={160}
+                          height={160}
+                          alt="Current Profile"
+                          className="mb-4 justify-self-center"
+                        />
+                      )}
+                      {imageMode === "file" ? (
+                        <FileInput
+                          accept="image/*"
+                          onChange={(e) => handleChange("image", e.target.files?.[0])}
+                        />
+                      ) : (
+                        <Input
+                          type="url"
+                          placeholder="ادخل رابط الصورة"
+                          value={typeof formData.image === "string" ? formData.image : ""}
+                          onChange={(e) => handleChange("image", e.target.value)}
+                          dir="ltr"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Name (in Arabic) */}

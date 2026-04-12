@@ -50,7 +50,7 @@ export default function ProductsTable() {
     page,
     limit,
     shopFilter,
-    debouncedSearchTerm
+    debouncedSearchTerm,
   );
 
   // Fetch vendors for filter
@@ -75,8 +75,6 @@ export default function ProductsTable() {
       router.push("/products");
     }
   };
-
-
 
   return (
     <div className="space-y-4">
